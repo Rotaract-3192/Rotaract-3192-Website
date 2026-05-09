@@ -4,7 +4,7 @@ import { useEffect, useRef, useCallback } from "react";
 
 const TOTAL_FRAMES = 229;
 const FRAME_PATH = (n: number) =>
-  `/frames/ezgif-frame-${String(n).padStart(3, "0")}.jpg`;
+  `https://pub-f72e8bfcb18c4aa7aefcbcc5529aaaf1.r2.dev/frames/ezgif-frame-${String(n).padStart(3, "0")}.jpg`;
 
 export default function WaveBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
