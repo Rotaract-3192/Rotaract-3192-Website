@@ -5,8 +5,75 @@ import { useState, useEffect, useRef, useCallback } from "react";
 const TOTAL_FRAMES = 229;
 const FRAME_PATH = (n: number) =>
   `https://pub-f72e8bfcb18c4aa7aefcbcc5529aaaf1.r2.dev/frames/ezgif-frame-${String(n).padStart(3, "0")}.jpg`;
+const VIDEO_PATH = `https://pub-f72e8bfcb18c4aa7aefcbcc5529aaaf1.r2.dev/waves.mp4`;
 
 export default function WaveBackground() {
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    setIsMobile(window.matchMedia("(max-width: 768px)").matches || window.matchMedia("(pointer: coarse)").matches);
+  }, []);
+
+  if (isMobile === null) {
+    // Initial SSR / Hydration state - just render a plain background
+    return (
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: "none",
+          background: "#F8F9FA",
+        }}
+      />
+    );
+  }
+
+  if (isMobile) {
+    return <MobileVideoBackground />;
+  }
+
+  return <DesktopCanvasBackground />;
+}
+
+function MobileVideoBackground() {
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
+  return (
+    <>
+      {!isVideoLoaded && (
+        <LoadingOverlay progress={0} isDeterminate={false} />
+      )}
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: "none",
+          background: "#F8F9FA",
+        }}
+      >
+        <video
+          src={VIDEO_PATH}
+          autoPlay
+          muted
+          loop
+          playsInline
+          onCanPlay={() => setIsVideoLoaded(true)}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            opacity: 0.3,
+            transition: "opacity 0.5s ease",
+          }}
+        />
+      </div>
+    </>
+  );
+}
+
+function DesktopCanvasBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imagesRef = useRef<(HTMLImageElement | ImageBitmap | null)[]>([]);
   const currentFrameRef = useRef(0);
@@ -47,14 +114,11 @@ export default function WaveBackground() {
     }
 
     if (!img) return;
-    renderImage(ctx, canvas, img);
-  }, []);
-
-  const renderImage = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, img: HTMLImageElement | ImageBitmap) => {
+    
     const cw = canvas.width;
     const ch = canvas.height;
-    const iw = (img as HTMLImageElement).naturalWidth || img.width;
-    const ih = (img as HTMLImageElement).naturalHeight || img.height;
+    const iw = (img as HTMLImageElement).naturalWidth || (img as ImageBitmap).width;
+    const ih = (img as HTMLImageElement).naturalHeight || (img as ImageBitmap).height;
 
     const scale = Math.max(cw / iw, ch / ih);
     const sw = iw * scale;
@@ -63,17 +127,12 @@ export default function WaveBackground() {
     const sy = (ch - sh) / 2;
 
     ctx.drawImage(img, sx, sy, sw, sh);
-  };
+  }, []);
 
   // Ultra-optimized preloading
   useEffect(() => {
     const images: (HTMLImageElement | ImageBitmap | null)[] = new Array(TOTAL_FRAMES).fill(null);
     imagesRef.current = images;
-
-    const isMobile = window.matchMedia("(pointer: coarse)").matches;
-    // Every 4th frame on mobile (~57 frames total)
-    // Every 1st frame on desktop
-    const step = isMobile ? 4 : 1; 
 
     const loadQueue = async () => {
       // 1. Load first frame immediately
@@ -82,7 +141,7 @@ export default function WaveBackground() {
       
       let loadedCount = 0;
       const framesToLoad = [];
-      for (let i = step + 1; i <= TOTAL_FRAMES; i += step) {
+      for (let i = 2; i <= TOTAL_FRAMES; i += 1) { // Desktop always loads all frames
         framesToLoad.push(i);
       }
       const totalToLoad = framesToLoad.length + 1; // plus the first frame
@@ -102,7 +161,7 @@ export default function WaveBackground() {
       });
 
       // 2. Load others in batches to prevent main-thread choking
-      const batchSize = isMobile ? 3 : 10;
+      const batchSize = 10;
       for (let i = 0; i < framesToLoad.length; i += batchSize) {
         const batch = framesToLoad.slice(i, i + batchSize);
         await Promise.all(batch.map(async (frameNum) => {
@@ -147,9 +206,7 @@ export default function WaveBackground() {
     if (!canvas) return;
 
     const resize = () => {
-      const isMobile = window.matchMedia("(pointer: coarse)").matches;
-      // Force 1.0x on mobile for zero-latency painting
-      const scale = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+      const scale = Math.min(window.devicePixelRatio || 1, 2);
 
       canvas.width = window.innerWidth * scale;
       canvas.height = window.innerHeight * scale;
@@ -164,9 +221,8 @@ export default function WaveBackground() {
 
   // Scrubbing logic
   useEffect(() => {
-    const isMobile = window.matchMedia("(pointer: coarse)").matches;
-    // High lerp for mobile to bridge the gap between fewer frames
-    const lerpFactor = isMobile ? 0.35 : 0.15;
+    // High lerp for mobile to bridge the gap between fewer frames, but this is desktop only now
+    const lerpFactor = 0.15;
 
     const update = () => {
       const diff = targetFrameRef.current - currentFrameRef.current;
@@ -197,35 +253,7 @@ export default function WaveBackground() {
 
   return (
     <>
-      {isLoading && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 9999,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "#ffffff",
-          }}
-        >
-          <div className="flex flex-col items-center max-w-md w-full px-6">
-            <h2 className="text-2xl font-bold mb-6 text-[#0B2149] tracking-tight">
-              Loading District 3192
-            </h2>
-            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden shadow-inner">
-              <div 
-                className="h-full bg-gradient-to-r from-blue-500 to-[#0B2149] transition-all duration-300 ease-out"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <div className="mt-3 text-sm font-medium text-gray-400">
-              {progress}%
-            </div>
-          </div>
-        </div>
-      )}
+      {isLoading && <LoadingOverlay progress={progress} isDeterminate={true} />}
       <div
         style={{
           position: "fixed",
@@ -248,5 +276,57 @@ export default function WaveBackground() {
         />
       </div>
     </>
+  );
+}
+
+function LoadingOverlay({ progress, isDeterminate }: { progress: number, isDeterminate: boolean }) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#ffffff",
+      }}
+    >
+      <div className="flex flex-col items-center max-w-md w-full px-6">
+        <h2 className="text-2xl font-bold mb-6 text-[#0B2149] tracking-tight">
+          Loading District 3192
+        </h2>
+        
+        {isDeterminate ? (
+          <>
+            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden shadow-inner">
+              <div 
+                className="h-full bg-gradient-to-r from-blue-500 to-[#0B2149] transition-all duration-300 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <div className="mt-3 text-sm font-medium text-gray-400">
+              {progress}%
+            </div>
+          </>
+        ) : (
+          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden shadow-inner relative">
+            <div 
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-[#0B2149] w-1/2"
+              style={{
+                animation: "slide 1.5s ease-in-out infinite alternate"
+              }}
+            />
+            <style>{`
+              @keyframes slide {
+                0% { transform: translateX(0%); }
+                100% { transform: translateX(100%); }
+              }
+            `}</style>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
