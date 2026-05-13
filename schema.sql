@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
     first_name TEXT,
     last_name TEXT,
     role TEXT DEFAULT 'member', -- 'member', 'club_admin', 'district_admin'
-    club_id TEXT, -- Foreign key to clubs table
+    club_id TEXT,
     bio TEXT,
     avatar_url TEXT,
     points INTEGER DEFAULT 0,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS clubs (
     charter_date DATETIME,
     description TEXT,
     logo_url TEXT,
-    president_id TEXT, -- Foreign key to users
+    president_id TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS clubs (
 -- Events Table: Stores initiatives and projects
 CREATE TABLE IF NOT EXISTS events (
     id TEXT PRIMARY KEY,
-    club_id TEXT NOT NULL, -- Foreign key to clubs
+    club_id TEXT NOT NULL,
     title TEXT NOT NULL,
     slug TEXT UNIQUE NOT NULL,
     description TEXT,
@@ -41,8 +41,7 @@ CREATE TABLE IF NOT EXISTS events (
     is_signature_project BOOLEAN DEFAULT FALSE,
     status TEXT DEFAULT 'upcoming', -- 'upcoming', 'past', 'cancelled'
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (club_id) REFERENCES clubs(id)
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Event Registrations
@@ -52,8 +51,6 @@ CREATE TABLE IF NOT EXISTS event_registrations (
     user_id TEXT NOT NULL,
     registered_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     status TEXT DEFAULT 'confirmed', -- 'confirmed', 'attended', 'cancelled'
-    FOREIGN KEY (event_id) REFERENCES events(id),
-    FOREIGN KEY (user_id) REFERENCES users(id),
     UNIQUE(event_id, user_id)
 );
 
@@ -67,8 +64,7 @@ CREATE TABLE IF NOT EXISTS campaigns (
     status TEXT DEFAULT 'active', -- 'active', 'completed', 'paused'
     created_by TEXT NOT NULL, -- Admin User ID
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (created_by) REFERENCES users(id)
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Cold Storage Table: Metadata for files stored in Cloudflare R2
@@ -81,8 +77,7 @@ CREATE TABLE IF NOT EXISTS cold_storage_files (
     uploaded_by TEXT NOT NULL, -- Admin User ID
     category TEXT DEFAULT 'general', -- e.g., 'reports', 'media', 'documents'
     is_public BOOLEAN DEFAULT FALSE,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (uploaded_by) REFERENCES users(id)
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- User Achievements Table
@@ -92,6 +87,69 @@ CREATE TABLE IF NOT EXISTS user_achievements (
     title TEXT NOT NULL,
     description TEXT,
     badge_icon TEXT, -- URL or icon name
-    awarded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    awarded_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Courses (LMS) Table
+CREATE TABLE IF NOT EXISTS courses (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT,
+    thumbnail_url TEXT,
+    modules_count INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Feeds Table
+CREATE TABLE IF NOT EXISTS feeds (
+    id TEXT PRIMARY KEY,
+    type TEXT, -- e.g. 'article', 'video', 'announcement'
+    title TEXT NOT NULL,
+    content TEXT,
+    media_url TEXT,
+    author_id TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Jobs Table
+CREATE TABLE IF NOT EXISTS jobs (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    company TEXT,
+    location TEXT,
+    type TEXT, -- 'Full-time', 'Internship', etc.
+    description TEXT,
+    apply_url TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Minutes of Meetings (MoM) Table
+CREATE TABLE IF NOT EXISTS moms (
+    id TEXT PRIMARY KEY,
+    club_id TEXT,
+    title TEXT NOT NULL,
+    meeting_date DATETIME NOT NULL,
+    file_url TEXT,
+    status TEXT DEFAULT 'pending', -- 'pending', 'approved'
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Newsletters Table
+CREATE TABLE IF NOT EXISTS newsletters (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    issue_date DATETIME NOT NULL,
+    file_url TEXT,
+    thumbnail_url TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Announcements Table
+CREATE TABLE IF NOT EXISTS announcements (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    priority TEXT DEFAULT 'normal', -- 'normal', 'high'
+    created_by TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

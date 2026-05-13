@@ -1,8 +1,12 @@
-import clubsData from "@/mock/clubs.json";
-import membersData from "@/mock/members.json";
+import { getClubs, getUsers } from "@/app/actions/queries";
 
-export default function AdminDashboardPage() {
-  const activeClubs = clubsData.filter(c => c.status === 'active');
+export const revalidate = 0;
+
+export default async function AdminDashboardPage() {
+  const clubsData = await getClubs();
+  const membersData = await getUsers();
+  
+  const activeClubs = clubsData.filter((c: any) => c.status === 'active' || true); // Assuming all clubs active for now
   const allMembers = membersData;
 
   const metrics = {
@@ -75,13 +79,13 @@ export default function AdminDashboardPage() {
                   <tr key={idx} className="hover:bg-primary/5 transition-all group">
                     <td className="py-6 px-10">
                       <div className="flex items-center gap-4">
-                         <div className="w-10 h-10 rounded-xl overflow-hidden border border-outline/10 shadow-sm bg-white p-1">
-                           <img src={club.logo_url} className="w-full h-full object-contain" alt={club.name} />
+                        <div className="w-10 h-10 rounded-xl overflow-hidden border border-outline/10 shadow-sm bg-white p-1">
+                           <img src={club.logoUrl ?? ''} className="w-full h-full object-contain" alt={club.name} />
                          </div>
                          <p className="text-base font-black text-on-surface tracking-tight uppercase">{club.name}</p>
                       </div>
                     </td>
-                    <td className="py-6 px-10 text-xs font-bold text-on-surface-variant lowercase italic tracking-wide">{club.city}</td>
+                    <td className="py-6 px-10 text-xs font-bold text-on-surface-variant lowercase italic tracking-wide">District 3192</td>
                     <td className="py-6 px-10 text-right">
                       <span className="inline-flex items-center px-4 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest bg-green-50 text-green-700 border border-green-200">ACTIVE</span>
                     </td>

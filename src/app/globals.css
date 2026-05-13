@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #003366;
-  --color-primary-container: #002244;
-  --color-secondary: #546E7A;
-  --color-secondary-container: #37474F;
+  --color-primary: #003F8A;
+  --color-primary-container: #002D62;
+  --color-secondary: #F5A623;
+  --color-secondary-container: #D48806;
   --color-tertiary: #894600;
   --color-error: #B00020;
   --color-surface: #F8F9FA;
@@ -18,11 +18,15 @@
   --color-on-surface-variant: #495057;
   --color-outline-variant: #CED4DA;
 
-  --font-inter: 'Space Grotesk', sans-serif;
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-headline: 'Space Grotesk', sans-serif;
-  --font-body: 'Manrope', sans-serif;
-  --font-label: 'Manrope', sans-serif;
+  --color-gold: #F5A623;
+  --color-blue: #003F8A;
+
+  --font-inter: 'Inter', sans-serif;
+  --font-display: 'Inter', sans-serif;
+  --font-headline: 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-label: 'Inter', sans-serif;
+  --font-sans: 'Inter', sans-serif;
 }
 
 /* ============================================================
@@ -36,10 +40,10 @@
   --color-surface-container: #E9ECEF;
   --color-surface-container-high: #DEE2E6;
 
-  --color-primary: #003366;
-  --color-primary-container: #002244;
-  --color-secondary: #546E7A;
-  --color-secondary-container: #37474F;
+  --color-primary: #003F8A;
+  --color-primary-container: #002D62;
+  --color-secondary: #F5A623;
+  --color-secondary-container: #D48806;
   --color-tertiary: #894600;
   --color-error: #B00020;
 
@@ -79,7 +83,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.02em;
@@ -146,32 +150,22 @@ a:hover {
    CARD SYSTEM
    ============================================================ */
 .card {
-  background: linear-gradient(135deg,
-      rgba(5, 30, 56, 0.85) 0%,
-      rgba(10, 53, 96, 0.65) 100%);
-  border: 1px solid rgba(14, 107, 168, 0.3);
-  border-radius: 16px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(0, 180, 216, 0.08) inset;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 8px; /* Standardize to 8px */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.3s ease, transform 0.3s ease;
   will-change: transform;
 }
 
 @media (pointer: coarse) {
   .card {
-    backdrop-filter: blur(4px); /* Reduced for mobile performance */
-    -webkit-backdrop-filter: blur(4px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   }
 }
 
 .card:hover {
-  box-shadow:
-    0 8px 40px rgba(0, 180, 216, 0.2),
-    0 0 0 1px rgba(0, 180, 216, 0.25) inset;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   transform: translateY(-2px);
 }
 
@@ -231,11 +225,11 @@ a:hover {
 input,
 textarea,
 select {
-  background: rgba(10, 53, 96, 0.5) !important;
-  border: 1px solid var(--color-current) !important;
+  background: #ffffff !important;
+  border: 1px solid var(--border-subtle) !important;
   color: var(--text-primary) !important;
-  border-radius: 8px;
-  transition: box-shadow 0.2s ease;
+  border-radius: 4px; /* Standardize to 4px for inputs */
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 input:focus,
@@ -281,30 +275,30 @@ td {
    BADGES / TAGS
    ============================================================ */
 .badge-info {
-  background: rgba(0, 180, 216, 0.15);
-  color: var(--color-reef);
-  border-radius: 999px;
-  padding: 0.2rem 0.75rem;
+  background: rgba(0, 63, 138, 0.1);
+  color: var(--color-primary);
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .badge-primary {
-  background: rgba(240, 165, 0, 0.2);
-  color: var(--color-gold);
-  border-radius: 999px;
-  padding: 0.2rem 0.75rem;
+  background: rgba(245, 166, 35, 0.15);
+  color: var(--color-secondary);
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .badge-error {
-  background: rgba(200, 50, 50, 0.2);
-  color: #f87171;
-  border-radius: 999px;
-  padding: 0.2rem 0.75rem;
+  background: rgba(176, 0, 32, 0.1);
+  color: var(--color-error);
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* ============================================================
@@ -384,7 +378,7 @@ td {
 }
 
 .gradient-brand {
-  background: linear-gradient(135deg, #003f8a 0%, #0c448f 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 100%);
 }
 
 .scale-98-active:active {

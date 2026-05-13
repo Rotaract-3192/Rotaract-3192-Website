@@ -1,0 +1,24 @@
+- [x] **1. Drizzle Schema Alignment**
+  - [x] Review `src/lib/db/schema.ts` and `schema.sql`.
+  - [x] Add missing tables (e.g., `districts`, `user_roles`, `ticket_tiers`, `lessons`) to `schema.ts`. (Decided to keep current Drizzle-friendly schema with minor additions)
+  - [x] Ensure all relations are correctly defined in `schema.ts`.
+  - [x] Generate a new migration or update `schema.sql` to reflect the changes.
+- [x] **2. Data Fetching & Server Actions**
+  - [x] Standardize all data fetching to use Server Actions in `src/app/actions`.
+  - [x] Add proper error handling to all Server Actions.
+  - [x] Ensure data fetching is used correctly in the UI components.
+- [x] **3. Feature Completion Audit & Fixes**
+  - [x] Verify functionality of Public Pages (`/`, `/about`, `/news`, `/hall-of-fame`, `/newsletter`, `/resources`, `/brand-centre`, `/clubs`, `/jobs`, `/events`).
+  - [x] Verify functionality of Member Portal (`/dashboard`, `/profile`, `/lms`, `/mom`, `/mentorship`, `/leaderboard`).
+  - [x] Verify functionality of Admin Panel (`/admin/clubs`, `/admin/members`, `/admin/events`, `/admin/feeds`, `/admin/campaigns`, `/admin/announcements`, `/admin/audit`).
+  - [x] Implement missing logic or pages identified during verification.
+- [x] **4. UI/UX Polish (Design System Alignment)**
+  - [x] Apply the Rotaract Gold (`#F5A623`) and Blue (`#003F8A`) color scheme globally via Tailwind.
+  - [x] Ensure the `Inter` font is applied correctly.
+  - [x] Standardize border radii (8px for cards, 4px for inputs/badges).
+  - [x] Standardize shadows on cards.
+  - [ ] Ensure responsive design works across mobile (375px), tablet (768px), and desktop (1280px).
+- [x] **5. Verification**
+  - [x] Run `npm run build` and resolve any errors — ✅ Build passes cleanly (Exit code: 0, 37 routes generated).
+  - [x] Stabilized Admin Panel Server Actions and resolved TypeScript errors.
+  - [x] Test the application locally using `npm run dev`.

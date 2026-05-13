@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import WaveBackground from "@/components/WaveBackground";
-import RippleProvider from "@/components/RippleProvider";
-import SmoothScroll from "@/components/SmoothScroll";
-import PageTransition from "@/components/PageTransition";
 
 export const metadata: Metadata = {
   title: "Rotaract District 3192 Portal",
@@ -26,19 +22,8 @@ export default function RootLayout({
             rel="stylesheet"
           />
         </head>
-        <body className="antialiased min-h-screen flex flex-col">
-          {/* Global wave canvas — fixed behind everything */}
-          <WaveBackground />
-          {/* Ripple on click */}
-          <RippleProvider />
-          {/* Page content sits above canvas */}
-          <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column" }}>
-            <SmoothScroll>
-              <PageTransition>
-                {children}
-              </PageTransition>
-            </SmoothScroll>
-          </div>
+        <body className="antialiased min-h-screen">
+          {children}
         </body>
       </html>
     </ClerkProvider>

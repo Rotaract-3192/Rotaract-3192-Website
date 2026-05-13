@@ -1,7 +1,19 @@
-import membersData from "@/mock/members.json";
+import { getUsers } from '@/app/actions/queries';
+import { deleteUser } from '@/app/actions/mutations';
 
-export default function AdminMembersPage() {
-  const members = membersData;
+export const revalidate = 0;
+
+export default async function AdminMembersPage() {
+  const rawMembers = await getUsers();
+  const members = rawMembers.map((m: any) => ({
+    ...m,
+    name: `${m.firstName || ''} ${m.lastName || ''}`.trim() || 'District Member',
+    profile_pic_url: m.avatarUrl || `https://ui-avatars.com/api/?name=${m.firstName}+${m.lastName}&background=random`,
+    club_id: m.clubId || 'District 3192',
+    email: m.email || '',
+    role: m.role || 'member',
+    points: m.points || 0,
+  }));
 
   return (
     <div className="space-y-12">
@@ -75,9 +87,11 @@ export default function AdminMembersPage() {
                       <button className="w-10 h-10 rounded-xl bg-white border border-outline/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-sm">
                         <span className="material-symbols-outlined text-lg">edit</span>
                       </button>
-                      <button className="w-10 h-10 rounded-xl bg-white border border-outline/10 text-on-surface flex items-center justify-center hover:bg-surface-container-low transition-all shadow-sm">
-                        <span className="material-symbols-outlined text-lg">more_vert</span>
-                      </button>
+                      <form action={deleteUser.bind(null, member.id)}>
+                        <button type="submit" className="w-10 h-10 rounded-xl bg-white border border-outline/10 text-error flex items-center justify-center hover:bg-error hover:text-white transition-all shadow-sm">
+                          <span className="material-symbols-outlined text-lg">delete</span>
+                        </button>
+                      </form>
                     </div>
                   </td>
                 </tr>

@@ -3,14 +3,18 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useUser, useAuth, UserButton } from "@clerk/nextjs";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { isSignedIn, user } = useUser();
+  const { userId } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  const isLoggedIn = true; // Mock Auth
-  const userRole = "district_admin"; // Mock Role
+  // Determine user role
+  const isAdmin = user?.primaryEmailAddress?.emailAddress === "thejaswinps@gmail.com" || user?.publicMetadata?.role === "district_admin";
+  const userRole = isAdmin ? "district_admin" : "member";
 
   const mainNavLinks = [
     { name: "District", href: "/about" },
@@ -93,17 +97,20 @@ export default function Navbar() {
 
         {/* Auth */}
         <div className="flex items-center gap-6">
-          {isLoggedIn ? (
-            <Link
-              href={dashboardLink}
-              className="material-symbols-outlined text-3xl cursor-pointer transition-all hover:scale-110 text-on-surface-variant hover:text-primary"
-              style={{ textDecoration: "none" }}
-            >
-              account_circle
-            </Link>
+          {isSignedIn ? (
+            <div className="flex items-center gap-4">
+              <Link
+                href={dashboardLink}
+                className="material-symbols-outlined text-3xl cursor-pointer transition-all hover:scale-110 text-on-surface-variant hover:text-primary"
+                style={{ textDecoration: "none" }}
+              >
+                account_circle
+              </Link>
+              <UserButton />
+            </div>
           ) : (
             <Link
-              href="/login"
+              href="/sign-in"
               className="btn-primary"
               style={{ textDecoration: "none", borderRadius: "10px" }}
             >

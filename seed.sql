@@ -1,0 +1,41 @@
+PRAGMA defer_foreign_keys = ON;
+PRAGMA foreign_keys = OFF;
+-- Seed for clubs
+INSERT OR IGNORE INTO clubs (id, slug, name, description, logo_url) VALUES ('rac-chennai', 'rac-chennai', 'Rotaract Club of Chennai', 'Club in Chennai', 'https://placehold.co/400x400/003F8A/FFFFFF?text=RAC+Chennai');
+INSERT OR IGNORE INTO clubs (id, slug, name, description, logo_url) VALUES ('rac-bengaluru-central', 'rac-bengaluru-central', 'Rotaract Club of Bengaluru Central', 'Club in Bengaluru', 'https://placehold.co/400x400/F5A623/FFFFFF?text=RAC+Blr');
+INSERT OR IGNORE INTO clubs (id, slug, name, description, logo_url) VALUES ('rac-coimbatore-cosmos', 'rac-coimbatore-cosmos', 'Rotaract Club of Coimbatore Cosmos', 'Club in Coimbatore', 'https://placehold.co/400x400/00732A/FFFFFF?text=RAC+CBE');
+INSERT OR IGNORE INTO clubs (id, slug, name, description, logo_url) VALUES ('rac-mysuru-royal', 'rac-mysuru-royal', 'Rotaract Club of Mysuru Royal', 'Club in Mysuru', 'https://placehold.co/400x400/8A003F/FFFFFF?text=RAC+Mysuru');
+INSERT OR IGNORE INTO clubs (id, slug, name, description, logo_url) VALUES ('rac-salem-steels', 'rac-salem-steels', 'Rotaract Club of Salem Steels', 'Club in Salem', 'https://placehold.co/400x400/4A4A4A/FFFFFF?text=RAC+Salem');
+
+-- Seed for users
+INSERT OR IGNORE INTO users (id, email, first_name, last_name, role, avatar_url) VALUES ('user_0', 'arjunkumar@example.com', 'Arjun', 'Kumar', 'member', 'https://ui-avatars.com/api/?name=Arjun+Kumar&background=random');
+INSERT OR IGNORE INTO users (id, email, first_name, last_name, role, avatar_url) VALUES ('user_1', 'priyasharma@example.com', 'Priya', 'Sharma', 'member', 'https://ui-avatars.com/api/?name=Priya+Sharma&background=random');
+INSERT OR IGNORE INTO users (id, email, first_name, last_name, role, avatar_url) VALUES ('user_2', 'karthikreddy@example.com', 'Karthik', 'Reddy', 'club_admin', 'https://ui-avatars.com/api/?name=Karthik+Reddy&background=random');
+INSERT OR IGNORE INTO users (id, email, first_name, last_name, role, avatar_url) VALUES ('user_3', 'snehapatil@example.com', 'Sneha', 'Patil', 'member', 'https://ui-avatars.com/api/?name=Sneha+Patil&background=random');
+INSERT OR IGNORE INTO users (id, email, first_name, last_name, role, avatar_url) VALUES ('user_4', 'vikramsingh@example.com', 'Vikram', 'Singh', 'member', 'https://ui-avatars.com/api/?name=Vikram+Singh&background=random');
+INSERT OR IGNORE INTO users (id, email, first_name, last_name, role, avatar_url) VALUES ('user_5', 'lakshminarayanan@example.com', 'Lakshmi', 'Narayanan', 'member', 'https://ui-avatars.com/api/?name=Lakshmi+Narayanan&background=random');
+INSERT OR IGNORE INTO users (id, email, first_name, last_name, role, avatar_url) VALUES ('user_6', 'nithingowda@example.com', 'Nithin', 'Gowda', 'member', 'https://ui-avatars.com/api/?name=Nithin+Gowda&background=random');
+INSERT OR IGNORE INTO users (id, email, first_name, last_name, role, avatar_url) VALUES ('user_7', 'ananyabhat@example.com', 'Ananya', 'Bhat', 'member', 'https://ui-avatars.com/api/?name=Ananya+Bhat&background=random');
+INSERT OR IGNORE INTO users (id, email, first_name, last_name, role, avatar_url) VALUES ('user_8', 'rahulverma@example.com', 'Rahul', 'Verma', 'member', 'https://ui-avatars.com/api/?name=Rahul+Verma&background=random');
+INSERT OR IGNORE INTO users (id, email, first_name, last_name, role, avatar_url) VALUES ('user_9', 'deepakrishnan@example.com', 'Deepa', 'Krishnan', 'member', 'https://ui-avatars.com/api/?name=Deepa+Krishnan&background=random');
+
+-- Seed for events
+INSERT OR IGNORE INTO events (id, club_id, title, slug, event_date, location, image_url) VALUES ('coastal-cleanup-drive-2026', 'RAC-A', 'Coastal Cleanup Drive', 'coastal-cleanup-drive-2026', '2026-05-09T15:33:57.480Z', NULL, 'https://placehold.co/1200x600/003F8A/FFFFFF?text=Coastal+Cleanup');
+INSERT OR IGNORE INTO events (id, club_id, title, slug, event_date, location, image_url) VALUES ('leadership-summit-2026', 'RAC-A', 'Leadership Summit 2026', 'leadership-summit-2026', '2026-05-09T15:33:57.481Z', NULL, 'https://placehold.co/1200x600/F5A623/FFFFFF?text=Leadership+Summit');
+INSERT OR IGNORE INTO events (id, club_id, title, slug, event_date, location, image_url) VALUES ('green-earth-trek', 'RAC-A', 'Green Earth Trek', 'green-earth-trek', '2026-05-09T15:33:57.481Z', NULL, 'https://placehold.co/1200x600/00732A/FFFFFF?text=Green+Earth+Trek');
+INSERT OR IGNORE INTO events (id, club_id, title, slug, event_date, location, image_url) VALUES ('blood-donation-camp-mysuru', 'RAC-A', 'Blood Donation Camp', 'blood-donation-camp-mysuru', '2026-05-09T15:33:57.481Z', NULL, 'https://placehold.co/1200x600/8A003F/FFFFFF?text=Blood+Donation+Camp');
+INSERT OR IGNORE INTO events (id, club_id, title, slug, event_date, location, image_url) VALUES ('youth-conclave-2025', 'RAC-A', 'Youth Conclave - Past Event', 'youth-conclave-2025', '2026-05-09T15:33:57.481Z', NULL, 'https://placehold.co/1200x600/333333/FFFFFF?text=Youth+Conclave');
+INSERT OR IGNORE INTO events (id, club_id, title, slug, event_date, location, image_url) VALUES ('startup-pitch-night', 'RAC-A', 'Startup Pitch Night', 'startup-pitch-night', '2026-05-09T15:33:57.481Z', NULL, 'https://placehold.co/1200x600/F5A623/FFFFFF?text=Startup+Pitch+Night');
+
+-- Seed for courses
+INSERT OR IGNORE INTO courses (id, title, description, thumbnail_url, modules_count) VALUES (NULL, 'Rotaract Leadership Basics', 'Leadership', 'https://placehold.co/800x450/4A90E2/FFFFFF?text=Leadership+Basics', NULL);
+INSERT OR IGNORE INTO courses (id, title, description, thumbnail_url, modules_count) VALUES (NULL, 'Digital Marketing for Clubs', 'Marketing', 'https://placehold.co/800x450/E24A4A/FFFFFF?text=Digital+Marketing', NULL);
+INSERT OR IGNORE INTO courses (id, title, description, thumbnail_url, modules_count) VALUES (NULL, 'Fundraising 101', 'Finance', 'https://placehold.co/800x450/4AE273/FFFFFF?text=Fundraising', NULL);
+INSERT OR IGNORE INTO courses (id, title, description, thumbnail_url, modules_count) VALUES (NULL, 'Public Speaking Mastery', 'Professional Development', 'https://placehold.co/800x450/9B4AE2/FFFFFF?text=Public+Speaking', NULL);
+
+-- Seed for jobs
+INSERT OR IGNORE INTO jobs (id, title, company, location, type, description) VALUES ('job_lxa1wix', NULL, 'TechSolutions India', NULL, 'internship', NULL);
+INSERT OR IGNORE INTO jobs (id, title, company, location, type, description) VALUES ('job_bdlakfr', NULL, 'GrowthWorks', NULL, 'job', NULL);
+INSERT OR IGNORE INTO jobs (id, title, company, location, type, description) VALUES ('job_mgyyk8q', NULL, 'Creative Minds Agency', NULL, 'job', NULL);
+INSERT OR IGNORE INTO jobs (id, title, company, location, type, description) VALUES ('job_3qz3nw5', NULL, 'DigiBuzz', NULL, 'internship', NULL);
+

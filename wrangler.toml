@@ -1,0 +1,14 @@
+name = "rotaract-district-3192-website"
+compatibility_date = "2024-04-05"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".open-next/worker"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "rotaract-db"
+database_id = "72db2940-7b3d-4121-b656-5c56df5c3f7e"
+
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "rotaract-assets"
+preview_bucket_name = "rotaract-assets"

@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function AdminSidebar() {
+interface AdminSidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
 
   const menuItems = [
@@ -21,25 +26,42 @@ export default function AdminSidebar() {
   ];
 
   return (
-    <aside className="w-64 fixed inset-y-0 left-0 bg-surface-container-low z-50 flex flex-col">
-      <div className="p-8 flex items-center gap-3">
-        <div className="w-10 h-10 gradient-brand rounded-xl flex items-center justify-center text-white shadow-lg">
-          <span className="material-symbols-outlined">terminal</span>
+    <aside className={`
+      w-64 fixed inset-y-0 left-0 bg-surface-container-low z-50 flex flex-col 
+      transition-transform duration-300 ease-in-out
+      ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'}
+    `}>
+      <div className="p-8 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 gradient-brand rounded-xl flex items-center justify-center text-white shadow-lg">
+            <span className="material-symbols-outlined">terminal</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="font-headline font-black text-on-background leading-none tracking-tight">ADMIN</span>
+            <span className="font-label text-[9px] font-bold text-on-surface-variant uppercase tracking-widest mt-1">Terminal 3192</span>
+          </div>
         </div>
-        <div className="flex flex-col">
-          <span className="font-headline font-black text-on-background leading-none tracking-tight">ADMIN</span>
-          <span className="font-label text-[9px] font-bold text-on-surface-variant uppercase tracking-widest mt-1">Terminal 3192</span>
-        </div>
+        
+        {/* Close button for mobile */}
+        <button 
+          onClick={onClose}
+          className="lg:hidden p-2 text-on-surface-variant hover:bg-surface-container-highest rounded-lg transition-colors"
+        >
+          <span className="material-symbols-outlined">close</span>
+        </button>
       </div>
 
-      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+      <nav className="flex-1 px-4 py-2 space-y-1 overflow-y-auto">
         {menuItems.map(item => {
           const isActive = pathname === item.href;
           return (
             <Link 
               key={item.href}
               href={item.href} 
-              className={`flex items-center gap-3 px-6 py-3.5 rounded-2xl font-label font-bold text-xs uppercase tracking-widest transition-all ${
+              onClick={() => {
+                if (window.innerWidth < 1024) onClose();
+              }}
+              className={`flex items-center gap-3 px-6 py-3.5 rounded-2xl font-label font-bold text-[11px] uppercase tracking-widest transition-all ${
                 isActive 
                   ? 'gradient-brand text-white shadow-xl shadow-primary/20' 
                   : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-highest'
