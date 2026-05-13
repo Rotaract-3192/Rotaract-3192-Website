@@ -26,203 +26,173 @@ export default async function DashboardPage() {
       ? `${profile.firstName ?? ''} ${profile.lastName ?? ''}`.trim()
       : clerkUser?.firstName ?? 'Member';
 
-  const clubUpdates = announcements.slice(0, 2);
+  const clubUpdates = announcements.slice(0, 3);
 
   return (
-    <div className="w-full min-h-screen bg-background font-body text-on-background selection:bg-primary-container selection:text-primary">
-      <main className="max-w-5xl mx-auto px-6 py-12 space-y-12">
+    <main className="max-w-7xl mx-auto min-h-screen relative overflow-visible pb-24 pt-32">
+      {/* Background Cinematic Accents */}
+      <div className="fixed top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[140px] -z-10"></div>
+      <div className="fixed -bottom-48 -left-48 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[120px] -z-10"></div>
 
-        {/* Welcoming Hero */}
-        <section className="relative overflow-hidden rounded-3xl -container-low p-8 md:p-12 mt-4 shadow-xl">
-          <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="space-y-2">
-              <span className="font-label text-tertiary text-xs font-bold uppercase tracking-[0.2em]">
-                Rotaract District 3192
-              </span>
-              <h2 className="font-headline text-4xl md:text-5xl font-bold tracking-tighter text-on-surface">
-                Welcome back, {displayName}
-              </h2>
-              <p className="font-body text-on-surface-variant text-lg max-w-md">
-                {upcomingEvents.length > 0
-                  ? `You have ${upcomingEvents.length} upcoming event${upcomingEvents.length > 1 ? 's' : ''} to look forward to.`
-                  : 'No upcoming events right now. Check back soon!'}
-              </p>
+      {/* Welcoming Hero */}
+      <section className="px-8 md:px-12 mb-16">
+        <div className="relative overflow-hidden rounded-[3.5rem] bg-surface-container-low/70 backdrop-blur-3xl p-12 lg:p-20 border border-outline-variant/30 shadow-ambient">
+           <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -z-10"></div>
+           <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
+             <div className="space-y-6 text-center lg:text-left">
+               <span className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary text-[10px] font-black tracking-[0.4em] uppercase border border-primary/10">Terminal Active</span>
+               <h1 className="text-5xl md:text-8xl font-black text-on-surface tracking-tighter font-display uppercase leading-none italic">
+                 Welcome, <span className="text-primary not-italic">{displayName}.</span>
+               </h1>
+               <p className="text-on-surface-variant text-xl font-medium max-w-xl opacity-70 italic">
+                 {upcomingEvents.length > 0
+                   ? `Systems check: ${upcomingEvents.length} mission protocols pending initialization.`
+                   : 'All clear. No immediate missions detected in your sector.'}
+               </p>
+             </div>
+             <Link href="/events" className="shrink-0">
+                <button className="bg-primary text-white px-12 py-6 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.4em] shadow-2xl shadow-primary/30 hover:scale-105 transition-all flex items-center gap-4 group">
+                  Mission Intel
+                  <span className="material-symbols-outlined text-xl group-hover:translate-x-2 transition-transform">bolt</span>
+                </button>
+             </Link>
+           </div>
+        </div>
+      </section>
+
+      <div className="px-8 md:px-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
+        
+        {/* Main Feed */}
+        <div className="lg:col-span-2 space-y-16">
+          
+          {/* Quick Access Node */}
+          <section className="space-y-10">
+            <div className="flex items-center gap-6">
+              <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Quick Access Nodes</h3>
+              <div className="h-px flex-grow bg-outline-variant/30"></div>
             </div>
-            <Link
-              href="/events"
-              className="bg-primary hover:bg-primary-fixed-dim text-on-primary font-bold py-3 px-8 rounded-xl transition-all active:scale-95 flex items-center gap-2 group"
-            >
-              View Events
-              <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">
-                arrow_forward
-              </span>
-            </Link>
-          </div>
-          <div className="absolute -right-16 -top-16 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
-        </section>
-
-        {/* Quick Actions Grid */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-headline text-2xl font-bold tracking-tight">Quick Actions</h3>
-            <span className="text-xs font-label uppercase tracking-widest text-outline">
-              Frequent Tasks
-            </span>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Link
-              href="/profile"
-              className="group bg-surface-container-lowest hover:-container transition-colors p-6 rounded-2xl flex flex-col gap-4 active:scale-[0.98] border border-outline-variant/10 shadow-sm"
-            >
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-all">
-                <span className="material-symbols-outlined">timer</span>
-              </div>
-              <span className="font-headline font-bold text-lg leading-tight">Log Hours</span>
-            </Link>
-            <Link
-              href="/events"
-              className="group bg-surface-container-lowest hover:-container transition-colors p-6 rounded-2xl flex flex-col gap-4 active:scale-[0.98] border border-outline-variant/10 shadow-sm"
-            >
-              <div className="w-12 h-12 rounded-xl bg-tertiary/10 flex items-center justify-center text-tertiary group-hover:bg-tertiary group-hover:text-on-tertiary transition-all">
-                <span className="material-symbols-outlined">event_available</span>
-              </div>
-              <span className="font-headline font-bold text-lg leading-tight">Register for Event</span>
-            </Link>
-            <Link
-              href="/clubs"
-              className="group bg-surface-container-lowest hover:-container transition-colors p-6 rounded-2xl flex flex-col gap-4 active:scale-[0.98] border border-outline-variant/10 shadow-sm"
-            >
-              <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-all">
-                <span className="material-symbols-outlined">contacts</span>
-              </div>
-              <span className="font-headline font-bold text-lg leading-tight">View Directory</span>
-            </Link>
-            <Link
-              href="/mom"
-              className="group bg-surface-container-lowest hover:-container transition-colors p-6 rounded-2xl flex flex-col gap-4 active:scale-[0.98] border border-outline-variant/10 shadow-sm"
-            >
-              <div className="w-12 h-12 rounded-xl bg-error/10 flex items-center justify-center text-error group-hover:bg-error group-hover:text-on-error transition-all">
-                <span className="material-symbols-outlined">description</span>
-              </div>
-              <span className="font-headline font-bold text-lg leading-tight">Meeting Minutes</span>
-            </Link>
-          </div>
-        </section>
-
-        {/* Upcoming Events */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-headline text-2xl font-bold tracking-tight">Upcoming Events</h3>
-            <Link href="/events" className="text-primary font-label text-sm uppercase tracking-widest hover:underline">
-              View All
-            </Link>
-          </div>
-
-          {upcomingEvents.length === 0 ? (
-            <p className="text-on-surface-variant text-sm py-8 text-center">No upcoming events scheduled yet.</p>
-          ) : (
-            <div className="flex overflow-x-auto gap-6 pb-4 -mx-6 px-6 sm:mx-0 sm:px-0 snap-x hide-scrollbar">
-              {upcomingEvents.map((event) => (
-                <div
-                  key={event.id}
-                  className="min-w-[280px] md:min-w-[340px] snap-start -container-low rounded-2xl overflow-hidden group border border-outline-variant/10 shadow-md"
-                >
-                  {event.imageUrl ? (
-                    <div className="h-40 relative">
-                      <Image
-                        alt={event.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        src={event.imageUrl}
-                        width={400}
-                        height={200}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-surface-container-low via-surface-container-low/20 to-transparent opacity-80" />
-                    </div>
-                  ) : (
-                    <div className="h-40 bg-primary/10 flex items-center justify-center">
-                      <span className="material-symbols-outlined text-6xl text-primary/30">event</span>
-                    </div>
-                  )}
-                  <div className="p-6 space-y-3 relative z-10">
-                    <span className="bg-primary-container text-on-primary-container text-[10px] px-2 py-1 rounded font-label font-bold uppercase tracking-widest">
-                      {event.eventDate
-                        ? new Date(event.eventDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
-                        : 'TBD'}
-                    </span>
-                    <h4 className="font-headline text-xl font-bold">{event.title}</h4>
-                    {event.location && (
-                      <p className="text-sm text-on-surface-variant flex items-center gap-1">
-                        <span className="material-symbols-outlined text-sm">location_on</span>
-                        {event.location}
-                      </p>
-                    )}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[
+                { label: 'Log Hours', href: '/profile', icon: 'timer', color: 'primary' },
+                { label: 'Register', href: '/events', icon: 'event_available', color: 'secondary' },
+                { label: 'Directory', href: '/clubs', icon: 'contacts', color: 'on-surface' },
+                { label: 'Minutes', href: '/mom', icon: 'description', color: 'error' }
+              ].map((action, i) => (
+                <Link key={i} href={action.href} className="group bg-surface-container-low/70 backdrop-blur-xl p-8 rounded-[2.5rem] border border-outline-variant/30 flex flex-col items-center gap-4 text-center hover:bg-white hover:shadow-ambient transition-all duration-500">
+                  <div className="w-16 h-16 rounded-2xl bg-surface-container-high border border-outline-variant/30 flex items-center justify-center text-primary group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                    <span className="material-symbols-outlined text-3xl">{action.icon}</span>
                   </div>
-                </div>
+                  <span className="text-[10px] font-black text-on-surface uppercase tracking-widest">{action.label}</span>
+                </Link>
               ))}
             </div>
-          )}
-        </section>
+          </section>
 
-        {/* My Impact Stats */}
-        <section className="-container-lowest rounded-3xl p-8 border border-outline-variant/5 shadow-xl">
-          <div className="mb-8 flex justify-between items-end">
-            <div>
-              <h3 className="font-headline text-2xl font-bold tracking-tight text-on-surface">My Impact</h3>
-              <p className="text-on-surface-variant text-sm">Your contribution to the district this year</p>
+          {/* Upcoming Missions */}
+          <section className="space-y-10">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Pending Missions</h3>
+              <Link href="/events" className="text-[10px] font-black text-on-surface-variant hover:text-primary transition-colors uppercase tracking-[0.3em]">View Archive →</Link>
             </div>
-            <Link href="/profile" className="text-primary font-bold text-sm hover:underline">
-              Detailed Profile
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="flex flex-col gap-1 border-l-2 border-primary pl-6">
-              <span className="font-headline text-4xl font-bold text-on-surface">{stats.totalHours}</span>
-              <span className="font-label text-xs uppercase tracking-[0.2em] text-outline">Hours Logged</span>
-            </div>
-            <div className="flex flex-col gap-1 border-l-2 border-tertiary pl-6">
-              <span className="font-headline text-4xl font-bold text-on-surface">{stats.eventsAttended}</span>
-              <span className="font-label text-xs uppercase tracking-[0.2em] text-outline">Events Attended</span>
-            </div>
-            <div className="flex flex-col gap-1 border-l-2 border-secondary pl-6">
-              <span className="font-headline text-4xl font-bold text-on-surface">{stats.points}</span>
-              <span className="font-label text-xs uppercase tracking-[0.2em] text-outline">Points Earned</span>
-            </div>
-          </div>
-        </section>
+            
+            {upcomingEvents.length === 0 ? (
+              <div className="p-12 bg-surface-container-low/50 rounded-[3rem] border border-outline-variant/10 text-center italic text-on-surface-variant opacity-50">
+                No missions currently broadcasted.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {upcomingEvents.map((event) => (
+                  <Link key={event.id} href={`/events/${event.slug}`} className="group bg-surface-container-low/70 backdrop-blur-xl rounded-[3rem] border border-outline-variant/30 overflow-hidden shadow-ambient hover:bg-white hover:shadow-2xl transition-all duration-700">
+                    <div className="h-40 relative overflow-hidden">
+                      {event.imageUrl ? (
+                        <Image alt={event.title} src={event.imageUrl} fill className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000" />
+                      ) : (
+                        <div className="absolute inset-0 bg-primary/10 flex items-center justify-center text-primary/30">
+                          <span className="material-symbols-outlined text-6xl">event</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-transparent opacity-60"></div>
+                      <div className="absolute top-6 right-6">
+                        <span className="bg-primary/90 backdrop-blur-md text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest border border-white/20">
+                          {event.eventDate ? new Date(event.eventDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : 'TBD'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-8 space-y-4">
+                      <h4 className="text-2xl font-black text-on-surface font-display uppercase tracking-tighter leading-none italic group-hover:text-primary transition-colors">{event.title}</h4>
+                      <p className="text-[10px] font-black text-on-surface-variant/50 uppercase tracking-widest flex items-center gap-2">
+                        <span className="material-symbols-outlined text-lg">location_on</span>
+                        {event.location || 'Co-ordinate Pending'}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
 
-        {/* Announcements / Club Updates */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-headline text-2xl font-bold tracking-tight">District Announcements</h3>
-          </div>
-          {clubUpdates.length === 0 ? (
-            <p className="text-on-surface-variant text-sm py-8 text-center">No announcements at this time.</p>
-          ) : (
-            <div className="space-y-4">
-              {clubUpdates.map((ann) => (
-                <div
-                  key={ann.id}
-                  className="p-6 bg-surface-container-low hover:-container rounded-2xl flex items-start gap-4 hover:translate-x-1 transition-all cursor-pointer border border-outline-variant/10 shadow-sm"
-                >
-                  <div className={`p-3 rounded-full shrink-0 ${ann.priority === 'high' ? 'bg-error/20 text-error' : 'bg-primary/20 text-primary'}`}>
-                    <span className="material-symbols-outlined">campaign</span>
+        {/* Sidebar - Impact & Intel */}
+        <div className="space-y-16">
+          
+          {/* Force Status / Stats */}
+          <section className="bg-surface-container-low/70 backdrop-blur-3xl p-12 rounded-[3.5rem] border border-outline-variant/30 shadow-ambient space-y-10">
+            <div className="space-y-2">
+               <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Impact Protocol</h3>
+               <p className="text-on-surface-variant text-sm font-medium italic opacity-60">District 3192 Performance Matrix</p>
+            </div>
+            
+            <div className="space-y-8">
+              {[
+                { label: 'Hours Logged', val: stats.totalHours, icon: 'timer', color: 'text-primary' },
+                { label: 'Missions Complete', val: stats.eventsAttended, icon: 'done_all', color: 'text-secondary' },
+                { label: 'Impact Score', val: stats.points, icon: 'diamond', color: 'text-on-surface' }
+              ].map((stat, i) => (
+                <div key={i} className="flex items-center gap-6 group">
+                  <div className="w-14 h-14 rounded-2xl bg-surface-container-high border border-outline-variant/30 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-outlined text-2xl">{stat.icon}</span>
                   </div>
                   <div>
-                    <h4 className="font-bold text-on-surface mb-1">{ann.title}</h4>
-                    <p className="text-on-surface-variant text-sm leading-relaxed">{ann.content}</p>
-                    <span className="text-[10px] font-label text-outline uppercase mt-3 inline-block tracking-widest">
-                      {ann.createdAt
-                        ? new Date(ann.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-                        : ''}
-                    </span>
+                    <p className={`text-4xl font-black font-display tracking-tighter leading-none italic ${stat.color}`}>{stat.val}</p>
+                    <p className="text-[9px] font-black text-on-surface-variant uppercase tracking-[0.3em] opacity-40 italic">{stat.label}</p>
                   </div>
                 </div>
               ))}
             </div>
-          )}
-        </section>
 
-      </main>
-    </div>
+            <Link href="/profile" className="block pt-4">
+              <button className="w-full bg-surface-container-high text-on-surface border border-outline-variant/30 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:bg-white transition-all">Full Intelligence Profile</button>
+            </Link>
+          </section>
+
+          {/* District Broadcasts */}
+          <section className="space-y-10">
+            <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">District Broadcasts</h3>
+            
+            <div className="space-y-6">
+              {clubUpdates.length === 0 ? (
+                <p className="text-[11px] font-black uppercase tracking-widest text-on-surface-variant opacity-30 italic">No active signals.</p>
+              ) : (
+                clubUpdates.map((ann) => (
+                  <div key={ann.id} className="group p-8 bg-surface-container-low/50 backdrop-blur-xl rounded-[2.5rem] border border-outline-variant/30 hover:bg-white hover:shadow-ambient transition-all duration-500 space-y-4">
+                    <div className="flex items-center justify-between">
+                       <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${ann.priority === 'high' ? 'bg-error/10 text-error border border-error/20' : 'bg-primary/10 text-primary border border-primary/20'}`}>
+                         {ann.priority === 'high' ? 'Priority Signal' : 'Standard Broadcast'}
+                       </span>
+                       <span className="text-[9px] font-black text-on-surface-variant/30 uppercase tracking-widest italic">
+                         {ann.createdAt ? new Date(ann.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : ''}
+                       </span>
+                    </div>
+                    <h4 className="text-lg font-black text-on-surface font-display uppercase tracking-tight italic group-hover:text-primary transition-colors leading-tight">{ann.title}</h4>
+                    <p className="text-on-surface-variant text-sm font-medium leading-relaxed opacity-60 line-clamp-2 italic">"{ann.content}"</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </main>
   );
 }

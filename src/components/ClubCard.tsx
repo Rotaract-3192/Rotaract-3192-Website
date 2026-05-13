@@ -20,79 +20,60 @@ export default function ClubCard({
     : 'rgba(0, 180, 216, 0.12)';
 
   return (
-    <div className="card group relative overflow-hidden p-6">
-      {/* Glow blob */}
-      <div
-        className="absolute -top-12 -right-12 w-32 h-32 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700 pointer-events-none"
-        style={{ background: accentBg }}
+    <div className="bg-surface-container-low/70 backdrop-blur-xl rounded-[2.5rem] border border-outline-variant/30 shadow-ambient group hover:shadow-2xl transition-all duration-700 overflow-hidden p-8 flex flex-col h-full relative">
+      {/* Cinematic Accent Blur */}
+      <div 
+        className="absolute -top-24 -right-24 w-48 h-48 rounded-full blur-[80px] group-hover:scale-150 transition-transform duration-1000 opacity-20 pointer-events-none"
+        style={{ background: type === 'secondary' ? 'var(--primary)' : 'var(--secondary)' }}
       />
 
-      {/* Header */}
-      <div className="flex justify-between items-start mb-6">
-        <div
-          className="w-14 h-14 rounded-2xl flex items-center justify-center"
-          style={{ background: accentBg, border: '1px solid rgba(14,107,168,0.25)' }}
-        >
-          <span
-            className="material-symbols-outlined text-2xl"
-            style={{ color: accentColor, fontVariationSettings: "'FILL' 1" }}
-          >
+      {/* Header Area */}
+      <div className="flex justify-between items-start mb-8 relative z-10">
+        <div className="w-16 h-16 rounded-2xl bg-surface-container-high border border-outline-variant/30 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500">
+          <span className="material-symbols-outlined text-3xl text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
             {icon}
           </span>
         </div>
-        <span
-          className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider"
-          style={{ background: accentBg, color: accentColor }}
-        >
+        <span className="px-4 py-1.5 rounded-xl bg-primary/10 text-primary font-black text-[9px] uppercase tracking-[0.2em] border border-primary/20">
           {badge}
         </span>
       </div>
 
-      <h3 className="text-xl font-bold mb-1 line-clamp-1" style={{ color: 'var(--color-crest)', fontFamily: "'Space Grotesk', sans-serif" }}>
-        {name}
-      </h3>
-      <p className="text-sm font-medium flex items-center gap-1 mb-6" style={{ color: 'var(--text-muted)' }}>
-        <span className="material-symbols-outlined text-xs">location_on</span>
-        {city}
-      </p>
+      {/* Info */}
+      <div className="flex-1 mb-8 relative z-10">
+        <h3 className="text-2xl font-black text-on-surface uppercase tracking-tight mb-2 font-display group-hover:text-primary transition-colors leading-none">
+          {name}
+        </h3>
+        <p className="text-[11px] font-black text-on-surface-variant uppercase tracking-[0.3em] flex items-center gap-2 opacity-60 italic">
+          <span className="material-symbols-outlined text-xs text-primary">location_on</span>
+          {city}
+        </p>
+      </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        <div
-          className="p-4 rounded-2xl"
-          style={{ background: 'rgba(10, 53, 96, 0.5)', border: '1px solid var(--border-subtle)' }}
-        >
-          <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--text-muted)' }}>
-            Members
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 gap-4 mb-8 relative z-10">
+        <div className="p-5 bg-surface-container-high/50 rounded-[1.5rem] border border-outline-variant/20 shadow-inner group-hover:bg-white/40 transition-colors duration-500">
+          <p className="text-[9px] font-black text-on-surface-variant uppercase tracking-[0.3em] mb-2 opacity-60">
+            Cohort
           </p>
-          <p className="text-2xl font-black" style={{ color: 'var(--color-crest)' }}>{members}</p>
+          <p className="text-2xl font-black text-on-surface font-display">{members}<span className="text-[10px] ml-1 opacity-40 font-sans">MBRS</span></p>
         </div>
-        <div
-          className="p-4 rounded-2xl"
-          style={{ background: 'rgba(10, 53, 96, 0.5)', border: '1px solid var(--border-subtle)' }}
-        >
-          <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--text-muted)' }}>
-            Engagement
+        <div className="p-5 bg-surface-container-high/50 rounded-[1.5rem] border border-outline-variant/20 shadow-inner group-hover:bg-white/40 transition-colors duration-500">
+          <p className="text-[9px] font-black text-on-surface-variant uppercase tracking-[0.3em] mb-2 opacity-60">
+            Vibe
           </p>
-          <p className="text-2xl font-black" style={{ color: accentColor }}>{engagement}%</p>
+          <p className="text-2xl font-black text-primary font-display">{engagement}%</p>
         </div>
       </div>
 
+      {/* Action */}
       <Link
         href={`/clubs/${slug}`}
-        className="w-full py-4 font-bold rounded-2xl flex items-center justify-center gap-2 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
-        style={{
-          background: type === 'secondary'
-            ? 'linear-gradient(135deg, #f0a500, #c97d00)'
-            : 'linear-gradient(135deg, #0e6ba8, #00b4d8)',
-          color: type === 'secondary' ? '#020b18' : '#caf0f8',
-          textDecoration: 'none',
-          boxShadow: type === 'secondary'
-            ? '0 4px 16px rgba(240,165,0,0.3)'
-            : '0 4px 16px rgba(0,180,216,0.25)',
-        }}
+        className="w-full py-5 bg-primary text-white font-black text-[10px] uppercase tracking-[0.4em] rounded-[1.5rem] flex items-center justify-center gap-3 shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 active:translate-y-0 transition-all duration-500 group/btn relative overflow-hidden"
       >
-        <span>View Details</span>
-        <span className="material-symbols-outlined text-sm">arrow_forward</span>
+        <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-1000" />
+        <span className="relative z-10">Sync Data</span>
+        <span className="material-symbols-outlined text-sm relative z-10 group-hover/btn:translate-x-1 transition-transform">bolt</span>
       </Link>
     </div>
   );

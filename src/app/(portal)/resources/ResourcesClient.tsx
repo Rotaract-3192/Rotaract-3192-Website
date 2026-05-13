@@ -58,15 +58,15 @@ export default function ResourcesClient({ resources }: { resources: Resource[] }
   const isEmpty = resources.length === 0;
 
   return (
-    <main className="lg:ml-64 min-h-screen relative overflow-visible pb-24">
+    <main className="max-w-7xl mx-auto min-h-screen relative overflow-visible pb-24">
       <div className="fixed top-0 right-0 w-[500px] h-[500px] bg-primary-container/5 rounded-full blur-[120px] -z-10" />
       <div className="fixed bottom-0 left-64 w-[400px] h-[400px] bg-secondary-container/5 rounded-full blur-[100px] -z-10" />
 
       <header className="p-8 md:p-12 mb-12">
         <div className="flex flex-col gap-4">
-          <span className="text-primary font-bold uppercase tracking-widest text-xs">The Vault</span>
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight text-on-surface">Resource Central</h1>
-          <p className="text-xl text-on-surface-variant font-medium max-w-2xl leading-relaxed">
+          <span className="text-primary font-black uppercase tracking-[0.3em] text-[10px] mb-2 block">The Vault</span>
+          <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-on-surface mb-4 font-display">Resource <span className="text-primary italic">Central.</span></h1>
+          <p className="text-xl text-on-surface-variant font-medium max-w-2xl leading-tight">
             Official documents, templates, and guidelines for District 3192 clubs.
           </p>
         </div>
@@ -88,16 +88,16 @@ export default function ResourcesClient({ resources }: { resources: Resource[] }
 
             {/* Sidebar Navigation */}
             <div className="lg:col-span-3 hidden lg:block">
-              <div className="sticky top-12 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/20 shadow-sm bg-surface-container-low/50">
-                <h3 className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-6 opacity-60">Categories</h3>
-                <ul className="space-y-4">
+              <div className="sticky top-28 bg-surface-container-low/50 backdrop-blur-xl rounded-[2.5rem] p-10 border border-outline-variant/30 shadow-ambient">
+                <h3 className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mb-8 opacity-60">Categories</h3>
+                <ul className="space-y-6">
                   {categories.map((cat, i) => (
                     <li key={i}>
                       <a
                         href={`#cat-${encodeURIComponent(cat)}`}
-                        className="group flex items-center gap-3 text-sm font-bold text-on-surface-variant hover:text-primary transition-all"
+                        className="group flex items-center gap-4 text-[11px] font-black uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-outline/20 group-hover:bg-primary transition-all" />
+                        <span className="w-2 h-2 rounded-full bg-outline-variant/40 group-hover:bg-primary transition-all group-hover:scale-125" />
                         {cat}
                       </a>
                     </li>
@@ -107,15 +107,15 @@ export default function ResourcesClient({ resources }: { resources: Resource[] }
             </div>
 
             {/* Documents List */}
-            <div className="lg:col-span-9 space-y-16">
+            <div className="lg:col-span-9 space-y-20">
               {categories.map((cat) => (
-                <div key={cat} id={`cat-${encodeURIComponent(cat)}`} className="scroll-mt-12 space-y-8">
-                  <div className="flex items-center gap-6">
-                    <h2 className="text-2xl font-black text-on-surface uppercase tracking-tight shrink-0">{cat}</h2>
-                    <div className="h-px flex-grow bg-outline/10" />
+                <div key={cat} id={`cat-${encodeURIComponent(cat)}`} className="scroll-mt-32 space-y-10">
+                  <div className="flex items-center gap-8">
+                    <h2 className="text-3xl font-black text-on-surface uppercase tracking-tighter shrink-0 font-display">{cat}</h2>
+                    <div className="h-px flex-grow bg-outline-variant/30" />
                   </div>
 
-                  <div className="grid gap-6">
+                  <div className="grid gap-8">
                     {grouped[cat].map((doc) => {
                       const type = getFileTypeLabel(doc.mimeType, doc.fileName);
                       const dateStr = doc.createdAt
@@ -124,24 +124,24 @@ export default function ResourcesClient({ resources }: { resources: Resource[] }
                       return (
                         <div
                           key={doc.id}
-                          className="group p-8 bg-surface-container-lowest/70 backdrop-blur-xl rounded-[2.5rem] border border-white/40 shadow-xl hover:shadow-2xl hover:bg-white transition-all duration-500 flex flex-col md:flex-row items-start md:items-center justify-between gap-8"
+                          className="group p-8 bg-surface-container-low/50 backdrop-blur-xl rounded-[3rem] border border-outline-variant/30 shadow-ambient hover:shadow-2xl hover:bg-white transition-all duration-500 flex flex-col md:flex-row items-start md:items-center justify-between gap-8"
                         >
-                          <div className="flex items-center gap-6">
-                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110 ${typeColorClass(type)}`}>
+                          <div className="flex items-center gap-8">
+                            <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110 ${typeColorClass(type)}`}>
                               <span className="text-[10px] font-black uppercase tracking-widest leading-none">{type}</span>
                             </div>
-                            <div className="space-y-1">
-                              <h4 className="text-xl font-black text-on-surface tracking-tight group-hover:text-primary transition-colors leading-tight">
+                            <div className="space-y-2">
+                              <h4 className="text-2xl font-black text-on-surface tracking-tight group-hover:text-primary transition-colors leading-tight font-display">
                                 {doc.fileName}
                               </h4>
-                              <div className="flex items-center gap-4 text-[9px] font-bold text-on-surface-variant uppercase tracking-widest opacity-60">
-                                <span className="flex items-center gap-1.5">
-                                  <span className="material-symbols-outlined text-sm leading-none opacity-50">database</span>
+                              <div className="flex items-center gap-5 text-[10px] font-black text-on-surface-variant/40 uppercase tracking-[0.2em]">
+                                <span className="flex items-center gap-2">
+                                  <span className="material-symbols-outlined text-lg leading-none">database</span>
                                   {formatBytes(doc.fileSize)}
                                 </span>
                                 {dateStr && (
-                                  <span className="flex items-center gap-1.5">
-                                    <span className="material-symbols-outlined text-sm leading-none opacity-50">history</span>
+                                  <span className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-lg leading-none">history</span>
                                     {dateStr}
                                   </span>
                                 )}
@@ -153,10 +153,11 @@ export default function ResourcesClient({ resources }: { resources: Resource[] }
                             href={`/api/resources/${doc.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-8 py-4 bg-primary text-white rounded-2xl font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 whitespace-nowrap"
+                            className="px-10 py-5 bg-primary text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 whitespace-nowrap overflow-hidden relative group/btn"
                           >
-                            <span className="material-symbols-outlined text-lg">download</span>
-                            Download Asset
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-shimmer"></div>
+                            <span className="material-symbols-outlined text-xl relative z-10">download</span>
+                            <span className="relative z-10">Download Asset</span>
                           </a>
                         </div>
                       );

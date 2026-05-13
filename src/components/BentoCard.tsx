@@ -21,29 +21,26 @@ export default function BentoCard({
   const { bg, color } = iconStyles[type];
 
   return (
-    <div
-      className={`card group p-8 ${translateY ? 'md:translate-y-8 hover:md:translate-y-6' : ''}`}
-    >
-      <div
-        className="w-14 h-14 mb-6 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
-        style={{ background: bg }}
-      >
-        <span
-          className="material-symbols-outlined text-3xl"
-          style={{ color }}
-        >
-          {icon}
-        </span>
+    <div className={`group relative bg-surface-container-low/70 backdrop-blur-xl rounded-[3.5rem] p-12 border border-outline-variant/30 shadow-ambient transition-all duration-700 hover:bg-white hover:shadow-2xl flex flex-col gap-8 ${translateY ? 'lg:translate-y-12' : ''}`}>
+      <div className="w-20 h-20 bg-surface-container-high rounded-[2rem] border border-outline-variant/30 flex items-center justify-center text-primary group-hover:scale-110 group-hover:rotate-6 transition-all duration-700">
+        <span className="material-symbols-outlined text-4xl">{icon}</span>
       </div>
-      <h3
-        className="text-xl font-bold mb-4"
-        style={{ color: 'var(--color-crest)', fontFamily: "'Space Grotesk', sans-serif" }}
-      >
-        {title}
-      </h3>
-      <p className="leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-        {description}
-      </p>
+      
+      <div className="space-y-4">
+        <h3 className="text-3xl font-black text-on-surface leading-none font-display tracking-tighter uppercase italic group-hover:text-primary transition-colors">
+          {title}
+        </h3>
+        <p className="text-lg text-on-surface-variant font-medium leading-relaxed opacity-70">
+          {description}
+        </p>
+      </div>
+
+      <div className="pt-6 border-t border-outline-variant/30 mt-auto opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+        <div className="flex items-center gap-4 text-primary font-black uppercase tracking-[0.4em] text-[9px]">
+          Protocol Status: Active
+          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { getCampaigns } from '@/app/actions/queries';
 import { updateCampaignStatus, createCampaign } from '@/app/actions/mutations';
+import Image from 'next/image';
 
 export const revalidate = 0;
 
@@ -11,169 +12,152 @@ export default async function AdminCampaignsPage() {
   const pendingCampaignsCount = campaigns.filter(c => c.status === 'pending').length;
 
   return (
-    <div className="space-y-12 pb-20">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-        <div className="space-y-2">
-          <h1 className="text-4xl font-black uppercase tracking-tighter leading-none text-on-surface">Fiscal Intelligence</h1>
-          <p className="text-[11px] text-on-surface-variant font-bold uppercase tracking-[0.3em] opacity-40 italic">Monitor District Funding Streams & Financial Protocols</p>
+    <div className="space-y-16 pb-24">
+      <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-10">
+        <div className="space-y-4">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary text-[10px] font-black tracking-[0.4em] uppercase border border-primary/10">Financial Oversight</span>
+          <h1 className="text-5xl md:text-7xl font-black text-on-surface tracking-tighter font-display uppercase leading-none italic">
+            Fiscal <span className="text-primary not-italic">Intelligence.</span>
+          </h1>
+          <p className="text-on-surface-variant text-sm font-medium opacity-60 italic flex items-center gap-3">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(var(--color-primary-rgb),0.5)]"></span>
+            Monitor District Funding Streams & Financial Protocols: SYNCED
+          </p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="px-6 py-3 rounded-2xl bg-primary/5 border border-primary/10 flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-primary">Treasury Stream Active</span>
-          </div>
+        
+        <div className="flex items-center gap-4 bg-surface-container-low/50 backdrop-blur-xl px-8 py-4 rounded-[2rem] border border-outline-variant/30">
+          <span className="material-symbols-outlined text-primary text-xl">account_balance</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface">Treasury Stream Active</span>
         </div>
       </header>
 
-      {/* Metrics Bento Grid */}
+      {/* Metrics Grid */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="bg-white/80 backdrop-blur-2xl p-10 rounded-[2.5rem] border border-white shadow-xl relative overflow-hidden group">
-          <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:scale-150 transition-all duration-1000"></div>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant opacity-40 mb-4 italic">Total Capital Generated</p>
-          <div className="flex items-baseline gap-2">
-            <span className="text-sm font-black text-primary opacity-50 uppercase tracking-widest">INR</span>
-            <div className="text-5xl font-black text-on-surface tracking-tighter tabular-nums">
-              {totalRaised.toLocaleString()}
+        {[
+          { label: 'Total Capital Generated', val: `₹${totalRaised.toLocaleString()}`, unit: 'INR', color: 'text-primary', icon: 'payments' },
+          { label: 'Operational Initiatives', val: activeCampaignsCount, unit: 'Active', color: 'text-secondary', icon: 'monitoring' },
+          { label: 'Awaiting Authorization', val: pendingCampaignsCount, unit: 'Protocols', color: 'text-on-surface', icon: 'pending_actions' }
+        ].map((metric, i) => (
+          <div key={i} className="bg-surface-container-low/70 backdrop-blur-xl p-10 rounded-[3rem] border border-outline-variant/30 shadow-ambient relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-1000"></div>
+            <div className="flex items-center justify-between mb-8">
+               <div className="w-14 h-14 rounded-2xl bg-surface-container-high border border-outline-variant/30 flex items-center justify-center text-primary transition-transform group-hover:scale-110">
+                 <span className="material-symbols-outlined text-2xl">{metric.icon}</span>
+               </div>
+               <span className="text-[9px] font-black text-on-surface-variant/40 uppercase tracking-[0.3em] italic">Telemetry</span>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-baseline gap-3">
+                 <span className={`text-5xl font-black font-display tracking-tighter leading-none italic ${metric.color}`}>{metric.val}</span>
+                 <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest opacity-40">{metric.unit}</span>
+              </div>
+              <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-[.3em] opacity-40 italic">{metric.label}</p>
             </div>
           </div>
-          <div className="mt-6 flex items-center gap-2">
-            <div className="w-full h-1 bg-primary/10 rounded-full overflow-hidden">
-               <div className="h-full bg-primary w-[75%]"></div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white/80 backdrop-blur-2xl p-10 rounded-[2.5rem] border border-white shadow-xl relative overflow-hidden group">
-          <div className="absolute -right-8 -top-8 w-32 h-32 bg-tertiary/5 rounded-full blur-3xl group-hover:scale-150 transition-all duration-1000"></div>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant opacity-40 mb-4 italic">Operational Initiatives</p>
-          <div className="flex items-baseline gap-2">
-            <div className="text-5xl font-black text-on-surface tracking-tighter tabular-nums">{activeCampaignsCount}</div>
-            <span className="text-sm font-black text-tertiary opacity-50 uppercase tracking-widest">Active</span>
-          </div>
-          <div className="mt-6 flex items-center gap-3">
-             <div className="flex -space-x-2">
-                {[1,2,3].map(i => <div key={i} className="w-6 h-6 rounded-full bg-surface-container-high border-2 border-white shadow-sm"></div>)}
-             </div>
-             <span className="text-[10px] font-bold text-on-surface-variant opacity-40 uppercase tracking-widest">+ Live Stream</span>
-          </div>
-        </div>
-
-        <div className="bg-white/80 backdrop-blur-2xl p-10 rounded-[2.5rem] border border-white shadow-xl relative overflow-hidden group border-b-4 border-b-primary">
-          <div className="absolute -right-8 -top-8 w-32 h-32 bg-secondary/5 rounded-full blur-3xl group-hover:scale-150 transition-all duration-1000"></div>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant opacity-40 mb-4 italic">Awaiting Authorization</p>
-          <div className="flex items-baseline gap-2">
-            <div className="text-5xl font-black text-primary tracking-tighter tabular-nums">{pendingCampaignsCount}</div>
-            <span className="text-sm font-black text-on-surface-variant opacity-50 uppercase tracking-widest">Protocols</span>
-          </div>
-          <div className="mt-6">
-             <span className="px-3 py-1.5 rounded-lg bg-primary/5 text-primary text-[9px] font-black uppercase tracking-widest border border-primary/10">High Priority Action</span>
-          </div>
-        </div>
+        ))}
       </section>
 
       {/* Initialize Funding Protocol */}
-      <section className="bg-surface-container-low rounded-[3rem] p-12 border border-outline/5">
-        <div className="flex items-center gap-5 mb-10">
-           <div className="w-14 h-14 rounded-[1.25rem] bg-primary/10 flex items-center justify-center text-primary shadow-inner">
-              <span className="material-symbols-outlined text-3xl">add_chart</span>
+      <section className="bg-surface-container-low/70 backdrop-blur-3xl rounded-[3.5rem] p-12 lg:p-16 border border-outline-variant/30 shadow-ambient relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -z-10"></div>
+        <div className="flex flex-col md:flex-row items-center gap-10 mb-12">
+           <div className="w-20 h-20 rounded-[2rem] bg-primary/10 flex items-center justify-center text-primary shadow-inner border border-primary/20">
+              <span className="material-symbols-outlined text-4xl">add_chart</span>
            </div>
            <div>
-              <h2 className="text-2xl font-black uppercase tracking-tight leading-none text-on-surface">Initiate Protocol</h2>
-              <p className="text-[10px] text-on-surface-variant font-black uppercase tracking-[0.2em] opacity-40 mt-2 italic">Deploy New Fiscal Initiative to District Network</p>
+              <h2 className="text-3xl font-black font-display uppercase tracking-tight leading-none text-on-surface italic">Initiate <span className="text-primary not-italic">Protocol.</span></h2>
+              <p className="text-[10px] text-on-surface-variant font-black uppercase tracking-[0.3em] opacity-40 mt-3 italic">Deploy New Fiscal Initiative to District Network</p>
            </div>
         </div>
 
-        <form action={createCampaign} className="grid grid-cols-1 md:grid-cols-12 gap-8">
-          <div className="md:col-span-5 space-y-3">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant ml-4 opacity-50">Initiative Designation</label>
-            <input name="title" type="text" required placeholder="e.g. DISTRICT CONFERENCE 2026" className="w-full bg-white border-none rounded-[1.5rem] py-5 px-8 text-sm font-bold text-on-surface shadow-sm focus:ring-4 focus:ring-primary/10 transition-all placeholder:opacity-20" />
+        <form action={createCampaign} className="grid grid-cols-1 md:grid-cols-12 gap-8 relative z-10">
+          <div className="md:col-span-8 space-y-4">
+            <label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary ml-6 italic">Initiative Designation</label>
+            <input name="title" type="text" required placeholder="PROTOCOL IDENTIFIER" className="w-full bg-surface-container-high/50 border border-outline-variant/30 rounded-[2rem] py-6 px-10 text-sm font-black text-on-surface shadow-inner focus:border-primary/50 outline-none transition-all placeholder:text-on-surface-variant/20 uppercase tracking-widest" />
           </div>
-          <div className="md:col-span-3 space-y-3">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant ml-4 opacity-50">Capital Target (₹)</label>
-            <input name="goalAmount" type="number" required min="1" placeholder="50000" className="w-full bg-white border-none rounded-[1.5rem] py-5 px-8 text-sm font-bold text-on-surface shadow-sm focus:ring-4 focus:ring-primary/10 transition-all placeholder:opacity-20" />
+          <div className="md:col-span-4 space-y-4">
+            <label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary ml-6 italic">Capital Target (₹)</label>
+            <input name="goalAmount" type="number" required min="1" placeholder="UNIT VOLUME" className="w-full bg-surface-container-high/50 border border-outline-variant/30 rounded-[2rem] py-6 px-10 text-sm font-black text-on-surface shadow-inner focus:border-primary/50 outline-none transition-all placeholder:text-on-surface-variant/20 tracking-[0.2em]" />
           </div>
-          <div className="md:col-span-4 flex items-end">
-             <button type="submit" className="w-full bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] py-5 rounded-[1.5rem] shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3">
-                <span className="material-symbols-outlined text-xl">rocket_launch</span>
+          <div className="md:col-span-12 space-y-4">
+            <label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary ml-6 italic">Technical Brief / Objectives</label>
+            <textarea name="description" rows={3} placeholder="Mission objectives and fiscal parameters..." className="w-full bg-surface-container-high/50 border border-outline-variant/30 rounded-[2.5rem] py-8 px-10 text-sm font-medium text-on-surface shadow-inner focus:border-primary/50 outline-none transition-all placeholder:text-on-surface-variant/20 italic leading-relaxed"></textarea>
+          </div>
+          <div className="md:col-span-12 flex justify-end">
+             <button type="submit" className="bg-primary text-white font-black uppercase tracking-[0.4em] text-[11px] px-16 py-6 rounded-2xl shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-4 group">
+                <span className="material-symbols-outlined text-xl group-hover:rotate-45 transition-transform">rocket_launch</span>
                 Deploy Protocol
              </button>
-          </div>
-          <div className="md:col-span-12 space-y-3">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant ml-4 opacity-50">Technical Brief / Description</label>
-            <textarea name="description" rows={3} placeholder="Provide detailed operational objectives..." className="w-full bg-white border-none rounded-[2rem] py-6 px-8 text-sm font-bold text-on-surface shadow-sm focus:ring-4 focus:ring-primary/10 transition-all placeholder:opacity-20"></textarea>
           </div>
         </form>
       </section>
 
       {/* Initiatives Register */}
-      <section>
-        <div className="flex items-center justify-between mb-8 px-4">
-          <h2 className="text-xl font-black text-on-surface uppercase tracking-tight flex items-center gap-3">
-             <span className="w-2 h-8 bg-primary rounded-full"></span>
-             Operational Initiatives
-          </h2>
+      <section className="space-y-12">
+        <div className="flex items-center gap-6">
+           <h2 className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Active Initiatives Registry</h2>
+           <div className="h-px flex-grow bg-outline-variant/30"></div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
           {campaigns.length === 0 ? (
-            <div className="col-span-full py-32 text-center text-[10px] font-black text-on-surface-variant/20 uppercase tracking-[0.5em] italic">No operational initiatives registered in district treasury.</div>
+            <div className="col-span-full py-32 bg-surface-container-low/30 rounded-[4rem] border border-outline-variant/10 text-center text-[11px] font-black text-on-surface-variant/20 uppercase tracking-[0.5em] italic">No operational initiatives registered.</div>
           ) : (
             campaigns.map((campaign) => (
-              <div key={campaign.id} className="bg-white/70 backdrop-blur-xl rounded-[3rem] border border-white shadow-xl overflow-hidden group hover:shadow-2xl transition-all border-l-8 border-l-primary/10 hover:border-l-primary">
-                <div className="p-10 flex flex-col md:flex-row gap-10">
-                  <div className="md:w-1/3 flex flex-col justify-center items-center gap-4 bg-surface-container-low rounded-[2rem] p-8 shadow-inner shrink-0">
-                    <span className="material-symbols-outlined text-5xl text-primary opacity-20 group-hover:scale-110 group-hover:opacity-100 transition-all duration-500">account_balance_wallet</span>
-                    <div className="text-center">
-                       <div className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-40">Status Code</div>
-                       <div className={`text-[11px] font-black uppercase tracking-[0.2em] mt-1 ${campaign.status === 'active' ? 'text-green-500' : 'text-primary'}`}>
-                          {campaign.status}
+              <div key={campaign.id} className="bg-surface-container-low/70 backdrop-blur-xl rounded-[3.5rem] border border-outline-variant/30 overflow-hidden group hover:bg-white hover:shadow-ambient transition-all duration-700">
+                <div className="p-12 flex flex-col gap-10">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-4">
+                       <h3 className="text-3xl font-black text-on-surface font-display uppercase tracking-tighter leading-tight group-hover:text-primary transition-colors italic leading-none">{campaign.title}</h3>
+                       <div className="flex gap-4">
+                          <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${campaign.status === 'active' ? 'bg-primary/5 text-primary border-primary/10' : 'bg-surface-container-high text-on-surface-variant/50 border-outline-variant/30'}`}>
+                            {campaign.status}
+                          </span>
                        </div>
+                    </div>
+                    <div className="w-16 h-16 bg-surface-container-high rounded-2xl flex items-center justify-center text-on-surface-variant/20 group-hover:text-primary group-hover:scale-110 transition-all border border-outline-variant/30 shadow-inner">
+                       <span className="material-symbols-outlined text-3xl">account_balance_wallet</span>
                     </div>
                   </div>
 
-                  <div className="flex-1 space-y-6">
-                    <div>
-                      <h3 className="text-2xl font-black text-on-surface uppercase tracking-tight leading-tight group-hover:text-primary transition-colors">{campaign.title}</h3>
-                      <p className="text-sm text-on-surface-variant font-medium mt-3 opacity-60 line-clamp-2 leading-relaxed">{campaign.description}</p>
-                    </div>
+                  <p className="text-on-surface-variant text-base font-medium opacity-60 line-clamp-2 italic leading-relaxed">"{campaign.description}"</p>
 
-                    <div className="space-y-4">
-                       <div className="flex justify-between items-end">
-                          <div className="space-y-1">
-                             <span className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-40 italic">Stream Intensity</span>
-                             <div className="text-xl font-black text-on-surface tabular-nums">₹{campaign.raisedAmount?.toLocaleString() || 0}</div>
-                          </div>
-                          <div className="text-right space-y-1">
-                             <span className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-40 italic">Target Metric</span>
-                             <div className="text-sm font-bold text-on-surface-variant opacity-60 tabular-nums">₹{campaign.goalAmount.toLocaleString()}</div>
-                          </div>
-                       </div>
+                  <div className="space-y-6">
+                     <div className="flex justify-between items-end">
+                        <div className="space-y-2">
+                           <span className="text-[9px] font-black uppercase tracking-[0.3em] text-on-surface-variant opacity-40 italic">Stream Volume</span>
+                           <div className="text-3xl font-black text-on-surface font-display tracking-tight tabular-nums italic">₹{campaign.raisedAmount?.toLocaleString() || 0}</div>
+                        </div>
+                        <div className="text-right space-y-2">
+                           <span className="text-[9px] font-black uppercase tracking-[0.3em] text-on-surface-variant opacity-40 italic">Target Metric</span>
+                           <div className="text-sm font-black text-on-surface-variant opacity-40 tabular-nums italic">₹{campaign.goalAmount.toLocaleString()}</div>
+                        </div>
+                     </div>
 
-                       <div className="relative h-3 bg-surface-container-high rounded-full overflow-hidden">
-                          <div 
-                             className="absolute top-0 left-0 h-full bg-primary transition-all duration-1000 ease-out" 
-                             style={{ width: `${Math.min(100, ((campaign.raisedAmount || 0) / (campaign.goalAmount || 1)) * 100)}%` }}
-                          >
-                             <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 animate-shimmer"></div>
-                          </div>
-                       </div>
+                     <div className="relative h-2 bg-surface-container-high rounded-full overflow-hidden border border-outline-variant/10 shadow-inner">
+                        <div 
+                           className="absolute top-0 left-0 h-full bg-primary transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(var(--color-primary-rgb),0.5)]" 
+                           style={{ width: `${Math.min(100, ((campaign.raisedAmount || 0) / (campaign.goalAmount || 1)) * 100)}%` }}
+                        >
+                           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 animate-shimmer"></div>
+                        </div>
+                     </div>
 
-                       <div className="flex justify-between items-center pt-4">
-                          <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
-                             {Math.round(((campaign.raisedAmount || 0) / (campaign.goalAmount || 1)) * 100)}% Saturation
-                          </span>
-                          <div className="flex gap-4">
-                             {campaign.status === 'pending' && (
-                               <form action={updateCampaignStatus.bind(null, campaign.id, 'active')}>
-                                 <button type="submit" className="text-[10px] font-black text-green-500 uppercase tracking-widest hover:underline decoration-2 underline-offset-4">Approve Protocol</button>
-                               </form>
-                             )}
-                             <form action={updateCampaignStatus.bind(null, campaign.id, 'completed')}>
-                               <button type="submit" className="text-[10px] font-black text-tertiary uppercase tracking-widest hover:underline decoration-2 underline-offset-4">Terminate Stream</button>
+                     <div className="flex justify-between items-center pt-6">
+                        <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em] italic animate-pulse">
+                           {Math.round(((campaign.raisedAmount || 0) / (campaign.goalAmount || 1)) * 100)}% Saturation
+                        </span>
+                        <div className="flex gap-6">
+                           {campaign.status === 'pending' && (
+                             <form action={updateCampaignStatus.bind(null, campaign.id, 'active')}>
+                               <button type="submit" className="text-[10px] font-black text-primary uppercase tracking-[0.3em] hover:scale-110 transition-transform underline decoration-2 underline-offset-8">Approve</button>
                              </form>
-                          </div>
-                       </div>
-                    </div>
+                           )}
+                           <form action={updateCampaignStatus.bind(null, campaign.id, 'completed')}>
+                             <button type="submit" className="text-[10px] font-black text-error/50 hover:text-error uppercase tracking-[0.3em] hover:scale-110 transition-transform underline decoration-2 underline-offset-8">Terminate</button>
+                           </form>
+                        </div>
+                     </div>
                   </div>
                 </div>
               </div>
@@ -184,4 +168,3 @@ export default async function AdminCampaignsPage() {
     </div>
   );
 }
-
