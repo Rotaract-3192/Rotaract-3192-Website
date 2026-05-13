@@ -1,7 +1,7 @@
-export default function MentorshipClient({ usersData }: { usersData: any[] }) {
-  const members = usersData || [];
+export default function MentorshipClient({ mentors }: { mentors: any[] }) {
+  const members = mentors || [];
   // Use first 4 users as mentors, map DB fields to legacy template fields
-  const mentors = members.slice(0, 4).map((m: any) => ({
+  const mentorList = members.slice(0, 4).map((m: any) => ({
     ...m,
     name: `${m.firstName || ''} ${m.lastName || ''}`.trim() || m.name || 'District Member',
     profile_pic_url: m.avatarUrl || `https://ui-avatars.com/api/?name=${m.firstName}+${m.lastName}&background=random`,
@@ -30,7 +30,7 @@ export default function MentorshipClient({ usersData }: { usersData: any[] }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          {mentors.map((mentor, idx) => (
+          {mentorList.map((mentor, idx) => (
             <div key={idx} className="group -container-lowest/70 backdrop-blur-xl rounded-[2.5rem] p-10 border border-white/40 shadow-xl hover:shadow-2xl hover:bg-white transition-all duration-500 flex flex-col lg:flex-row gap-10">
               <div className="shrink-0 flex flex-col items-center lg:items-start gap-4">
                 <div className="relative">

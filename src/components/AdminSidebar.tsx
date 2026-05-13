@@ -12,17 +12,18 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
 
   const menuItems = [
-    { href: '/admin', label: 'Dashboard', icon: 'space_dashboard' },
+    { href: '/admin', label: 'Overview', icon: 'space_dashboard' },
     { href: '/admin/president', label: 'President', icon: 'military_tech' },
     { href: '/admin/members', label: 'Members', icon: 'group' },
     { href: '/admin/clubs', label: 'Clubs', icon: 'hub' },
     { href: '/admin/events', label: 'Events', icon: 'event' },
-    { href: '/admin/mom', label: 'Minutes', icon: 'description' },
+    { href: '/admin/announcements', label: 'Broadcasts', icon: 'campaign' },
+    { href: '/admin/resources', label: 'Resources', icon: 'folder' },
+    { href: '/admin/newsletter', label: 'Bulletins', icon: 'newspaper' },
+    { href: '/admin/jobs', label: 'Opportunities', icon: 'work' },
     { href: '/admin/lms', label: 'Academy', icon: 'school' },
-    { href: '/admin/announcements', label: 'Announce', icon: 'campaign' },
-    { href: '/admin/campaigns', label: 'Campaigns', icon: 'volunteer_activism' },
-    { href: '/admin/feeds', label: 'Feeds', icon: 'rss_feed' },
-    { href: '/admin/audit', label: 'Audit', icon: 'security' },
+    { href: '/admin/mom', label: 'Minutes', icon: 'description' },
+    { href: '/admin/audit', label: 'Audit Log', icon: 'security' },
   ];
 
   return (

@@ -153,3 +153,38 @@ CREATE TABLE IF NOT EXISTS announcements (
     created_by TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Mentorship Applications Table
+CREATE TABLE IF NOT EXISTS mentorship_applications (
+    id TEXT PRIMARY KEY,
+    mentor_id TEXT NOT NULL,   -- users.id
+    mentee_id TEXT NOT NULL,   -- users.id
+    message TEXT,
+    status TEXT DEFAULT 'pending', -- 'pending', 'accepted', 'rejected', 'completed'
+    domain TEXT,               -- e.g. 'leadership', 'marketing', 'technology'
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Course Modules Table
+CREATE TABLE IF NOT EXISTS course_modules (
+    id TEXT PRIMARY KEY,
+    course_id TEXT NOT NULL,   -- courses.id
+    title TEXT NOT NULL,
+    description TEXT,
+    video_url TEXT,
+    duration INTEGER,          -- in minutes
+    "order" INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Service Hours Table
+CREATE TABLE IF NOT EXISTS service_hours (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,     -- users.id
+    event_id TEXT,             -- events.id (optional)
+    hours REAL NOT NULL,
+    description TEXT,
+    logged_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    approved_by TEXT           -- admin users.id
+);

@@ -1,13 +1,43 @@
 'use server';
 
 import { getDb } from '@/lib/db';
-import { clubs, events, users, feeds, campaigns, announcements, moms, courses } from '@/lib/db/schema';
+import {
+  clubs, events, users, feeds, campaigns, announcements, moms, courses,
+  jobs, newsletters, eventRegistrations, serviceHours, mentorshipApplications,
+  coldStorageFiles,
+} from '@/lib/db/schema';
 import { revalidatePath } from 'next/cache';
 import { eq } from 'drizzle-orm';
 import { auth } from '@clerk/nextjs/server';
 
+
 function generateId() {
   return crypto.randomUUID();
+}
+
+// ================= AUDIT LOGGING =================
+
+export async function recordAuditLog(action: string, resourceType?: string, resourceId?: string, severity: 'info' | 'warning' | 'critical' = 'info') {
+  const { userId } = await auth();
+  if (!userId) return;
+
+  try {
+    const db = getDb();
+    const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+    const userName = user ? `${user.firstName} ${user.lastName}` : 'System Admin';
+
+    await db.insert(auditLogs).values({
+      id: generateId(),
+      userId,
+      userName,
+      action,
+      resourceType,
+      resourceId,
+      severity,
+    });
+  } catch (error) {
+    console.error('Failed to record audit log:', error);
+  }
 }
 
 // ================= CLUBS =================
@@ -20,18 +50,21 @@ export async function createClub(formData: FormData) {
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   const city = formData.get('city') as string;
   const charterDateStr = formData.get('charterDate') as string;
-  const themeColor = formData.get('themeColor') as string;
 
   const charterDate = charterDateStr ? new Date(charterDateStr) : new Date();
 
   try {
+    const id = generateId();
     await getDb().insert(clubs).values({
-      id: generateId(),
+      id,
       name,
       slug,
       charterDate,
       description: `Rotaract Club of ${city}`,
     });
+    
+    await recordAuditLog(`Created Club: ${name}`, 'club', id);
+    
     revalidatePath('/admin/clubs');
     revalidatePath('/clubs');
   } catch (error) {
@@ -44,7 +77,12 @@ export async function deleteClub(id: string) {
   if (!userId) throw new Error('Unauthorized');
 
   try {
-    await getDb().delete(clubs).where(eq(clubs.id, id));
+    const db = getDb();
+    const club = await db.query.clubs.findFirst({ where: eq(clubs.id, id) });
+    await db.delete(clubs).where(eq(clubs.id, id));
+    
+    await recordAuditLog(`Deleted Club: ${club?.name || id}`, 'club', id, 'warning');
+
     revalidatePath('/admin/clubs');
     revalidatePath('/clubs');
   } catch (error) {
@@ -68,8 +106,9 @@ export async function createEvent(formData: FormData) {
   const eventDate = eventDateStr ? new Date(eventDateStr) : new Date();
 
   try {
+    const id = generateId();
     await getDb().insert(events).values({
-      id: generateId(),
+      id,
       clubId,
       title,
       slug,
@@ -78,6 +117,9 @@ export async function createEvent(formData: FormData) {
       eventDate,
       status: 'upcoming'
     });
+
+    await recordAuditLog(`Created Event: ${title}`, 'event', id);
+
     revalidatePath('/admin/events');
     revalidatePath('/events');
   } catch (error) {
@@ -90,7 +132,12 @@ export async function deleteEvent(id: string) {
   if (!userId) throw new Error('Unauthorized');
 
   try {
-    await getDb().delete(events).where(eq(events.id, id));
+    const db = getDb();
+    const event = await db.query.events.findFirst({ where: eq(events.id, id) });
+    await db.delete(events).where(eq(events.id, id));
+
+    await recordAuditLog(`Deleted Event: ${event?.title || id}`, 'event', id, 'warning');
+
     revalidatePath('/admin/events');
     revalidatePath('/events');
   } catch (error) {
@@ -105,7 +152,12 @@ export async function updateUserRole(id: string, role: string) {
   if (!userId) throw new Error('Unauthorized');
 
   try {
-    await getDb().update(users).set({ role }).where(eq(users.id, id));
+    const db = getDb();
+    const targetUser = await db.query.users.findFirst({ where: eq(users.id, id) });
+    await db.update(users).set({ role }).where(eq(users.id, id));
+    
+    await recordAuditLog(`Updated Role for ${targetUser?.email}: ${role}`, 'user', id);
+
     revalidatePath('/admin/members');
   } catch (error) {
     console.error('Failed to update user role:', error);
@@ -117,12 +169,11 @@ export async function awardPoints(userIdToAward: string, points: number) {
   if (!userId) throw new Error('Unauthorized');
 
   try {
-    // In SQLite Drizzle, you often have to fetch then update, or use sql``
-    // For simplicity, let's assume we want to set absolute points or we fetch first.
-    // We'll just run an update.
-    // Actually, SQL fragment for increment: sql`points + ${points}`
     const { sql } = await import('drizzle-orm');
     await getDb().update(users).set({ points: sql`points + ${points}` }).where(eq(users.id, userIdToAward));
+    
+    await recordAuditLog(`Awarded ${points} points to user`, 'user', userIdToAward);
+
     revalidatePath('/admin/members');
   } catch (error) {
     console.error('Failed to award points:', error);
@@ -136,36 +187,18 @@ export async function updateCampaignStatus(id: string, status: string) {
   if (!userId) throw new Error('Unauthorized');
 
   try {
-    await getDb().update(campaigns).set({ status }).where(eq(campaigns.id, id));
+    const db = getDb();
+    const campaign = await db.query.campaigns.findFirst({ where: eq(campaigns.id, id) });
+    await db.update(campaigns).set({ status }).where(eq(campaigns.id, id));
+    
+    await recordAuditLog(`Updated Campaign Status: ${campaign?.title} -> ${status}`, 'campaign', id);
+
     revalidatePath('/admin/campaigns');
   } catch (error) {
     console.error('Failed to update campaign status:', error);
   }
 }
 
-// ================= ANNOUNCEMENTS =================
-
-export async function createAnnouncement(formData: FormData) {
-  const { userId } = await auth();
-  if (!userId) throw new Error('Unauthorized');
-
-  const title = formData.get('title') as string;
-  const content = formData.get('content') as string;
-  const priority = formData.get('priority') as string || 'normal';
-
-  try {
-    await getDb().insert(announcements).values({
-      id: generateId(),
-      title,
-      content,
-      priority,
-      createdBy: userId
-    });
-    revalidatePath('/admin/announcements');
-  } catch (error) {
-    console.error('Failed to create announcement:', error);
-  }
-}
 
 // ================= FEEDS =================
 
@@ -179,14 +212,18 @@ export async function createFeed(formData: FormData) {
   const mediaUrl = formData.get('mediaUrl') as string | null;
 
   try {
+    const id = generateId();
     await getDb().insert(feeds).values({
-      id: generateId(),
+      id,
       title,
       content,
       type,
       mediaUrl: mediaUrl || null,
       authorId: userId,
     });
+
+    await recordAuditLog(`Published Feed Post: ${title}`, 'feed', id);
+
     revalidatePath('/admin/feeds');
     revalidatePath('/news');
   } catch (error) {
@@ -199,7 +236,12 @@ export async function deleteFeed(id: string) {
   if (!userId) throw new Error('Unauthorized');
 
   try {
-    await getDb().delete(feeds).where(eq(feeds.id, id));
+    const db = getDb();
+    const feed = await db.query.feeds.findFirst({ where: eq(feeds.id, id) });
+    await db.delete(feeds).where(eq(feeds.id, id));
+
+    await recordAuditLog(`Deleted Feed Post: ${feed?.title || id}`, 'feed', id, 'warning');
+
     revalidatePath('/admin/feeds');
     revalidatePath('/news');
   } catch (error) {
@@ -219,13 +261,17 @@ export async function createMom(formData: FormData) {
   const meetingDate = meetingDateStr ? new Date(meetingDateStr) : new Date();
 
   try {
+    const id = generateId();
     await getDb().insert(moms).values({
-      id: generateId(),
+      id,
       title,
       clubId: clubId || null,
       meetingDate,
       status: 'pending',
     });
+
+    await recordAuditLog(`Recorded Meeting Minutes: ${title}`, 'mom', id);
+
     revalidatePath('/admin/mom');
     revalidatePath('/mom');
   } catch (error) {
@@ -238,7 +284,12 @@ export async function deleteMom(id: string) {
   if (!userId) throw new Error('Unauthorized');
 
   try {
-    await getDb().delete(moms).where(eq(moms.id, id));
+    const db = getDb();
+    const mom = await db.query.moms.findFirst({ where: eq(moms.id, id) });
+    await db.delete(moms).where(eq(moms.id, id));
+
+    await recordAuditLog(`Deleted Meeting Minutes: ${mom?.title || id}`, 'mom', id, 'warning');
+
     revalidatePath('/admin/mom');
     revalidatePath('/mom');
   } catch (error) {
@@ -257,13 +308,17 @@ export async function createCourse(formData: FormData) {
   const thumbnailUrl = formData.get('thumbnailUrl') as string | null;
 
   try {
+    const id = generateId();
     await getDb().insert(courses).values({
-      id: generateId(),
+      id,
       title,
       description,
       thumbnailUrl: thumbnailUrl || null,
       modulesCount: 0,
     });
+
+    await recordAuditLog(`Created Academy Course: ${title}`, 'course', id);
+
     revalidatePath('/admin/lms');
     revalidatePath('/lms');
   } catch (error) {
@@ -276,7 +331,12 @@ export async function deleteCourse(id: string) {
   if (!userId) throw new Error('Unauthorized');
 
   try {
-    await getDb().delete(courses).where(eq(courses.id, id));
+    const db = getDb();
+    const course = await db.query.courses.findFirst({ where: eq(courses.id, id) });
+    await db.delete(courses).where(eq(courses.id, id));
+
+    await recordAuditLog(`Deleted Academy Course: ${course?.title || id}`, 'course', id, 'warning');
+
     revalidatePath('/admin/lms');
     revalidatePath('/lms');
   } catch (error) {
@@ -295,8 +355,9 @@ export async function createCampaign(formData: FormData) {
   const goalAmount = parseFloat(formData.get('goalAmount') as string) || 0;
 
   try {
+    const id = generateId();
     await getDb().insert(campaigns).values({
-      id: generateId(),
+      id,
       title,
       description,
       goalAmount,
@@ -304,6 +365,9 @@ export async function createCampaign(formData: FormData) {
       status: 'pending',
       createdBy: userId,
     });
+
+    await recordAuditLog(`Launched Campaign: ${title}`, 'campaign', id);
+
     revalidatePath('/admin/campaigns');
   } catch (error) {
     console.error('Failed to create campaign:', error);
@@ -311,17 +375,453 @@ export async function createCampaign(formData: FormData) {
 }
 
 // ================= USERS =================
+export async function createMember(formData: FormData) {
+  const { userId: adminId } = await auth();
+  if (!adminId) throw new Error('Unauthorized');
+
+  const email = formData.get('email') as string;
+  const firstName = formData.get('firstName') as string;
+  const lastName = formData.get('lastName') as string;
+  const role = formData.get('role') as string;
+  const clubId = formData.get('clubId') as string;
+
+  if (!email || !firstName) throw new Error('Missing required fields');
+
+  try {
+    const id = `manual_${generateId()}`;
+    await getDb().insert(users).values({
+      id,
+      email,
+      firstName,
+      lastName: lastName || null,
+      role: role || 'member',
+      clubId: clubId || null,
+      points: 0,
+    });
+
+    await recordAuditLog(`Manually Added Member: ${email}`, 'user', id);
+
+    revalidatePath('/admin/members');
+  } catch (error) {
+    console.error('Failed to create member:', error);
+    throw error;
+  }
+}
+
 export async function deleteUser(id: string) {
   const { userId } = await auth();
   if (!userId) throw new Error('Unauthorized');
 
   try {
-    await getDb().delete(users).where(eq(users.id, id));
+    const db = getDb();
+    const user = await db.query.users.findFirst({ where: eq(users.id, id) });
+    await db.delete(users).where(eq(users.id, id));
+
+    await recordAuditLog(`Deleted User: ${user?.email || id}`, 'user', id, 'warning');
+
     revalidatePath('/admin/members');
   } catch (error) {
     console.error('Failed to delete user:', error);
   }
 }
 
+export async function updateProfile(data: {
+  firstName?: string;
+  lastName?: string;
+  bio?: string;
+  avatarUrl?: string;
+  clubId?: string;
+}) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
 
+  try {
+    await getDb()
+      .update(users)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+    revalidatePath('/profile');
+    revalidatePath('/dashboard');
+  } catch (error) {
+    console.error('Failed to update profile:', error);
+    throw error;
+  }
+}
+
+// ================= JOBS =================
+
+export async function createJob(formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  const title = formData.get('title') as string;
+  const company = formData.get('company') as string;
+  const location = formData.get('location') as string;
+  const type = formData.get('type') as string;
+  const description = formData.get('description') as string;
+  const applyUrl = formData.get('applyUrl') as string;
+
+  try {
+    const id = generateId();
+    await getDb().insert(jobs).values({
+      id,
+      title,
+      company: company || null,
+      location: location || null,
+      type: type || null,
+      description: description || null,
+      applyUrl: applyUrl || null,
+    });
+
+    await recordAuditLog(`Posted Job Opportunity: ${title} @ ${company}`, 'job', id);
+
+    revalidatePath('/admin/jobs');
+    revalidatePath('/jobs');
+  } catch (error) {
+    console.error('Failed to create job:', error);
+    throw error;
+  }
+}
+
+export async function deleteJob(id: string) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  try {
+    const db = getDb();
+    const job = await db.query.jobs.findFirst({ where: eq(jobs.id, id) });
+    await db.delete(jobs).where(eq(jobs.id, id));
+
+    await recordAuditLog(`Deleted Job Posting: ${job?.title || id}`, 'job', id, 'warning');
+
+    revalidatePath('/admin/jobs');
+    revalidatePath('/jobs');
+  } catch (error) {
+    console.error('Failed to delete job:', error);
+    throw error;
+  }
+}
+
+// ================= NEWSLETTERS =================
+
+export async function createNewsletter(formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  const title = formData.get('title') as string;
+  const issueDateStr = formData.get('issueDate') as string;
+  const fileUrl = formData.get('fileUrl') as string;
+  const thumbnailUrl = formData.get('thumbnailUrl') as string;
+
+  const issueDate = issueDateStr ? new Date(issueDateStr) : new Date();
+
+  try {
+    const id = generateId();
+    await getDb().insert(newsletters).values({
+      id,
+      title,
+      issueDate,
+      fileUrl: fileUrl || null,
+      thumbnailUrl: thumbnailUrl || null,
+    });
+
+    await recordAuditLog(`Published Newsletter: ${title}`, 'newsletter', id);
+
+    revalidatePath('/admin/newsletter');
+    revalidatePath('/newsletter');
+  } catch (error) {
+    console.error('Failed to create newsletter:', error);
+    throw error;
+  }
+}
+
+export async function deleteNewsletter(id: string) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  try {
+    const db = getDb();
+    const nl = await db.query.newsletters.findFirst({ where: eq(newsletters.id, id) });
+    await db.delete(newsletters).where(eq(newsletters.id, id));
+
+    await recordAuditLog(`Deleted Newsletter Issue: ${nl?.title || id}`, 'newsletter', id, 'warning');
+
+    revalidatePath('/admin/newsletter');
+    revalidatePath('/newsletter');
+  } catch (error) {
+    console.error('Failed to delete newsletter:', error);
+    throw error;
+  }
+}
+
+// ================= EVENT REGISTRATIONS =================
+
+export async function registerForEvent(eventId: string) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  try {
+    await getDb().insert(eventRegistrations).values({
+      id: generateId(),
+      eventId,
+      userId,
+      status: 'confirmed',
+    });
+    revalidatePath('/events');
+    revalidatePath('/dashboard');
+  } catch (error: any) {
+    // Unique constraint means already registered — silently ignore
+    if (error?.message?.includes('UNIQUE')) return;
+    console.error('Failed to register for event:', error);
+    throw error;
+  }
+}
+
+export async function cancelEventRegistration(eventId: string) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  try {
+    const { and } = await import('drizzle-orm');
+    await getDb()
+      .delete(eventRegistrations)
+      .where(and(eq(eventRegistrations.eventId, eventId), eq(eventRegistrations.userId, userId)));
+    revalidatePath('/events');
+    revalidatePath('/dashboard');
+  } catch (error) {
+    console.error('Failed to cancel registration:', error);
+    throw error;
+  }
+}
+
+// ================= SERVICE HOURS =================
+
+export async function logServiceHours(formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  const hours = parseFloat(formData.get('hours') as string);
+  const description = formData.get('description') as string;
+  const eventId = formData.get('eventId') as string | null;
+
+  if (!hours || hours <= 0) throw new Error('Invalid hours value');
+
+  try {
+    await getDb().insert(serviceHours).values({
+      id: generateId(),
+      userId,
+      eventId: eventId || null,
+      hours,
+      description: description || null,
+    });
+    revalidatePath('/dashboard');
+    revalidatePath('/profile');
+  } catch (error) {
+    console.error('Failed to log service hours:', error);
+    throw error;
+  }
+}
+
+// ================= MENTORSHIP =================
+
+export async function applyForMentorship(formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  const mentorId = formData.get('mentorId') as string;
+  const message = formData.get('message') as string;
+  const domain = formData.get('domain') as string;
+
+  try {
+    await getDb().insert(mentorshipApplications).values({
+      id: generateId(),
+      mentorId,
+      menteeId: userId,
+      message: message || null,
+      domain: domain || null,
+      status: 'pending',
+    });
+    revalidatePath('/mentorship');
+  } catch (error) {
+    console.error('Failed to apply for mentorship:', error);
+    throw error;
+  }
+}
+
+export async function updateMentorshipStatus(id: string, status: string) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  try {
+    await getDb()
+      .update(mentorshipApplications)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(mentorshipApplications.id, id));
+    revalidatePath('/mentorship');
+    revalidatePath('/admin');
+  } catch (error) {
+    console.error('Failed to update mentorship status:', error);
+    throw error;
+  }
+}
+
+// ================= RESOURCES (Cold Storage Metadata) =================
+
+export async function uploadResource(formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  const fileName = formData.get('fileName') as string;
+  const r2Key = formData.get('r2Key') as string;
+  const category = formData.get('category') as string;
+  const mimeType = formData.get('mimeType') as string;
+  const fileSize = parseInt(formData.get('fileSize') as string, 10);
+
+  if (!fileName || !r2Key || !fileSize) throw new Error('Missing required fields');
+
+  try {
+    const id = generateId();
+    await getDb().insert(coldStorageFiles).values({
+      id,
+      fileName,
+      r2Key,
+      category: category || 'General',
+      mimeType: mimeType || null,
+      fileSize,
+      uploadedBy: userId,
+      isPublic: true,
+    });
+
+    await recordAuditLog(`Uploaded Resource: ${fileName}`, 'resource', id);
+
+    revalidatePath('/admin/resources');
+    revalidatePath('/resources');
+  } catch (error) {
+    console.error('Failed to register resource:', error);
+    throw error;
+  }
+}
+
+export async function deleteResource(id: string) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  try {
+    const db = getDb();
+    const file = await db.query.coldStorageFiles.findFirst({ where: eq(coldStorageFiles.id, id) });
+    await db.delete(coldStorageFiles).where(eq(coldStorageFiles.id, id));
+
+    await recordAuditLog(`Deleted Resource: ${file?.fileName || id}`, 'resource', id, 'warning');
+
+    revalidatePath('/admin/resources');
+    revalidatePath('/resources');
+  } catch (error) {
+    console.error('Failed to delete resource:', error);
+    throw error;
+  }
+}
+
+// ================= ANNOUNCEMENTS =================
+
+export async function createAnnouncement(formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  const title = formData.get('title') as string;
+  const content = formData.get('content') as string;
+  const type = formData.get('type') as string; // info, alert, success
+  const clubId = formData.get('clubId') as string || null;
+
+  try {
+    const id = generateId();
+    await getDb().insert(announcements).values({
+      id,
+      title,
+      content,
+      type: type || 'info',
+      clubId,
+      createdBy: userId,
+    });
+
+    await recordAuditLog(`Sent Announcement: ${title}`, 'announcement', id);
+
+    revalidatePath('/admin/announcements');
+    revalidatePath('/dashboard');
+  } catch (error) {
+    console.error('Failed to create announcement:', error);
+    throw error;
+  }
+}
+
+export async function deleteAnnouncement(id: string) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  try {
+    const db = getDb();
+    const ann = await db.query.announcements.findFirst({ where: eq(announcements.id, id) });
+    await db.delete(announcements).where(eq(announcements.id, id));
+
+    await recordAuditLog(`Deleted Announcement: ${ann?.title || id}`, 'announcement', id, 'warning');
+
+    revalidatePath('/admin/announcements');
+    revalidatePath('/dashboard');
+  } catch (error) {
+    console.error('Failed to delete announcement:', error);
+    throw error;
+  }
+}
+
+// ================= MOM (Minutes of Meetings) =================
+
+export async function createMOM(formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  const title = formData.get('title') as string;
+  const meetingDateStr = formData.get('meetingDate') as string;
+  const content = formData.get('content') as string;
+  const fileUrl = formData.get('fileUrl') as string || null;
+  const clubId = formData.get('clubId') as string || null;
+
+  const meetingDate = meetingDateStr ? new Date(meetingDateStr) : new Date();
+
+  try {
+    const id = generateId();
+    await getDb().insert(moms).values({
+      id,
+      clubId,
+      title,
+      meetingDate,
+      content: content || null,
+      fileUrl,
+      createdBy: userId,
+    });
+
+    await recordAuditLog(`Recorded Minutes: ${title}`, 'mom', id);
+
+    revalidatePath('/admin/mom');
+  } catch (error) {
+    console.error('Failed to create MOM:', error);
+    throw error;
+  }
+}
+
+export async function deleteMOM(id: string) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  try {
+    const db = getDb();
+    const mom = await db.query.moms.findFirst({ where: eq(moms.id, id) });
+    await db.delete(moms).where(eq(moms.id, id));
+
+    await recordAuditLog(`Deleted Minutes: ${mom?.title || id}`, 'mom', id, 'warning');
+
+    revalidatePath('/admin/mom');
+  } catch (error) {
+    console.error('Failed to delete MOM:', error);
+    throw error;
+  }
+}
 

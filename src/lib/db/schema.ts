@@ -140,3 +140,51 @@ export const userAchievements = sqliteTable('user_achievements', {
   badgeIcon: text('badge_icon'),
   awardedAt: integer('awarded_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
 });
+
+// Mentorship Applications: tracks mentor/mentee pairings
+export const mentorshipApplications = sqliteTable('mentorship_applications', {
+  id: text('id').primaryKey(),
+  mentorId: text('mentor_id').notNull(),   // users.id
+  menteeId: text('mentee_id').notNull(),   // users.id
+  message: text('message'),               // why they want to connect
+  status: text('status').default('pending'), // 'pending', 'accepted', 'rejected', 'completed'
+  domain: text('domain'),                 // e.g. 'leadership', 'marketing', 'technology'
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+});
+
+// Course Modules: child records for each course in the LMS
+export const courseModules = sqliteTable('course_modules', {
+  id: text('id').primaryKey(),
+  courseId: text('course_id').notNull(),   // courses.id
+  title: text('title').notNull(),
+  description: text('description'),
+  videoUrl: text('video_url'),
+  duration: integer('duration'),           // in minutes
+  order: integer('order').default(0),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+});
+
+// Service Hours: tracks volunteer/service hours logged by members
+export const serviceHours = sqliteTable('service_hours', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),       // users.id
+  eventId: text('event_id'),              // events.id (optional if logged independently)
+  hours: real('hours').notNull(),
+  description: text('description'),
+  loggedAt: integer('logged_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  approvedBy: text('approved_by'),         // admin users.id
+});
+
+// Audit Logs: tracking all administrative actions
+export const auditLogs = sqliteTable('audit_logs', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  userName: text('user_name'),
+  action: text('action').notNull(),
+  resourceType: text('resource_type'), // 'event', 'club', 'member', etc.
+  resourceId: text('resource_id'),
+  timestamp: integer('timestamp', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  severity: text('severity').default('info'), // 'info', 'warning', 'critical'
+});
+

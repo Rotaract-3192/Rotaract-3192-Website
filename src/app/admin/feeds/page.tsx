@@ -8,72 +8,121 @@ export default async function AdminFeedsPage() {
 
   return (
     <div className="space-y-12">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 text-on-surface">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="space-y-1">
-          <h1 className="text-3xl font-black uppercase tracking-tight leading-none">Feed Moderation</h1>
-          <p className="text-xs text-on-surface-variant font-medium opacity-60 italic">{feedItems.length} items in the content stream.</p>
+          <h1 className="text-3xl font-black uppercase tracking-tight leading-none text-on-surface">Content Stream</h1>
+          <p className="text-xs text-on-surface-variant font-medium opacity-60 italic">{feedItems.length} active transmissions in the district feed.</p>
         </div>
       </header>
 
-      {/* Create Feed Form */}
-      <div className="bg-white/70 backdrop-blur-xl rounded-3xl border border-white shadow-xl p-8">
-        <h2 className="text-sm font-black uppercase tracking-widest text-primary mb-6">Publish New Post</h2>
-        <form action={createFeed} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest">Title</label>
-            <input name="title" type="text" required placeholder="Post title..." className="w-full border border-outline-variant/30 rounded-lg p-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20" />
-          </div>
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest">Type</label>
-            <select name="type" className="w-full border border-outline-variant/30 rounded-lg p-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20">
-              <option value="post">Post</option>
-              <option value="news">News</option>
-              <option value="announcement">Announcement</option>
-              <option value="event">Event</option>
-            </select>
-          </div>
-          <div className="md:col-span-2 space-y-2">
-            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest">Content</label>
-            <textarea name="content" required rows={4} placeholder="Post content..." className="w-full border border-outline-variant/30 rounded-lg p-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"></textarea>
-          </div>
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest">Media URL (optional)</label>
-            <input name="mediaUrl" type="url" placeholder="https://..." className="w-full border border-outline-variant/30 rounded-lg p-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20" />
-          </div>
-          <div className="flex items-end">
-            <button type="submit" className="w-full bg-primary text-white font-black text-xs uppercase tracking-widest py-3 rounded-lg hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
-              Publish Post
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Feed List */}
-      <div className="space-y-4">
-        {feedItems.length === 0 ? (
-          <div className="text-center py-16 text-on-surface-variant/50 text-sm font-bold uppercase tracking-widest">
-            No feed items yet. Publish your first post above.
-          </div>
-        ) : (
-          feedItems.map((feed) => (
-            <div key={feed.id} className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white shadow-md p-6 flex items-start justify-between gap-6 group hover:shadow-lg transition-all">
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center gap-3">
-                  <span className="px-2 py-0.5 bg-primary/10 text-primary rounded text-[9px] font-black uppercase tracking-widest">{feed.type || 'post'}</span>
-                  <p className="text-[10px] text-on-surface-variant opacity-50">{feed.createdAt ? new Date(feed.createdAt).toLocaleDateString() : ''}</p>
-                </div>
-                <h3 className="text-base font-black text-on-surface uppercase tracking-tight">{feed.title}</h3>
-                <p className="text-xs text-on-surface-variant opacity-70 line-clamp-2">{feed.content}</p>
-              </div>
-              <form action={deleteFeed.bind(null, feed.id)}>
-                <button type="submit" className="w-9 h-9 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-all opacity-0 group-hover:opacity-100">
-                  <span className="material-symbols-outlined text-base">delete</span>
-                </button>
-              </form>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        {/* Create Feed Form */}
+        <div className="lg:col-span-1">
+          <div className="bg-white/80 backdrop-blur-2xl rounded-[2.5rem] border border-white shadow-2xl p-10 sticky top-12 shadow-primary/5">
+            <div className="flex items-center gap-3 mb-8">
+               <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                 <span className="material-symbols-outlined text-xl">broadcast_on_home</span>
+               </div>
+               <h2 className="text-sm font-black uppercase tracking-widest text-on-surface">Publish Transmission</h2>
             </div>
-          ))
-        )}
+            
+            <form action={createFeed} className="space-y-6">
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] opacity-60">Headline</label>
+                <input name="title" type="text" required placeholder="PROTOCOL_INIT..." className="w-full bg-surface-container-low border-none rounded-2xl p-4 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary/20 transition-all placeholder:opacity-30" />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] opacity-60">Classification</label>
+                <select name="type" className="w-full bg-surface-container-low border-none rounded-2xl p-4 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary/20 transition-all appearance-none">
+                  <option value="post">Pulse Post</option>
+                  <option value="news">District News</option>
+                  <option value="announcement">Global Broadcast</option>
+                  <option value="event">Operation Update</option>
+                </select>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] opacity-60">Data Payload</label>
+                <textarea name="content" required rows={6} placeholder="Enter message payload..." className="w-full bg-surface-container-low border-none rounded-2xl p-4 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary/20 transition-all placeholder:opacity-30 resize-none"></textarea>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] opacity-60">Media Uplink (URL)</label>
+                <input name="mediaUrl" type="url" placeholder="https://cdn.rotaract.org/..." className="w-full bg-surface-container-low border-none rounded-2xl p-4 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary/20 transition-all placeholder:opacity-30" />
+              </div>
+              
+              <button type="submit" className="w-full bg-primary text-white font-black text-xs uppercase tracking-[0.25em] py-5 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/20 mt-4 flex items-center justify-center gap-3">
+                Authorize Broadcast
+                <span className="material-symbols-outlined text-base">send</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Feed List */}
+        <div className="lg:col-span-2 space-y-6">
+          {feedItems.length === 0 ? (
+            <div className="bg-surface-container-low/50 rounded-[3rem] border border-dashed border-outline/20 py-32 text-center">
+              <span className="material-symbols-outlined text-5xl text-on-surface-variant/20 mb-4 block">leak_add</span>
+              <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.3em] opacity-40 italic">Frequency Silent. No transmissions found.</p>
+            </div>
+          ) : (
+            feedItems.map((feed) => (
+              <div key={feed.id} className="group bg-white/60 backdrop-blur-xl rounded-[2.5rem] border border-white p-8 flex items-start gap-8 hover:shadow-2xl hover:shadow-primary/5 transition-all relative overflow-hidden">
+                {/* Decorative status bar */}
+                <div className={`absolute top-0 left-0 w-1.5 h-full ${
+                  feed.type === 'announcement' ? 'bg-amber-400' :
+                  feed.type === 'news' ? 'bg-primary' : 'bg-on-surface/10'
+                }`}></div>
+
+                <div className="flex-1 space-y-4">
+                  <div className="flex items-center gap-4">
+                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                      feed.type === 'announcement' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                      feed.type === 'news' ? 'bg-primary/5 text-primary border border-primary/10' :
+                      'bg-surface-container-low text-on-surface-variant border border-outline/5'
+                    }`}>
+                      {feed.type || 'post'}
+                    </span>
+                    <span className="text-[10px] font-bold text-on-surface-variant opacity-40 uppercase tracking-widest italic">
+                      {feed.createdAt ? new Date(feed.createdAt).toLocaleDateString('en-IN', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric'
+                      }) : '---'}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <h3 className="text-xl font-black text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors">{feed.title}</h3>
+                    <p className="text-sm font-medium text-on-surface-variant/80 leading-relaxed line-clamp-3">{feed.content}</p>
+                  </div>
+
+                  {feed.mediaUrl && (
+                    <div className="flex items-center gap-2 pt-2">
+                       <span className="material-symbols-outlined text-sm text-primary">link</span>
+                       <p className="text-[10px] font-bold text-primary uppercase tracking-widest truncate max-w-[200px]">{feed.mediaUrl}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <form action={deleteFeed.bind(null, feed.id)}>
+                    <button type="submit" className="w-12 h-12 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all group-hover:shadow-lg group-hover:shadow-red-500/10">
+                      <span className="material-symbols-outlined text-xl">delete_sweep</span>
+                    </button>
+                  </form>
+                  <button className="w-12 h-12 rounded-2xl bg-surface-container-low text-on-surface-variant flex items-center justify-center hover:bg-on-surface hover:text-white transition-all">
+                    <span className="material-symbols-outlined text-xl">edit_note</span>
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
 }
+
