@@ -1,9 +1,25 @@
-import { getLeaderboard } from '@/app/actions/queries';
+import { getLeaderboard, getClubs, getDistrictStats } from '@/app/actions/queries';
 import HallOfFameClient from './HallOfFameClient';
 
-export const revalidate = 0;
+export const metadata = {
+  title: 'Hall of Fame | Rotaract District 3192',
+  description: 'Celebrating the top contributors and champions of Rotaract District 3192.',
+};
+
+export const revalidate = 60;
 
 export default async function HallOfFamePage() {
-  const leaderboardData = await getLeaderboard();
-  return <HallOfFameClient leaderboardData={leaderboardData} />;
+  const [leaderboard, clubs, stats] = await Promise.all([
+    getLeaderboard(),
+    getClubs(),
+    getDistrictStats(),
+  ]);
+
+  return (
+    <HallOfFameClient
+      leaderboard={leaderboard}
+      clubs={clubs}
+      stats={stats}
+    />
+  );
 }

@@ -1,156 +1,365 @@
-export default function HallOfFameClient({ leaderboardData }: { leaderboardData: any[] }) {
-  const leaderboard = (leaderboardData || []).map((m: any, idx: number) => ({
-    ...m,
-    rank: idx + 1,
-    name: m.name || `${m.firstName || ''} ${m.lastName || ''}`.trim() || 'Member',
-    profile_pic_url: m.avatarUrl || m.profile_pic_url || `https://ui-avatars.com/api/?name=${m.name}&background=random`,
-    points: m.points || 0,
-    club_name: m.clubId || 'District 3192',
-    badges: m.badges || ['Service', 'Leadership']
-  }));
+"use client";
 
-  const top1 = leaderboard[0];
-  const top2 = leaderboard[1];
-  const top3 = leaderboard[2];
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+
+interface LeaderEntry {
+  id: string;
+  name: string;
+  points: number | null;
+  avatarUrl: string | null;
+  role: string | null;
+}
+
+interface Club {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl: string | null;
+}
+
+interface Stats {
+  totalClubs: number;
+  totalMembers: number;
+  totalEvents: number;
+  totalAnnouncements: number;
+}
+
+const TIER_CONFIG = [
+  { label: "GOLD", threshold: 0, color: "#FFD700", glow: "rgba(255,215,0,0.4)", icon: "emoji_events", rank: 1 },
+  { label: "SILVER", threshold: 0, color: "#C0C0C0", glow: "rgba(192,192,192,0.3)", icon: "military_tech", rank: 2 },
+  { label: "BRONZE", threshold: 0, color: "#CD7F32", glow: "rgba(205,127,50,0.3)", icon: "workspace_premium", rank: 3 },
+];
+
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2) || "?";
+}
+
+function getRoleLabel(role: string | null) {
+  if (!role) return "Member";
+  const map: Record<string, string> = {
+    district_admin: "District Admin",
+    club_admin: "Club Leader",
+    member: "Member",
+  };
+  return map[role] ?? role;
+}
+
+export default function HallOfFameClient({
+  leaderboard,
+  clubs,
+  stats,
+}: {
+  leaderboard: LeaderEntry[];
+  clubs: Club[];
+  stats: Stats;
+}) {
+  const [activeTab, setActiveTab] = useState<"individuals" | "clubs">("individuals");
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  const top3 = leaderboard.slice(0, 3);
+  const rest = leaderboard.slice(3);
+
+  const podiumOrder = top3.length >= 3
+    ? [top3[1], top3[0], top3[2]]   // Silver, Gold, Bronze visual order
+    : top3;
+
+  const podiumHeights = ["h-36", "h-52", "h-28"];
+  const podiumRanks = [2, 1, 3];
 
   return (
-    <main className="max-w-7xl mx-auto min-h-screen relative overflow-visible pb-32 px-6 lg:px-12">
-      {/* Cinematic Background Accents */}
-      <div className="fixed top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[160px] -z-10"></div>
-      <div className="fixed -bottom-48 -left-48 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[140px] -z-10"></div>
-
-      <header className="py-24 lg:py-40 flex flex-col items-center text-center gap-8 border-b border-outline-variant/30 mb-32">
-        <span className="inline-block px-6 py-2 rounded-full bg-primary/5 text-primary text-[10px] font-black tracking-[0.4em] uppercase border border-primary/10">The Pantheon</span>
-        <h1 className="text-6xl md:text-9xl font-black text-on-surface tracking-tighter font-display uppercase leading-none italic">
-          Hall of <br />
-          <span className="text-primary not-italic">Fame.</span>
-        </h1>
-        <p className="text-xl md:text-3xl text-on-surface-variant max-w-3xl font-medium leading-tight opacity-70">
-          Celebrating the most dedicated and impactful leaders within District 3192.
-        </p>
-      </header>
-
-      {/* Podium Section */}
-      {leaderboard.length >= 3 && top1 && top2 && top3 && (
-      <section className="mb-48">
-        <div className="flex flex-col md:flex-row items-end justify-center gap-10 md:gap-20">
-          {/* 2nd Place */}
-          <div className="order-2 md:order-1 flex flex-col items-center w-full md:w-auto group">
-            <div className="relative mb-12">
-              <div className="absolute -top-6 -right-6 w-14 h-14 bg-surface-container-high shadow-xl rounded-2xl flex items-center justify-center text-on-surface font-black border border-outline-variant/30 transition-transform group-hover:scale-110 z-20 text-xs">02</div>
-              <img src={top2.profile_pic_url} alt={top2.name} className="w-48 h-48 rounded-[3rem] object-cover border-4 border-white shadow-ambient rotate-[-4deg] group-hover:rotate-0 transition-all duration-700" />
-            </div>
-            <div className="text-center space-y-3 mb-12">
-              <h3 className="text-3xl font-black text-on-surface uppercase tracking-tight font-display leading-none group-hover:text-primary transition-colors">{top2.name}</h3>
-              <span className="bg-surface-container-low text-primary font-black text-[10px] px-6 py-2.5 rounded-xl uppercase tracking-[0.2em] border border-outline-variant/30 shadow-sm">{top2.points} IMPACT PTS</span>
-            </div>
-            <div className="w-64 h-40 bg-surface-container-low/50 backdrop-blur-xl rounded-t-[4rem] border-t border-outline-variant/30 shadow-ambient relative overflow-hidden">
-               <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent opacity-50"></div>
-            </div>
+    <div className="relative min-h-screen bg-transparent text-white">
+      {/* ─── Page Header ─── */}
+      <section className="relative z-10 pt-48 pb-24 px-8 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-8 max-w-4xl mx-auto"
+        >
+          <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full border border-[#FFD700]/20 bg-[#FFD700]/5">
+            <span className="material-symbols-outlined text-[#FFD700] text-base">emoji_events</span>
+            <span className="text-[9px] font-black text-white/60 uppercase tracking-[0.5em]">District 3192</span>
           </div>
 
-          {/* 1st Place */}
-          <div className="order-1 md:order-2 flex flex-col items-center w-full md:w-auto group">
-            <div className="relative mb-16">
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 bg-primary shadow-2xl rounded-[2rem] flex items-center justify-center text-white border-4 border-white/20 animate-bounce z-20">
-                <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
-              </div>
-              <div className="absolute inset-0 bg-primary/20 rounded-full blur-[100px] scale-150 animate-pulse"></div>
-              <img src={top1.profile_pic_url} alt={top1.name} className="w-72 h-72 rounded-[4.5rem] object-cover border-8 border-white shadow-2xl relative z-10 group-hover:scale-105 transition-all duration-700" />
-            </div>
-            <div className="text-center space-y-4 mb-16">
-              <h3 className="text-5xl font-black text-on-surface uppercase tracking-tighter font-display leading-none group-hover:text-primary transition-colors">{top1.name}</h3>
-              <span className="bg-primary text-white font-black text-[11px] px-10 py-4 rounded-[1.5rem] shadow-2xl shadow-primary/30 uppercase tracking-[0.3em] inline-block">THE APEX: {top1.points} POINTS</span>
-            </div>
-            <div className="w-80 h-64 bg-surface-container-lowest/90 backdrop-blur-3xl rounded-t-[5rem] border-t-2 border-primary shadow-2xl relative z-0 overflow-hidden">
-               <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-primary/5 to-transparent"></div>
-               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[160px] font-black text-primary/5 select-none leading-none font-display italic tracking-tighter">01</div>
-            </div>
-          </div>
+          <h1 className="text-6xl md:text-[8rem] font-black tracking-tighter font-display uppercase italic leading-none">
+            Hall of{" "}
+            <span
+              className="not-italic"
+              style={{ color: "#FFD700", textShadow: "0 0 60px rgba(255,215,0,0.4)" }}
+            >
+              Fame
+            </span>
+          </h1>
 
-          {/* 3rd Place */}
-          <div className="order-3 flex flex-col items-center w-full md:w-auto group">
-            <div className="relative mb-12">
-              <div className="absolute -top-6 -left-6 w-14 h-14 bg-surface-container-high shadow-xl rounded-2xl flex items-center justify-center text-on-surface font-black border border-outline-variant/30 transition-transform group-hover:scale-110 z-20 text-xs">03</div>
-              <img src={top3.profile_pic_url} alt={top3.name} className="w-44 h-44 rounded-[2.8rem] object-cover border-4 border-white shadow-ambient rotate-[4deg] group-hover:rotate-0 transition-all duration-700" />
-            </div>
-            <div className="text-center space-y-3 mb-12">
-              <h3 className="text-2xl font-black text-on-surface uppercase tracking-tight font-display leading-none group-hover:text-primary transition-colors">{top3.name}</h3>
-              <span className="bg-surface-container-low text-primary font-black text-[10px] px-6 py-2.5 rounded-xl uppercase tracking-[0.2em] border border-outline-variant/30 shadow-sm">{top3.points} IMPACT PTS</span>
-            </div>
-            <div className="w-60 h-32 bg-surface-container-low/50 backdrop-blur-xl rounded-t-[3.5rem] border-t border-outline-variant/30 shadow-ambient relative overflow-hidden">
-               <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent opacity-50"></div>
-            </div>
-          </div>
-        </div>
+          <p className="text-white/30 text-sm font-medium max-w-lg mx-auto leading-relaxed">
+            Recognizing the highest-impact contributors shaping the future of our district.
+          </p>
+        </motion.div>
       </section>
-      )}
 
-      {/* Table Section */}
-      <section className="px-0 lg:px-12">
-        <div className="max-w-6xl mx-auto bg-surface-container-low/70 backdrop-blur-2xl rounded-[4rem] border border-outline-variant/30 shadow-ambient overflow-hidden">
-          <div className="p-12 lg:p-16 border-b border-outline-variant/30 flex flex-col lg:flex-row justify-between items-center gap-12">
-            <div className="space-y-4 text-center lg:text-left">
-              <h2 className="text-4xl font-black text-on-surface uppercase tracking-tighter font-display leading-none italic">Global <span className="text-primary not-italic">Sequence.</span></h2>
-              <div className="flex items-center justify-center lg:justify-start gap-4">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em] opacity-80">Reporting Cycle: 2024-25 • District Authority 3192</p>
-              </div>
+      {/* ─── Stats Bar ─── */}
+      <section className="relative z-10 px-8 pb-24">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4"
+        >
+          {[
+            { label: "Champions", val: leaderboard.length.toString(), icon: "emoji_events" },
+            { label: "Clubs", val: stats.totalClubs.toString(), icon: "groups" },
+            { label: "Members", val: stats.totalMembers.toString(), icon: "person" },
+            { label: "Projects", val: stats.totalEvents.toString(), icon: "handshake" },
+          ].map((s, i) => (
+            <div
+              key={i}
+              className="flex flex-col items-center gap-3 py-8 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/5 hover:border-[#FFD700]/20 transition-all group"
+            >
+              <span className="material-symbols-outlined text-[#FFD700]/40 group-hover:text-[#FFD700] transition-colors">{s.icon}</span>
+              <div className="text-3xl font-black text-white">{s.val}</div>
+              <div className="text-[9px] font-bold text-white/30 uppercase tracking-[0.4em]">{s.label}</div>
             </div>
-            <div className="flex items-center gap-4 p-2.5 bg-surface-container-high rounded-[2.5rem] border border-outline-variant/30 shadow-inner">
-              <button className="bg-white text-primary font-black text-[10px] uppercase tracking-[0.3em] px-12 py-4 rounded-[2rem] shadow-xl transition-all hover:scale-105 active:scale-95">District Horizon</button>
-              <button className="text-on-surface-variant hover:text-primary font-black text-[10px] uppercase tracking-[0.3em] px-12 py-4 transition-all">Internal Protocol</button>
-            </div>
-          </div>
+          ))}
+        </motion.div>
+      </section>
 
-          <div className="divide-y divide-outline-variant/20">
-            {leaderboard.map((member, index) => (
-              <div key={index} className="p-10 lg:p-14 hover:bg-white/40 transition-all duration-700 flex flex-col md:flex-row items-center gap-10 group relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                
-                <div className="w-20 text-center shrink-0 relative z-10">
-                  <span className={`text-5xl font-black ${index < 3 ? 'text-primary' : 'text-on-surface/10'} group-hover:text-primary transition-all duration-700 font-display italic tracking-tighter`}>
-                    {(index + 1).toString().padStart(2, '0')}
-                  </span>
-                </div>
-                
-                <div className="flex flex-col md:flex-row items-center flex-1 gap-10 relative z-10">
-                  <div className="w-24 h-24 rounded-[2rem] overflow-hidden border-4 border-white shadow-ambient shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-all duration-700">
-                    <img src={member.profile_pic_url} alt="" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="space-y-2 text-center md:text-left">
-                    <h4 className="text-3xl font-black text-on-surface uppercase tracking-tight leading-none font-display group-hover:text-primary transition-colors">{member.name}</h4>
-                    <p className="text-[11px] font-black text-primary uppercase tracking-[0.3em] opacity-60 italic">{member.club_name}</p>
-                  </div>
-                </div>
-
-                <div className="hidden xl:flex items-center gap-4 relative z-10">
-                  {member.badges.slice(0, 2).map((badge: string, bIdx: number) => (
-                    <span key={bIdx} className="bg-surface-container-high text-primary font-black text-[10px] px-6 py-2.5 rounded-xl border border-outline-variant/30 uppercase tracking-[0.2em] shadow-sm group-hover:bg-primary group-hover:text-white group-hover:border-transparent transition-all duration-700">
-                      {badge}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="text-center md:text-right shrink-0 min-w-[160px] relative z-10">
-                  <div className="text-5xl font-black text-on-surface leading-none font-display tracking-tighter group-hover:text-primary transition-colors">{member.points}</div>
-                  <div className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mt-3 opacity-60">Quantified Impact</div>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="p-16 text-center bg-surface-container-high/30">
-            <button className="px-16 py-6 bg-primary text-white rounded-[2rem] font-black uppercase tracking-[0.4em] text-[11px] shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all group overflow-hidden relative">
-              <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-              <span className="relative z-10 flex items-center gap-4">
-                Synchronize Global Registry
-                <span className="material-symbols-outlined text-lg">bolt</span>
-              </span>
+      {/* ─── Tab Toggle ─── */}
+      <section className="relative z-10 px-8 pb-16 flex justify-center">
+        <div className="flex items-center gap-1 p-1 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl">
+          {[
+            { key: "individuals", label: "Top Members", icon: "person" },
+            { key: "clubs", label: "Clubs", icon: "groups" },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key as "individuals" | "clubs")}
+              className={`flex items-center gap-2 px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all ${
+                activeTab === tab.key
+                  ? "bg-[#FFD700] text-[#020617]"
+                  : "text-white/30 hover:text-white"
+              }`}
+            >
+              <span className="material-symbols-outlined text-base">{tab.icon}</span>
+              {tab.label}
             </button>
-          </div>
+          ))}
         </div>
       </section>
-    </main>
+
+      <AnimatePresence mode="wait">
+        {activeTab === "individuals" && (
+          <motion.div
+            key="individuals"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            {/* ─── Podium ─── */}
+            {top3.length > 0 && (
+              <section className="relative z-10 px-8 pb-24">
+                <div className="max-w-4xl mx-auto">
+                  <div className="flex items-end justify-center gap-6 mb-0">
+                    {(top3.length >= 3 ? podiumOrder : top3).map((entry, idx) => {
+                      const rank = top3.length >= 3 ? podiumRanks[idx] : idx + 1;
+                      const tier = TIER_CONFIG.find((t) => t.rank === rank) ?? TIER_CONFIG[2];
+                      const height = podiumHeights[idx];
+
+                      return (
+                        <motion.div
+                          key={entry.id}
+                          initial={{ opacity: 0, y: 40 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.15 }}
+                          className="flex flex-col items-center gap-4"
+                        >
+                          {/* Avatar */}
+                          <div className="relative">
+                            <div
+                              className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 overflow-hidden flex items-center justify-center text-2xl font-black"
+                              style={{
+                                borderColor: tier.color,
+                                boxShadow: `0 0 30px ${tier.glow}`,
+                                background: `radial-gradient(circle at center, ${tier.glow}, #020617)`,
+                              }}
+                            >
+                              {entry.avatarUrl ? (
+                                <img src={entry.avatarUrl} alt={entry.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <span style={{ color: tier.color }}>{getInitials(entry.name || "?")}</span>
+                              )}
+                            </div>
+                            {rank === 1 && (
+                              <span
+                                className="material-symbols-outlined absolute -top-3 -right-3 text-3xl"
+                                style={{ color: "#FFD700", filter: "drop-shadow(0 0 8px #FFD700)" }}
+                              >
+                                emoji_events
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Name & Points */}
+                          <div className="text-center">
+                            <div className="font-black text-sm md:text-base text-white truncate max-w-[120px]">
+                              {entry.name || "Unknown"}
+                            </div>
+                            <div className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: tier.color }}>
+                              {(entry.points ?? 0).toLocaleString()} pts
+                            </div>
+                            <div className="text-[9px] text-white/30 mt-1 uppercase tracking-[0.2em]">
+                              {getRoleLabel(entry.role)}
+                            </div>
+                          </div>
+
+                          {/* Podium Block */}
+                          <div
+                            className={`w-28 md:w-36 ${height} rounded-t-2xl flex items-start justify-center pt-3 relative overflow-hidden`}
+                            style={{
+                              background: `linear-gradient(to bottom, ${tier.glow}, rgba(255,255,255,0.03))`,
+                              border: `1px solid ${tier.color}30`,
+                            }}
+                          >
+                            <span
+                              className="text-4xl font-black font-display"
+                              style={{ color: `${tier.color}60` }}
+                            >
+                              {rank}
+                            </span>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                  {/* Podium Base */}
+                  <div className="h-2 bg-gradient-to-r from-transparent via-[#FFD700]/20 to-transparent rounded-full" />
+                </div>
+              </section>
+            )}
+
+            {/* ─── Rest of Leaderboard ─── */}
+            {rest.length > 0 && (
+              <section className="relative z-10 px-8 pb-32">
+                <div className="max-w-4xl mx-auto space-y-3">
+                  <h2 className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-8 text-center">
+                    Top Contributors
+                  </h2>
+                  {rest.map((entry, idx) => {
+                    const rank = idx + 4;
+                    return (
+                      <motion.div
+                        key={entry.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        onMouseEnter={() => setHoveredId(entry.id)}
+                        onMouseLeave={() => setHoveredId(null)}
+                        className="flex items-center gap-6 p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-white/20 backdrop-blur-xl transition-all group cursor-default"
+                      >
+                        {/* Rank */}
+                        <div className="w-8 text-center font-black text-white/20 group-hover:text-white/60 text-sm transition-colors">
+                          {rank}
+                        </div>
+
+                        {/* Avatar */}
+                        <div className="w-11 h-11 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-sm font-black text-white/60 overflow-hidden flex-shrink-0">
+                          {entry.avatarUrl ? (
+                            <img src={entry.avatarUrl} alt={entry.name} className="w-full h-full object-cover" />
+                          ) : (
+                            getInitials(entry.name || "?")
+                          )}
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="font-black text-sm text-white truncate">{entry.name || "Unknown"}</div>
+                          <div className="text-[9px] text-white/30 uppercase tracking-[0.2em]">{getRoleLabel(entry.role)}</div>
+                        </div>
+
+                        {/* Points */}
+                        <div className="text-right flex-shrink-0">
+                          <div className="font-black text-primary text-lg">{(entry.points ?? 0).toLocaleString()}</div>
+                          <div className="text-[8px] text-white/20 uppercase tracking-[0.3em]">points</div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+
+                  {leaderboard.length === 0 && (
+                    <div className="text-center py-24 space-y-4">
+                      <span className="material-symbols-outlined text-6xl text-white/10">emoji_events</span>
+                      <p className="text-white/20 text-sm uppercase tracking-[0.3em]">No champions yet. Be the first.</p>
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
+          </motion.div>
+        )}
+
+        {activeTab === "clubs" && (
+          <motion.div
+            key="clubs"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <section className="relative z-10 px-8 pb-32">
+              <div className="max-w-5xl mx-auto">
+                {clubs.length === 0 ? (
+                  <div className="text-center py-24 space-y-4">
+                    <span className="material-symbols-outlined text-6xl text-white/10">groups</span>
+                    <p className="text-white/20 text-sm uppercase tracking-[0.3em]">No clubs registered yet.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {clubs.map((club, idx) => (
+                      <motion.div
+                        key={club.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        whileHover={{ y: -6 }}
+                        className="relative p-8 rounded-3xl bg-white/5 border border-white/5 hover:border-primary/30 backdrop-blur-xl transition-all group overflow-hidden"
+                      >
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-all" />
+
+                        <div className="relative z-10 space-y-4">
+                          {/* Club Logo / Initials */}
+                          <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center overflow-hidden group-hover:border-primary/30 transition-all">
+                            {club.logoUrl ? (
+                              <img src={club.logoUrl} alt={club.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors text-3xl">
+                                groups
+                              </span>
+                            )}
+                          </div>
+
+                          <div>
+                            <div className="font-black text-white text-base leading-tight">{club.name}</div>
+                            <div className="text-[9px] text-white/30 uppercase tracking-[0.3em] mt-1 font-bold">
+                              {club.slug}
+                            </div>
+                          </div>
+
+                          <div className="pt-2 border-t border-white/5">
+                            <div className="text-[9px] text-primary/60 uppercase tracking-[0.3em] font-black">Active Club</div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

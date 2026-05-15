@@ -4,7 +4,7 @@ import { getDb } from '@/lib/db';
 import {
   clubs, events, users, feeds, campaigns, announcements, moms, courses,
   jobs, newsletters, eventRegistrations, serviceHours, mentorshipApplications,
-  coldStorageFiles,
+  coldStorageFiles, auditLogs,
 } from '@/lib/db/schema';
 import { revalidatePath } from 'next/cache';
 import { eq } from 'drizzle-orm';
@@ -738,8 +738,7 @@ export async function createAnnouncement(formData: FormData) {
       id,
       title,
       content,
-      type: type || 'info',
-      clubId,
+      priority: type || 'normal',
       createdBy: userId,
     });
 
@@ -780,7 +779,6 @@ export async function createMOM(formData: FormData) {
 
   const title = formData.get('title') as string;
   const meetingDateStr = formData.get('meetingDate') as string;
-  const content = formData.get('content') as string;
   const fileUrl = formData.get('fileUrl') as string || null;
   const clubId = formData.get('clubId') as string || null;
 
@@ -793,9 +791,8 @@ export async function createMOM(formData: FormData) {
       clubId,
       title,
       meetingDate,
-      content: content || null,
       fileUrl,
-      createdBy: userId,
+      status: 'pending',
     });
 
     await recordAuditLog(`Recorded Minutes: ${title}`, 'mom', id);

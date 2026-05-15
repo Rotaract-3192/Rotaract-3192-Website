@@ -14,7 +14,11 @@ const isPublicRoute = createRouteMatcher([
   "/leaderboard", 
   "/sign-in(.*)", 
   "/sign-up(.*)", 
-  "/login(.*)"
+  "/login(.*)",
+  "/api/webhook(.*)",
+  "/privacy(.*)",
+  "/terms(.*)",
+  "/cookies(.*)",
 ]);
 
 const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
@@ -25,17 +29,16 @@ export default clerkMiddleware(async (auth, request) => {
     await auth.protect();
 
     // Then: check admin authorization
-    const session = await auth();
-    const claims = session.sessionClaims as any;
-    const userEmail = claims?.email as string | undefined;
-    const userRole = claims?.metadata?.role as string | undefined;
+    const { sessionClaims } = await auth();
+    const userEmail = (sessionClaims as any)?.email as string | undefined;
+    const userRole = (sessionClaims as any)?.metadata?.role as string | undefined;
 
     const isAuthorizedByEmail = userEmail === "thejaswinps@gmail.com";
     const isAuthorizedByRole = userRole === "district_admin";
 
     // Allow access if either condition is met, or in development mode
     if (!isAuthorizedByEmail && !isAuthorizedByRole && process.env.NODE_ENV !== 'development') {
-      return (await auth()).redirectToSignIn();
+       return (await auth()).redirectToSignIn();
     }
     return; // Allow access
   }

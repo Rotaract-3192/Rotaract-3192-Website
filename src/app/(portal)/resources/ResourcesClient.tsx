@@ -65,8 +65,8 @@ export default function ResourcesClient({ resources }: { resources: Resource[] }
       <header className="p-8 md:p-12 mb-12">
         <div className="flex flex-col gap-4">
           <span className="text-primary font-black uppercase tracking-[0.3em] text-[10px] mb-2 block">The Vault</span>
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-on-surface mb-4 font-display">Resource <span className="text-primary italic">Central.</span></h1>
-          <p className="text-xl text-on-surface-variant font-medium max-w-2xl leading-tight">
+          <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-4 font-display uppercase italic">Resource <span className="text-primary not-italic">Central.</span></h1>
+          <p className="text-xl text-text-muted font-medium max-w-2xl leading-tight italic">
             Official documents, templates, and guidelines for District 3192 clubs.
           </p>
         </div>
@@ -88,16 +88,16 @@ export default function ResourcesClient({ resources }: { resources: Resource[] }
 
             {/* Sidebar Navigation */}
             <div className="lg:col-span-3 hidden lg:block">
-              <div className="sticky top-28 bg-surface-container-low/50 backdrop-blur-xl rounded-[2.5rem] p-10 border border-outline-variant/30 shadow-ambient">
-                <h3 className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mb-8 opacity-60">Categories</h3>
+              <div className="sticky top-28 bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-10 border border-white/10 shadow-ambient">
+                <h3 className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-8 opacity-60">Categories</h3>
                 <ul className="space-y-6">
                   {categories.map((cat, i) => (
                     <li key={i}>
                       <a
                         href={`#cat-${encodeURIComponent(cat)}`}
-                        className="group flex items-center gap-4 text-[11px] font-black uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all"
+                        className="group flex items-center gap-4 text-[11px] font-black uppercase tracking-widest text-text-muted hover:text-primary transition-all"
                       >
-                        <span className="w-2 h-2 rounded-full bg-outline-variant/40 group-hover:bg-primary transition-all group-hover:scale-125" />
+                        <span className="w-2 h-2 rounded-full bg-white/10 group-hover:bg-primary transition-all group-hover:scale-125" />
                         {cat}
                       </a>
                     </li>
@@ -111,8 +111,8 @@ export default function ResourcesClient({ resources }: { resources: Resource[] }
               {categories.map((cat) => (
                 <div key={cat} id={`cat-${encodeURIComponent(cat)}`} className="scroll-mt-32 space-y-10">
                   <div className="flex items-center gap-8">
-                    <h2 className="text-3xl font-black text-on-surface uppercase tracking-tighter shrink-0 font-display">{cat}</h2>
-                    <div className="h-px flex-grow bg-outline-variant/30" />
+                    <h2 className="text-3xl font-black text-white uppercase tracking-tighter shrink-0 font-display italic">{cat}</h2>
+                    <div className="h-px flex-grow bg-white/10" />
                   </div>
 
                   <div className="grid gap-8">
@@ -124,17 +124,17 @@ export default function ResourcesClient({ resources }: { resources: Resource[] }
                       return (
                         <div
                           key={doc.id}
-                          className="group p-8 bg-surface-container-low/50 backdrop-blur-xl rounded-[3rem] border border-outline-variant/30 shadow-ambient hover:shadow-2xl hover:bg-white transition-all duration-500 flex flex-col md:flex-row items-start md:items-center justify-between gap-8"
+                          className="group p-8 bg-white/5 backdrop-blur-xl rounded-[3rem] border border-white/10 shadow-ambient hover:bg-white/10 hover:shadow-2xl transition-all duration-500 flex flex-col md:flex-row items-start md:items-center justify-between gap-8"
                         >
                           <div className="flex items-center gap-8">
                             <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110 ${typeColorClass(type)}`}>
                               <span className="text-[10px] font-black uppercase tracking-widest leading-none">{type}</span>
                             </div>
                             <div className="space-y-2">
-                              <h4 className="text-2xl font-black text-on-surface tracking-tight group-hover:text-primary transition-colors leading-tight font-display">
+                              <h4 className="text-2xl font-black text-white tracking-tight group-hover:text-primary transition-colors leading-tight font-display italic">
                                 {doc.fileName}
                               </h4>
-                              <div className="flex items-center gap-5 text-[10px] font-black text-on-surface-variant/40 uppercase tracking-[0.2em]">
+                              <div className="flex items-center gap-5 text-[10px] font-black text-text-muted/40 uppercase tracking-[0.2em] italic">
                                 <span className="flex items-center gap-2">
                                   <span className="material-symbols-outlined text-lg leading-none">database</span>
                                   {formatBytes(doc.fileSize)}

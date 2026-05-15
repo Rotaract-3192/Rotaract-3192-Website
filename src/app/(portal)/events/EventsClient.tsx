@@ -1,133 +1,164 @@
+"use client";
+
+import { useState, useMemo } from "react";
 import EventCard from "@/components/EventCard";
+import { motion, AnimatePresence } from "framer-motion";
+import { isAfter, isBefore, startOfToday, format } from 'date-fns';
 
 export default function EventsClient({ eventsData }: { eventsData: any[] }) {
-  const publishedEvents = (eventsData || []).filter((e: any) => e.status === 'published' || e.status === 'upcoming');
-  // For now, let's just use all published events as upcoming if date logic is strict
-  const upcomingEvents = publishedEvents;
+  const [activeTab, setActiveTab] = useState<'UPCOMING' | 'PREVIOUS'>('UPCOMING');
+  
+  const today = startOfToday();
+  
+  const { upcoming, previous } = useMemo(() => {
+    const sorted = [...(eventsData || [])].sort((a: any, b: any) => 
+      new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime()
+    );
 
-  // Sort events by date
-  const sortedEvents = upcomingEvents.sort((a: any, b: any) => 
-    new Date(a.eventDate || a.start_at).getTime() - new Date(b.eventDate || b.start_at).getTime()
-  );
+    return {
+      upcoming: sorted.filter(e => isAfter(new Date(e.eventDate), today) || new Date(e.eventDate).getTime() === today.getTime()),
+      previous: sorted.filter(e => isBefore(new Date(e.eventDate), today)).reverse()
+    };
+  }, [eventsData, today]);
 
-  const featuredEvent = sortedEvents[0];
-  const otherEvents = sortedEvents.slice(1);
+  const currentEvents = activeTab === 'UPCOMING' ? upcoming : previous;
+  const featuredEvent = activeTab === 'UPCOMING' ? upcoming[0] : null;
+  const displayEvents = featuredEvent ? upcoming.slice(1) : currentEvents;
 
   return (
-    <main className="max-w-7xl mx-auto min-h-screen relative overflow-visible pb-24">
-      {/* Background Cinematic Accents */}
-      <div className="fixed top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[140px] -z-10"></div>
-      <div className="fixed -bottom-48 -left-48 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[120px] -z-10"></div>
-
+    <main className="max-w-7xl mx-auto min-h-screen relative overflow-visible pb-32 px-6 lg:px-12 pt-32">
       {/* Header Section */}
-      <header className="p-8 md:p-12 flex flex-col md:flex-row md:items-end justify-between gap-12 border-b border-outline-variant/30 mb-12">
-        <div className="space-y-4">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary text-[10px] font-black tracking-[0.4em] uppercase border border-primary/10">District Pulse</span>
-          <h1 className="text-5xl md:text-8xl font-black text-on-surface tracking-tighter font-display uppercase leading-none italic">
-            Explore <span className="text-primary not-italic">Events.</span>
+      <header className="py-20 flex flex-col md:flex-row md:items-end justify-between gap-12 mb-20">
+        <div className="space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-3 px-6 py-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-md"
+          >
+            <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_#3B82F6]"></div>
+            <span className="text-[10px] font-bold text-primary uppercase tracking-[0.4em]">District Pulse</span>
+          </motion.div>
+
+          <h1 className="text-6xl md:text-8xl font-medium text-white tracking-tight font-display uppercase leading-none italic">
+            District <br />
+            <span className="text-primary not-italic">Events</span>
           </h1>
-          <p className="text-on-surface-variant text-lg md:text-xl max-w-xl font-medium leading-tight opacity-70">Discover opportunities to lead, serve, and connect with fellow Rotaractors across the district.</p>
+          
+          <div className="flex items-center gap-4 mt-8">
+            <div className="bg-white/5 p-1.5 rounded-2xl flex border border-white/10 backdrop-blur-xl">
+              <button 
+                onClick={() => setActiveTab('UPCOMING')}
+                className={`px-8 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'UPCOMING' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white'}`}
+              >
+                Upcoming
+              </button>
+              <button 
+                onClick={() => setActiveTab('PREVIOUS')}
+                className={`px-8 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'PREVIOUS' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white'}`}
+              >
+                Previous
+              </button>
+            </div>
+          </div>
         </div>
         
         <div className="flex flex-wrap gap-4">
           <div className="relative group">
-            <select className="appearance-none bg-surface-container-high border border-outline-variant/30 rounded-2xl px-8 py-4 pr-12 font-black text-[10px] uppercase tracking-[0.2em] shadow-ambient focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer outline-none">
-              <option>Category: All</option>
-              <option>Service Project</option>
-              <option>Professional Dev</option>
-              <option>Social Mixer</option>
+            <select className="appearance-none bg-white/5 border border-white/10 rounded-2xl px-8 py-4 pr-12 font-bold text-[10px] uppercase tracking-[0.2em] focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer outline-none text-white italic">
+              <option className="bg-[#020617]">Category: All</option>
+              <option className="bg-[#020617]">Service Project</option>
+              <option className="bg-[#020617]">Professional Dev</option>
+              <option className="bg-[#020617]">Social Mixer</option>
             </select>
-            <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-primary transition-transform group-hover:translate-y-[-40%]">expand_more</span>
-          </div>
-          <div className="relative group">
-            <select className="appearance-none bg-surface-container-high border border-outline-variant/30 rounded-2xl px-8 py-4 pr-12 font-black text-[10px] uppercase tracking-[0.2em] shadow-ambient focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer outline-none">
-              <option>Date: Anytime</option>
-              <option>This Weekend</option>
-              <option>Next 30 Days</option>
-            </select>
-            <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-primary transition-transform group-hover:translate-y-[-40%]">calendar_today</span>
+            <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-primary/40">expand_more</span>
           </div>
         </div>
       </header>
 
       {/* Events Grid */}
-      <section className="px-8 md:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-        {/* Featured Card - High Impact */}
-        {featuredEvent && (
-          <div className="lg:col-span-2 group relative overflow-hidden rounded-[3.5rem] bg-surface-container-low border border-outline-variant/30 shadow-ambient transition-all duration-700 h-[550px]">
-            <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent z-10 opacity-90 group-hover:opacity-100 transition-opacity"></div>
-            <div className="absolute inset-0 scale-110 group-hover:scale-100 transition-all duration-1000 grayscale group-hover:grayscale-0">
-              <img className="w-full h-full object-cover" src={featuredEvent.imageUrl || featuredEvent.banner_url} alt={featuredEvent.title} />
-            </div>
-            
-            <div className="absolute top-8 left-8 z-20 flex gap-4">
-              <span className="bg-primary text-white text-[9px] font-black uppercase tracking-[0.4em] px-5 py-2 rounded-full shadow-lg">{featuredEvent.type}</span>
-              <span className="bg-surface-container-highest/80 backdrop-blur-xl text-on-surface text-[9px] font-black uppercase tracking-[0.4em] px-5 py-2 rounded-full shadow-lg border border-outline-variant/30">Apex Transmission</span>
-            </div>
+      <div className="space-y-12">
+        <AnimatePresence mode="wait">
+          <motion.section 
+            key={activeTab}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"
+          >
+            {/* Featured Card */}
+            {featuredEvent && (
+              <div className="lg:col-span-2 group relative overflow-hidden rounded-[2.5rem] bg-white/5 border border-white/10 shadow-2xl transition-all duration-700 h-[500px]">
+                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent z-10 opacity-90 group-hover:opacity-100 transition-opacity"></div>
+                <div className="absolute inset-0 scale-110 group-hover:scale-100 transition-all duration-1000">
+                  <img className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100" src={featuredEvent.imageUrl} alt={featuredEvent.title} />
+                </div>
+                
+                <div className="absolute top-8 left-8 z-20 flex gap-3">
+                  <span className="bg-primary text-white text-[9px] font-bold uppercase tracking-[0.4em] px-5 py-2 rounded-full shadow-lg">Featured Mission</span>
+                </div>
 
-            <div className="absolute bottom-0 left-0 p-12 lg:p-16 z-20 w-full space-y-8">
-              <div className="space-y-4">
-                <h3 className="text-4xl md:text-6xl font-black text-on-surface leading-none font-display tracking-tighter uppercase italic">{featuredEvent.title}</h3>
-                <div className="flex flex-wrap items-center gap-10 text-on-surface-variant">
-                  <span className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em]">
-                    <span className="material-symbols-outlined text-primary text-xl">calendar_today</span>
-                    {new Date(featuredEvent.eventDate || featuredEvent.start_at).toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' })}
-                  </span>
-                  <span className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em]">
-                    <span className="material-symbols-outlined text-primary text-xl">location_on</span>
-                    {featuredEvent.location || featuredEvent.venue}
-                  </span>
+                <div className="absolute bottom-0 left-0 p-10 lg:p-12 z-20 w-full space-y-8">
+                  <div className="space-y-4">
+                    <h3 className="text-4xl md:text-5xl font-bold text-white leading-none font-display tracking-tight uppercase italic">{featuredEvent.title}</h3>
+                    <div className="flex flex-wrap items-center gap-8 text-text-muted italic">
+                      <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.3em]">
+                        <span className="material-symbols-outlined text-primary text-xl">calendar_today</span>
+                        {format(new Date(featuredEvent.eventDate), 'PPP')}
+                      </span>
+                      <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.3em]">
+                        <span className="material-symbols-outlined text-primary text-xl">location_on</span>
+                        {featuredEvent.location}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <a href={`/events/${featuredEvent.slug}`} className="inline-flex items-center justify-center gap-4 bg-primary text-white font-bold text-[11px] uppercase tracking-[0.4em] px-10 py-4 rounded-xl hover:shadow-xl hover:shadow-primary/20 transition-all group/btn no-underline">
+                    Access Intel
+                    <span className="material-symbols-outlined text-lg group-hover/btn:translate-x-2 transition-transform">north_east</span>
+                  </a>
                 </div>
               </div>
-              
-              <div className="flex flex-col sm:flex-row items-center gap-6">
-                <a href={`/events/${featuredEvent.slug}`} className="w-full sm:w-auto bg-primary text-white font-black text-[11px] uppercase tracking-[0.4em] px-12 py-5 rounded-2xl hover:shadow-2xl hover:shadow-primary/40 transition-all text-center group/btn relative overflow-hidden">
-                  <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                  <span className="relative z-10 flex items-center justify-center gap-4">
-                    Infiltrate Sync
-                    <span className="material-symbols-outlined text-lg group-hover/btn:translate-x-2 transition-transform">bolt</span>
-                  </span>
-                </a>
-              </div>
-            </div>
-          </div>
-        )}
+            )}
 
-        {/* Other Events */}
-        {otherEvents.map((event: any, idx: number) => (
-          <EventCard 
-            key={idx}
-            title={event.title}
-            date={new Date(event.eventDate || event.start_at).toLocaleDateString('en-US', { day: '2-digit', month: 'short' })}
-            description={event.description}
-            image={event.imageUrl || event.banner_url}
-            slug={event.slug}
-            badge={event.is_free ? 'Open Access' : 'Encrypted Link'}
-            statusBadge={(event.status || 'UPCOMING').toUpperCase()}
-          />
-        ))}
+            {/* Other Events */}
+            {displayEvents.map((event: any, idx: number) => (
+              <EventCard 
+                key={event.id || idx}
+                title={event.title}
+                date={format(new Date(event.eventDate), 'dd MMM')}
+                description={event.description}
+                image={event.imageUrl}
+                slug={event.slug}
+                badge={event.isSignatureProject ? 'Signature' : 'Mission'}
+                statusBadge={activeTab}
+              />
+            ))}
+
+            {currentEvents.length === 0 && (
+              <div className="lg:col-span-3 py-40 flex flex-col items-center justify-center text-center space-y-8 bg-white/5 rounded-[3rem] border border-white/5 border-dashed">
+                <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center text-primary/20">
+                  <span className="material-symbols-outlined text-4xl">event_busy</span>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-white uppercase tracking-tight font-display italic">No Records Detected</h3>
+                  <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.4em] opacity-60">The selected frequency is currently quiet.</p>
+                </div>
+              </div>
+            )}
+          </motion.section>
+        </AnimatePresence>
       </div>
 
-      {/* Secondary CTA Section / High-Tech Bento */}
-      <section className="px-8 md:px-12 mt-24 mb-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          <div className="md:col-span-2 bg-surface-container-low/70 backdrop-blur-2xl rounded-[3.5rem] p-12 lg:p-16 border border-outline-variant/30 shadow-ambient flex flex-col lg:flex-row items-center justify-between gap-12 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -z-10 group-hover:scale-150 transition-transform duration-1000"></div>
-            <div className="space-y-6 flex-1">
-              <span className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary text-[9px] font-black tracking-[0.4em] uppercase border border-primary/10">Signal Lost?</span>
-              <h2 className="text-4xl md:text-5xl font-black text-on-surface font-display tracking-tighter uppercase italic leading-none">Activate <span className="text-primary not-italic">Notifications.</span></h2>
-              <p className="text-on-surface-variant font-medium leading-relaxed max-w-md opacity-70">Our regional committees are constantly planning new missions. Get real-time alerts for the latest transmissions.</p>
-            </div>
-            <button className="w-full lg:w-auto bg-surface-container-high text-on-surface border border-outline-variant/30 px-12 py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.4em] hover:bg-white hover:shadow-2xl transition-all duration-500 shrink-0">Enable Uplink</button>
+      {/* Newsletter Bento Section */}
+      <section className="mt-32">
+        <div className="p-10 lg:p-16 bg-white/5 rounded-[4rem] border border-white/10 flex flex-col lg:flex-row items-center justify-between gap-12 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -z-10 group-hover:scale-150 transition-transform duration-1000"></div>
+          <div className="space-y-6 flex-1">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary text-[9px] font-bold tracking-[0.4em] uppercase border border-primary/10">Newsletter</span>
+            <h2 className="text-4xl md:text-5xl font-bold text-white font-display tracking-tight uppercase leading-none italic">Stay in <br /><span className="text-primary not-italic">The Loop.</span></h2>
+            <p className="text-text-muted font-medium leading-relaxed max-w-md opacity-70 italic">Our committees are constantly planning new projects. Get real-time alerts for the latest updates.</p>
           </div>
-          
-          <div className="bg-surface-container-low/70 backdrop-blur-2xl rounded-[3.5rem] p-12 border border-outline-variant/30 shadow-ambient flex flex-col justify-center items-center text-center group hover:bg-white transition-all duration-700">
-            <div className="w-24 h-24 bg-surface-container-high rounded-[2rem] flex items-center justify-center text-primary border border-outline-variant/30 mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-700">
-              <span className="material-symbols-outlined text-5xl">stars</span>
-            </div>
-            <h5 className="text-2xl font-black text-on-surface font-display tracking-tighter uppercase mb-3">Force Status</h5>
-            <p className="text-on-surface-variant text-[11px] font-black uppercase tracking-[0.3em] opacity-40 leading-relaxed italic">Participate in 3+ missions this cycle to elevate your rank to 'Elite Leader'.</p>
-          </div>
+          <button className="w-full lg:w-auto bg-primary text-white px-10 py-4 rounded-xl font-bold text-[11px] uppercase tracking-[0.4em] hover:shadow-2xl hover:shadow-primary/30 transition-all duration-500 shrink-0">Join Newsletter</button>
         </div>
       </section>
     </main>

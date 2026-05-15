@@ -3,87 +3,101 @@ export default function JobsClient({ jobsData }: { jobsData: any[] }) {
   const activeJobs = jobs.filter((j: any) => j.status === 'active');
 
   return (
-    <main className="max-w-7xl mx-auto min-h-screen relative overflow-visible pb-24">
-      {/* Background Accents */}
-      <div className="fixed top-0 right-0 w-[500px] h-[500px] bg-primary-container/5 rounded-full blur-[120px] -z-10"></div>
-      <div className="fixed bottom-0 left-64 w-[400px] h-[400px] bg-secondary-container/5 rounded-full blur-[100px] -z-10"></div>
-
-      <header className="p-8 md:p-12 mb-12">
-        <div className="flex flex-col gap-4">
-          <span className="text-primary font-black uppercase tracking-[0.3em] text-[10px] mb-2 block">The Marketplace</span>
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-on-surface mb-4 font-display">Career <span className="text-primary italic">Signal.</span></h1>
-          <p className="text-xl text-on-surface-variant font-medium max-w-2xl leading-tight">Discover professional trajectories curated within the network.</p>
+    <main className="max-w-7xl mx-auto min-h-screen relative overflow-visible pb-32 px-6 lg:px-12">
+      <header className="py-24 lg:py-40 flex flex-col items-center text-center gap-8 mb-20">
+        <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-md">
+          <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_#3B82F6]"></div>
+          <span className="text-[10px] font-bold text-primary uppercase tracking-[0.4em]">The Marketplace</span>
         </div>
+        
+        <h1 className="text-7xl md:text-9xl font-bold text-white tracking-tight font-display uppercase leading-none">
+          Career <br />
+          <span className="text-primary">Opportunities</span>
+        </h1>
+        
+        <p className="text-xl md:text-2xl text-text-muted max-w-3xl font-medium leading-tight opacity-70 font-sans">
+          Discover high-impact professional trajectories curated within the network.
+        </p>
       </header>
 
-      <section className="p-8 md:p-12 space-y-12">
+      <section className="space-y-12">
         {/* Filter Bar */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-surface-container-low/50 backdrop-blur-md p-4 rounded-3xl border border-outline-variant/30 shadow-sm">
-          <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto no-scrollbar">
-            <button className="px-10 py-3 rounded-xl bg-primary text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 transition-all">All Signals</button>
-            <button className="px-10 py-3 rounded-xl bg-surface-container text-on-surface-variant hover:text-primary font-black text-[10px] uppercase tracking-widest transition-all hover:bg-white border border-outline-variant/30">Direct Hire</button>
-            <button className="px-10 py-3 rounded-xl bg-surface-container text-on-surface-variant hover:text-primary font-black text-[10px] uppercase tracking-widest transition-all hover:bg-white border border-outline-variant/30">Internships</button>
+        <div className="glass-panel p-6 flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex items-center gap-3 overflow-x-auto w-full md:w-auto no-scrollbar">
+            <button className="px-10 py-3.5 rounded-xl bg-primary text-white font-bold text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 transition-all">All Jobs</button>
+            <button className="px-10 py-3.5 rounded-xl bg-white/5 text-white/40 hover:text-primary font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-white/10 border border-white/5">Full Time</button>
+            <button className="px-10 py-3.5 rounded-xl bg-white/5 text-white/40 hover:text-primary font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-white/10 border border-white/5">Internships</button>
           </div>
-          <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] px-8 py-3 bg-primary/10 rounded-xl border border-primary/20 whitespace-nowrap">
-            {activeJobs.length} Active Nodes
+          <p className="text-[10px] font-bold text-primary uppercase tracking-[0.3em] px-8 py-3.5 bg-primary/10 rounded-xl border border-primary/20 whitespace-nowrap">
+            {activeJobs.length} Positions Available
           </p>
         </div>
 
         {/* Job List */}
         <div className="grid gap-10">
           {jobs.map((job, idx) => (
-            <div key={idx} className={`group bg-surface-container-low/50 backdrop-blur-xl p-10 rounded-[3rem] border border-outline-variant/30 shadow-ambient hover:shadow-2xl hover:bg-white transition-all duration-500 overflow-hidden relative ${job.status === 'closed' ? 'opacity-50' : ''}`}>
-              <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-12">
-                <div className="flex-1 space-y-8">
-                  <div className="flex flex-wrap items-center gap-6">
-                    <span className={`text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-xl border shadow-sm
-                      ${job.type === 'job' ? 'bg-primary/10 text-primary border-primary/20' : 'bg-green-500/10 text-green-600 border-green-500/20'}`}>
-                      {job.type.toUpperCase()}
-                    </span>
-                    {job.status === 'closed' && (
-                      <span className="text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-xl bg-surface-container text-on-surface-variant border border-outline-variant/30">Sequence Terminated</span>
-                    )}
-                    <span className="text-[10px] font-black text-on-surface-variant/40 uppercase tracking-[0.2em] flex items-center gap-2">
-                      <span className="material-symbols-outlined text-lg">schedule</span>
-                      Expiry: {new Date(job.expiresAt || job.expires_at || job.createdAt || Date.now()).toLocaleDateString('en-IN', {month:'short', day:'numeric', year:'numeric'})}
-                    </span>
+            <div key={idx} className={`group glass-panel p-10 lg:p-14 hover:border-primary/30 transition-all duration-700 relative overflow-hidden flex flex-col xl:flex-row xl:items-center justify-between gap-12 ${job.status === 'closed' ? 'opacity-50 grayscale' : ''}`}>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              
+              <div className="flex-1 space-y-10 relative z-10">
+                <div className="flex flex-wrap items-center gap-6">
+                  <span className={`text-[9px] font-bold uppercase tracking-widest px-5 py-2.5 rounded-lg border shadow-sm
+                    ${job.type === 'job' ? 'bg-primary/10 text-primary border-primary/20' : 'bg-green-500/10 text-green-400 border-green-500/20'}`}>
+                    {job.type.toUpperCase()}
+                  </span>
+                  {job.status === 'closed' && (
+                    <span className="text-[9px] font-bold uppercase tracking-widest px-5 py-2.5 rounded-lg bg-white/5 text-white/40 border border-white/10">Applications Closed</span>
+                  )}
+                  <div className="flex items-center gap-3 text-[10px] font-bold text-text-muted/60 uppercase tracking-[0.2em] font-sans">
+                    <span className="material-symbols-outlined text-lg opacity-40">calendar_today</span>
+                    Expiry: {new Date(job.expiresAt || job.expires_at || job.createdAt || Date.now()).toLocaleDateString('en-IN', {month:'short', day:'numeric', year:'numeric'})}
                   </div>
-                  
-                  <div className="space-y-2">
-                    <h3 className="text-4xl font-black text-on-surface tracking-tighter uppercase leading-none font-display group-hover:text-primary transition-colors">{job.title}</h3>
-                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">{job.company}</p>
-                  </div>
-                  
-                  <p className="text-on-surface-variant text-base font-medium leading-relaxed italic opacity-80 max-w-3xl">
-                    "{job.description}"
-                  </p>
                 </div>
                 
-                <div className="shrink-0 flex flex-col items-start xl:items-end gap-6">
-                  <a href={(job.status || 'active') === 'active' ? (job.applyUrl || job.apply_url || '#') : '#'} className={`group/btn relative px-12 py-5 font-black uppercase tracking-[0.2em] text-[10px] rounded-[2rem] w-full xl:w-auto text-center transition-all shadow-xl overflow-hidden
-                    ${job.status === 'active' 
-                      ? 'bg-primary text-white hover:scale-105 active:scale-95' 
-                      : 'bg-surface-container text-on-surface-variant cursor-not-allowed opacity-50'}`}>
-                    {job.status === 'active' ? (
-                      <>
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-shimmer"></div>
-                        <span className="flex items-center justify-center gap-3 relative z-10">
-                          Initialize Application <span className="material-symbols-outlined text-xl group-hover/btn:translate-x-1 transition-transform">bolt</span>
-                        </span>
-                      </>
-                    ) : 'Sequence Offline'}
-                  </a>
-                  <div className="flex items-center gap-3 px-4 opacity-50">
-                     <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                     <p className="text-[9px] font-black text-on-surface-variant uppercase tracking-[0.2em]">Transmitted by {job.postedBy || job.posted_by || "Admin"}</p>
-                  </div>
+                <div className="space-y-3">
+                  <div className="text-[10px] font-bold text-primary uppercase tracking-[0.4em] font-sans">{job.company}</div>
+                  <h3 className="text-4xl lg:text-5xl font-bold text-white tracking-tight uppercase leading-none font-display group-hover:text-primary transition-colors">{job.title}</h3>
+                </div>
+                
+                <p className="text-text-muted text-lg font-medium leading-relaxed opacity-70 max-w-3xl font-sans">
+                  {job.description}
+                </p>
+              </div>
+              
+              <div className="shrink-0 flex flex-col items-start xl:items-end gap-8 relative z-10">
+                <a href={(job.status || 'active') === 'active' ? (job.applyUrl || job.apply_url || '#') : '#'} className={`group/btn relative px-12 py-5 font-bold uppercase tracking-[0.3em] text-[10px] rounded-xl w-full xl:w-auto text-center transition-all shadow-xl overflow-hidden
+                  ${job.status === 'active' 
+                    ? 'bg-primary text-white hover:scale-105 active:scale-95' 
+                    : 'bg-white/5 text-white/20 cursor-not-allowed border border-white/10'}`}>
+                  {job.status === 'active' ? (
+                    <>
+                      <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-1000"></div>
+                      <span className="flex items-center justify-center gap-3 relative z-10">
+                        Apply Now <span className="material-symbols-outlined text-xl group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
+                      </span>
+                    </>
+                  ) : 'Application Inactive'}
+                </a>
+                <div className="flex items-center gap-3 px-4">
+                   <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+                   <p className="text-[9px] font-bold text-text-muted uppercase tracking-[0.3em] opacity-40 font-sans">Posted by {job.postedBy || job.posted_by || "District Authority"}</p>
                 </div>
               </div>
-              {/* Decorative interior element */}
-              <div className={`absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 z-0 group-hover:bg-primary/10 transition-colors`}></div>
             </div>
           ))}
         </div>
+
+        {jobs.length === 0 && (
+          <div className="py-40 flex flex-col items-center justify-center text-center space-y-8 glass-panel border-dashed">
+             <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center text-primary/20 border border-white/5">
+                <span className="material-symbols-outlined text-5xl">work_off</span>
+             </div>
+             <div className="space-y-3">
+               <h3 className="text-2xl font-bold text-white uppercase tracking-tight font-display">No Opportunities Available</h3>
+               <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.4em] opacity-60 font-sans">Check back later for new career signals.</p>
+             </div>
+          </div>
+        )}
       </section>
     </main>
   );

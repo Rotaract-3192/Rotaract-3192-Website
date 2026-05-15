@@ -196,15 +196,27 @@ export async function getDashboardStats(clerkUserId: string) {
 /** All members who can act as mentors */
 export async function getMentors() {
   try {
-    const mentors = await getDb()
+    const db = getDb();
+    const mentors = await db
       .select()
       .from(users)
       .where(eq(users.role, 'club_admin'));
-    const districtAdmins = await getDb()
+    const districtAdmins = await db
       .select()
       .from(users)
       .where(eq(users.role, 'district_admin'));
-    return [...mentors, ...districtAdmins];
+    
+    const all = [...mentors, ...districtAdmins];
+    
+    return all.map(user => ({
+      id: user.id,
+      name: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
+      role: user.role === 'district_admin' ? 'District Leader' : 'Club Leader',
+      organization: 'Rotaract District 3192',
+      expertise: ['Leadership', 'Service', 'Professional Dev'],
+      image_url: user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.firstName || 'User')}&background=003F8A&color=fff`,
+      bio: user.bio || 'Experienced leader within the Rotaract District 3192 network dedicated to service and mentorship.',
+    }));
   } catch (error) {
     console.error('Failed to fetch mentors:', error);
     return [];
@@ -213,12 +225,12 @@ export async function getMentors() {
 
 export async function getDistrictStats() {
   try {
-    const db = getDb();
+    const db = getDb() as any;
     const [clubsCount, membersCount, eventsCount, announcementsCount] = await Promise.all([
-      db.select({ count: count() }).from(clubs),
-      db.select({ count: count() }).from(users),
-      db.select({ count: count() }).from(events),
-      db.select({ count: count() }).from(announcements)
+      db.select({ count: sql<number>`count(*)` }).from(clubs),
+      db.select({ count: sql<number>`count(*)` }).from(users),
+      db.select({ count: sql<number>`count(*)` }).from(events),
+      db.select({ count: sql<number>`count(*)` }).from(announcements)
     ]);
 
     return {
@@ -238,6 +250,69 @@ export async function getAuditLogs() {
     return await getDb().select().from(auditLogs).orderBy(desc(auditLogs.timestamp)).limit(50);
   } catch (error) {
     console.error('Failed to fetch audit logs:', error);
+    return [];
+  }
+}
+
+export async function getClubBySlug(slug: string) {
+  try {
+    const result = await getDb()
+      .select()
+      .from(clubs)
+      .where(eq(clubs.slug, slug))
+      .limit(1);
+    return result[0] ?? null;
+  } catch (error) {
+    console.error('Failed to fetch club by slug:', error);
+    return null;
+  }
+}
+
+export async function getEventBySlug(slug: string) {
+  try {
+    const result = await getDb()
+      .select()
+      .from(events)
+      .where(eq(events.slug, slug))
+      .limit(1);
+    return result[0] ?? null;
+  } catch (error) {
+    console.error('Failed to fetch event by slug:', error);
+    return null;
+  }
+}
+
+export async function getEventsByClubId(clubId: string) {
+  try {
+    return await getDb()
+      .select()
+      .from(events)
+      .where(eq(events.clubId, clubId))
+      .orderBy(desc(events.eventDate));
+  } catch (error) {
+    console.error('Failed to fetch events by club ID:', error);
+    return [];
+  }
+}
+
+export async function getFeedsByClubId(clubId: string) {
+  try {
+    const db = getDb() as any;
+    return await db
+      .select({
+        id: feeds.id,
+        title: feeds.title,
+        content: feeds.content,
+        mediaUrl: feeds.mediaUrl,
+        type: feeds.type,
+        createdAt: feeds.createdAt,
+      })
+      .from(feeds)
+      .innerJoin(users, eq(feeds.authorId, users.id))
+      .where(eq(users.clubId, clubId))
+      .orderBy(desc(feeds.createdAt));
+  } catch (error) {
+    console.error('Failed to fetch feeds by club ID:', error);
     return [];
   }
 }

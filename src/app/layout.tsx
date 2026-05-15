@@ -18,7 +18,7 @@ export default function RootLayout({
         <head>
           <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
           <link
-            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Manrope:wght@200;400;600;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
             rel="stylesheet"
           />
         </head>

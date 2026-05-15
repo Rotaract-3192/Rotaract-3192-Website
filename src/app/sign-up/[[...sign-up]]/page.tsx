@@ -9,9 +9,9 @@ export default function Page() {
       
       <div className="w-full max-w-md space-y-12 relative z-10">
         <div className="text-center space-y-4">
-           <span className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary text-[10px] font-black tracking-[0.4em] uppercase border border-primary/10">Initialization Required</span>
+           <span className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary text-[10px] font-black tracking-[0.4em] uppercase border border-primary/10">Account Registration</span>
            <h1 className="text-5xl font-black text-on-surface tracking-tighter font-display uppercase italic">
-             Join <span className="text-primary not-italic">District.</span>
+             District <span className="text-primary not-italic">Portal.</span>
            </h1>
         </div>
         
@@ -35,7 +35,7 @@ export default function Page() {
         </div>
         
         <p className="text-[10px] font-black text-center text-on-surface-variant/40 uppercase tracking-[0.4em] italic">
-          New Personnel Enrolment • District 3192 Registration Protocol
+          Authorized Registration • Rotaract District 3192
         </p>
       </div>
     </main>

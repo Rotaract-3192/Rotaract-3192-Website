@@ -28,14 +28,14 @@ INSERT OR IGNORE INTO events (id, club_id, title, slug, event_date, location, im
 INSERT OR IGNORE INTO events (id, club_id, title, slug, event_date, location, image_url) VALUES ('startup-pitch-night', 'RAC-A', 'Startup Pitch Night', 'startup-pitch-night', '2026-05-09T15:33:57.481Z', NULL, 'https://placehold.co/1200x600/F5A623/FFFFFF?text=Startup+Pitch+Night');
 
 -- Seed for courses
-INSERT OR IGNORE INTO courses (id, title, description, thumbnail_url, modules_count) VALUES (NULL, 'Rotaract Leadership Basics', 'Leadership', 'https://placehold.co/800x450/4A90E2/FFFFFF?text=Leadership+Basics', NULL);
-INSERT OR IGNORE INTO courses (id, title, description, thumbnail_url, modules_count) VALUES (NULL, 'Digital Marketing for Clubs', 'Marketing', 'https://placehold.co/800x450/E24A4A/FFFFFF?text=Digital+Marketing', NULL);
-INSERT OR IGNORE INTO courses (id, title, description, thumbnail_url, modules_count) VALUES (NULL, 'Fundraising 101', 'Finance', 'https://placehold.co/800x450/4AE273/FFFFFF?text=Fundraising', NULL);
-INSERT OR IGNORE INTO courses (id, title, description, thumbnail_url, modules_count) VALUES (NULL, 'Public Speaking Mastery', 'Professional Development', 'https://placehold.co/800x450/9B4AE2/FFFFFF?text=Public+Speaking', NULL);
+INSERT OR IGNORE INTO courses (id, title, description, thumbnail_url, modules_count) VALUES ('course-01', 'Rotaract Leadership Basics', 'Leadership', 'https://placehold.co/800x450/4A90E2/FFFFFF?text=Leadership+Basics', 0);
+INSERT OR IGNORE INTO courses (id, title, description, thumbnail_url, modules_count) VALUES ('course-02', 'Digital Marketing for Clubs', 'Marketing', 'https://placehold.co/800x450/E24A4A/FFFFFF?text=Digital+Marketing', 0);
+INSERT OR IGNORE INTO courses (id, title, description, thumbnail_url, modules_count) VALUES ('course-03', 'Fundraising 101', 'Finance', 'https://placehold.co/800x450/4AE273/FFFFFF?text=Fundraising', 0);
+INSERT OR IGNORE INTO courses (id, title, description, thumbnail_url, modules_count) VALUES ('course-04', 'Public Speaking Mastery', 'Professional Development', 'https://placehold.co/800x450/9B4AE2/FFFFFF?text=Public+Speaking', 0);
 
 -- Seed for jobs
-INSERT OR IGNORE INTO jobs (id, title, company, location, type, description) VALUES ('job_lxa1wix', NULL, 'TechSolutions India', NULL, 'internship', NULL);
-INSERT OR IGNORE INTO jobs (id, title, company, location, type, description) VALUES ('job_bdlakfr', NULL, 'GrowthWorks', NULL, 'job', NULL);
-INSERT OR IGNORE INTO jobs (id, title, company, location, type, description) VALUES ('job_mgyyk8q', NULL, 'Creative Minds Agency', NULL, 'job', NULL);
-INSERT OR IGNORE INTO jobs (id, title, company, location, type, description) VALUES ('job_3qz3nw5', NULL, 'DigiBuzz', NULL, 'internship', NULL);
+INSERT OR IGNORE INTO jobs (id, title, company, location, type, description) VALUES ('job_01', 'Tech Intern', 'TechSolutions India', 'Remote', 'internship', 'Exciting internship for tech enthusiasts.');
+INSERT OR IGNORE INTO jobs (id, title, company, location, type, description) VALUES ('job_02', 'Growth Manager', 'GrowthWorks', 'Bengaluru', 'job', 'Help us grow our footprint across India.');
+INSERT OR IGNORE INTO jobs (id, title, company, location, type, description) VALUES ('job_03', 'Creative Lead', 'Creative Minds Agency', 'Chennai', 'job', 'Lead our creative department to new heights.');
+INSERT OR IGNORE INTO jobs (id, title, company, location, type, description) VALUES ('job_04', 'Social Media Intern', 'DigiBuzz', 'Remote', 'internship', 'Manage and grow our social media presence.');
 

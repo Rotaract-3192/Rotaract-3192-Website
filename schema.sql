@@ -188,3 +188,15 @@ CREATE TABLE IF NOT EXISTS service_hours (
     logged_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     approved_by TEXT           -- admin users.id
 );
+
+-- Audit Logs Table
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    user_name TEXT,
+    action TEXT NOT NULL,
+    resource_type TEXT, -- 'event', 'club', 'member', etc.
+    resource_id TEXT,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    severity TEXT DEFAULT 'info' -- 'info', 'warning', 'critical'
+);
