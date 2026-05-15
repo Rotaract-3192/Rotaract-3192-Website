@@ -19,9 +19,10 @@ export function getDb() {
     return drizzleSqlite(sqlite, { schema }) as any;
   }
 
-  // ── Build time (static generation): return empty-safe fallback ─────────────
+  // ── Build time (static generation): throw error to trigger graceful fallbacks ──
   // During `next build`, pages with revalidate/dynamic will attempt to call getDb().
-  // We return a no-op proxy so the build succeeds; real data loads at runtime.
-  console.warn('getDb(): No DB binding found — returning no-op for build time.');
-  return null as any;
+  // We throw an error so the try-catch blocks in queries.ts can gracefully return []
+  // and allow the build to succeed. Real data loads at runtime.
+  console.warn('getDb(): No DB binding found — throwing error for build time fallback.');
+  throw new Error('No DB binding found');
 }
