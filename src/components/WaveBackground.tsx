@@ -40,6 +40,7 @@ export default function WaveBackground() {
           muted
           loop
           playsInline
+          className="w-full h-full object-cover mix-blend-screen opacity-60"
         >
           <source src="/assets/waves.mp4" type="video/mp4" />
         </video>
