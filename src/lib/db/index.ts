@@ -10,7 +10,7 @@ export function getDb() {
   let dbBinding = null;
   try {
     const { env } = getCloudflareContext();
-    dbBinding = env?.DB;
+    dbBinding = (env as any)?.DB;
   } catch (e) {
     // Fallback for non-opennext environments (e.g. local scripts)
     dbBinding = (process.env as any).DB ?? (globalThis as any).__D1_BINDING__;
