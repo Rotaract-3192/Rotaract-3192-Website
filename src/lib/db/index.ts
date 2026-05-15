@@ -10,7 +10,7 @@ export function getDb() {
   const dbBinding = (process.env as any).DB ?? (globalThis as any).__D1_BINDING__;
 
   if (dbBinding) {
-    return drizzleD1(dbBinding as D1Database, { schema });
+    return drizzleD1(dbBinding as any, { schema });
   }
 
   // ── Local development: file-based SQLite (no Wrangler needed) ─────────────
