@@ -9,14 +9,16 @@
     "dev": "next dev",
     "dev:cf": "wrangler pages dev --port 8788 -- npx next dev",
     "build": "next build",
+    "build:cf": "next build && npx opennextjs-cloudflare build",
     "start": "next start",
     "lint": "next lint src",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
+    "deploy": "npx opennextjs-cloudflare build && npx opennextjs-cloudflare deploy"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.2.3",
     "@clerk/themes": "^2.4.57",
     "@gsap/react": "^2.1.2",
+    "@libsql/client": "^0.17.3",
     "@opennextjs/cloudflare": "^1.19.3",
     "@radix-ui/react-slot": "^1.2.4",
     "@tailwindcss/postcss": "^4.2.2",

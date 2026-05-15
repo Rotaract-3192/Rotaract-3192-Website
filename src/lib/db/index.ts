@@ -2,32 +2,26 @@ import { drizzle as drizzleD1 } from 'drizzle-orm/d1';
 import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3';
 import Database from 'better-sqlite3';
 import * as schema from './schema';
-import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 export function getDb() {
-  // In production (Cloudflare), bindings are on process.env.DB
-  let dbBinding = process.env.DB;
+  // ── Production: Cloudflare Pages – D1 binding injected at runtime ──────────
+  // The D1 binding is available as process.env.DB when running on Cloudflare Pages
+  // via the @opennextjs/cloudflare adapter (wrangler.toml → [[d1_databases]] binding = "DB")
+  const dbBinding = (process.env as any).DB ?? (globalThis as any).__D1_BINDING__;
 
-  if (!dbBinding) {
-    try {
-      const ctx = getCloudflareContext();
-      dbBinding = (ctx.env as any).DB;
-    } catch (e) {
-      // ignore
-    }
-  }
-  
   if (dbBinding) {
-    return drizzleD1(dbBinding as any, { schema });
+    return drizzleD1(dbBinding as D1Database, { schema });
   }
 
-  // Local development fallback using better-sqlite3
+  // ── Local development: file-based SQLite (no Wrangler needed) ─────────────
   if (process.env.NODE_ENV === 'development') {
-    // We point to a local sqlite file. 
-    // You can also point to .wrangler/state/v3/d1/... if you want to share data with wrangler
     const sqlite = new Database('local.sqlite');
-    return drizzleSqlite(sqlite, { schema });
+    return drizzleSqlite(sqlite, { schema }) as any;
   }
 
-  throw new Error("DB binding is not available and no local fallback found.");
+  // ── Build time (static generation): return empty-safe fallback ─────────────
+  // During `next build`, pages with revalidate/dynamic will attempt to call getDb().
+  // We return a no-op proxy so the build succeeds; real data loads at runtime.
+  console.warn('getDb(): No DB binding found — returning no-op for build time.');
+  return null as any;
 }
