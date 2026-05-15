@@ -2,12 +2,19 @@ import { drizzle as drizzleD1 } from 'drizzle-orm/d1';
 import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3';
 import Database from 'better-sqlite3';
 import * as schema from './schema';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 export function getDb() {
   // ── Production: Cloudflare Pages – D1 binding injected at runtime ──────────
-  // The D1 binding is available as process.env.DB when running on Cloudflare Pages
-  // via the @opennextjs/cloudflare adapter (wrangler.toml → [[d1_databases]] binding = "DB")
-  const dbBinding = (process.env as any).DB ?? (globalThis as any).__D1_BINDING__;
+  // OpenNext injects bindings into the Cloudflare Context rather than process.env
+  let dbBinding = null;
+  try {
+    const { env } = getCloudflareContext();
+    dbBinding = env?.DB;
+  } catch (e) {
+    // Fallback for non-opennext environments (e.g. local scripts)
+    dbBinding = (process.env as any).DB ?? (globalThis as any).__D1_BINDING__;
+  }
 
   if (dbBinding) {
     return drizzleD1(dbBinding as any, { schema });
