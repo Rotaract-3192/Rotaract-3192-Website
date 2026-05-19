@@ -11,13 +11,27 @@ export default function EventsClient({ eventsData }: { eventsData: any[] }) {
   const today = startOfToday();
   
   const { upcoming, previous } = useMemo(() => {
-    const sorted = [...(eventsData || [])].sort((a: any, b: any) => 
-      new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime()
-    );
+    const sorted = [...(eventsData || [])].sort((a: any, b: any) => {
+      const dateA = a.eventDate ? new Date(a.eventDate).getTime() : 0;
+      const dateB = b.eventDate ? new Date(b.eventDate).getTime() : 0;
+      return dateA - dateB;
+    });
 
     return {
-      upcoming: sorted.filter(e => isAfter(new Date(e.eventDate), today) || new Date(e.eventDate).getTime() === today.getTime()),
-      previous: sorted.filter(e => isBefore(new Date(e.eventDate), today)).reverse()
+      upcoming: sorted.filter(e => {
+        if (e.status === 'upcoming' || e.status === 'ongoing') return true;
+        if (e.status === 'completed') return false;
+        if (!e.eventDate) return true;
+        const date = new Date(e.eventDate);
+        return isAfter(date, today) || date.getTime() === today.getTime();
+      }),
+      previous: sorted.filter(e => {
+        if (e.status === 'completed') return true;
+        if (e.status === 'upcoming' || e.status === 'ongoing') return false;
+        if (!e.eventDate) return false;
+        const date = new Date(e.eventDate);
+        return isBefore(date, today);
+      }).reverse()
     };
   }, [eventsData, today]);
 
@@ -103,11 +117,11 @@ export default function EventsClient({ eventsData }: { eventsData: any[] }) {
                     <div className="flex flex-wrap items-center gap-8 text-text-muted italic">
                       <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.3em]">
                         <span className="material-symbols-outlined text-primary text-xl">calendar_today</span>
-                        {format(new Date(featuredEvent.eventDate), 'PPP')}
+                        {featuredEvent.yearDateLabel || (featuredEvent.eventDate ? format(new Date(featuredEvent.eventDate), 'PPP') : 'NO DATE')}
                       </span>
                       <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.3em]">
                         <span className="material-symbols-outlined text-primary text-xl">location_on</span>
-                        {featuredEvent.location}
+                        {featuredEvent.location || 'PENDING'}
                       </span>
                     </div>
                   </div>
@@ -125,7 +139,7 @@ export default function EventsClient({ eventsData }: { eventsData: any[] }) {
               <EventCard 
                 key={event.id || idx}
                 title={event.title}
-                date={format(new Date(event.eventDate), 'dd MMM')}
+                date={event.yearDateLabel || (event.eventDate ? format(new Date(event.eventDate), 'dd MMM') : 'NO DATE')}
                 description={event.description}
                 image={event.imageUrl}
                 slug={event.slug}

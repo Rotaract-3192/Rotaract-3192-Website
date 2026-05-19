@@ -97,13 +97,81 @@ export async function createEvent(formData: FormData) {
   if (!userId) throw new Error('Unauthorized');
 
   const title = formData.get('title') as string;
-  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  const clubId = formData.get('clubId') as string;
+  const slug = (formData.get('slug') as string || title.toLowerCase().replace(/[^a-z0-9]+/g, '-')).trim();
+  const clubId = (formData.get('clubId') as string) || null;
+  const category = formData.get('category') as string;
+  const entryType = formData.get('entryType') as string;
+  const status = formData.get('status') as string;
+  const yearDateLabel = formData.get('yearDateLabel') as string;
   const description = formData.get('description') as string;
   const location = formData.get('location') as string;
-  const eventDateStr = formData.get('eventDate') as string;
+  const rsvpLink = formData.get('rsvpLink') as string;
+  const fullContent = formData.get('fullContent') as string;
   
-  const eventDate = eventDateStr ? new Date(eventDateStr) : new Date();
+  const eventDateStr = formData.get('eventDate') as string;
+  const eventDate = eventDateStr ? new Date(eventDateStr) : null;
+
+  // Handle Cover Image upload
+  const coverImageFile = formData.get('coverImage') as File | null;
+  let imageUrl = formData.get('imageUrl') as string || '';
+  if (coverImageFile && coverImageFile.size > 0 && typeof coverImageFile.arrayBuffer === 'function') {
+    try {
+      const { writeFile, mkdir } = await import('fs/promises');
+      const { join } = await import('path');
+      const bytes = await coverImageFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      
+      const uploadDir = join(process.cwd(), 'public', 'uploads');
+      await mkdir(uploadDir, { recursive: true });
+      
+      const filename = `${Date.now()}-${coverImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      const filepath = join(uploadDir, filename);
+      await writeFile(filepath, buffer);
+      imageUrl = `/uploads/${filename}`;
+    } catch (err) {
+      console.error('Failed to write uploaded cover image:', err);
+    }
+  }
+
+  // Handle Gallery Images upload
+  const galleryImageFiles = formData.getAll('galleryImages') as File[];
+  const galleryImagePaths: string[] = [];
+  for (const file of galleryImageFiles) {
+    if (file && file.size > 0 && typeof file.arrayBuffer === 'function') {
+      try {
+        const { writeFile, mkdir } = await import('fs/promises');
+        const { join } = await import('path');
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        
+        const uploadDir = join(process.cwd(), 'public', 'uploads');
+        await mkdir(uploadDir, { recursive: true });
+        
+        const filename = `${Date.now()}-gallery-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+        const filepath = join(uploadDir, filename);
+        await writeFile(filepath, buffer);
+        galleryImagePaths.push(`/uploads/${filename}`);
+      } catch (err) {
+        console.error('Failed to write gallery image:', err);
+      }
+    }
+  }
+
+  const externalGalleryUrls = formData.get('externalGalleryUrls') as string;
+  if (externalGalleryUrls) {
+    const urls = externalGalleryUrls.split(',').map(u => u.trim()).filter(Boolean);
+    galleryImagePaths.push(...urls);
+  }
+
+  // Handle Featured Links
+  const linkLabels = formData.getAll('featuredLinkLabel') as string[];
+  const linkUrls = formData.getAll('featuredLinkUrl') as string[];
+  const featuredLinksArray: { label: string; url: string }[] = [];
+  for (let i = 0; i < linkLabels.length; i++) {
+    if (linkLabels[i] && linkUrls[i]) {
+      featuredLinksArray.push({ label: linkLabels[i], url: linkUrls[i] });
+    }
+  }
 
   try {
     const id = generateId();
@@ -115,10 +183,18 @@ export async function createEvent(formData: FormData) {
       description,
       location,
       eventDate,
-      status: 'upcoming'
+      imageUrl,
+      status: status || 'upcoming',
+      category,
+      entryType,
+      yearDateLabel,
+      fullContent,
+      galleryImages: galleryImagePaths.length > 0 ? JSON.stringify(galleryImagePaths) : null,
+      featuredLinks: featuredLinksArray.length > 0 ? JSON.stringify(featuredLinksArray) : null,
+      rsvpLink,
     });
 
-    await recordAuditLog(`Created Event: ${title}`, 'event', id);
+    await recordAuditLog(`Created Event/Project: ${title}`, 'event', id);
 
     revalidatePath('/admin/events');
     revalidatePath('/events');
