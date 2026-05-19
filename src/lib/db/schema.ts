@@ -1,7 +1,6 @@
-import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
-import { sql } from 'drizzle-orm';
+import { pgTable, text, integer, real, boolean, timestamp } from 'drizzle-orm/pg-core';
 
-export const users = sqliteTable('users', {
+export const users = pgTable('users', {
   id: text('id').primaryKey(),
   email: text('email').notNull().unique(),
   firstName: text('first_name'),
@@ -11,46 +10,46 @@ export const users = sqliteTable('users', {
   bio: text('bio'),
   avatarUrl: text('avatar_url'),
   points: integer('points').default(0),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-export const clubs = sqliteTable('clubs', {
+export const clubs = pgTable('clubs', {
   id: text('id').primaryKey(),
   slug: text('slug').notNull().unique(),
   name: text('name').notNull(),
-  charterDate: integer('charter_date', { mode: 'timestamp' }),
+  charterDate: timestamp('charter_date'),
   description: text('description'),
   logoUrl: text('logo_url'),
   presidentId: text('president_id'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-export const events = sqliteTable('events', {
+export const events = pgTable('events', {
   id: text('id').primaryKey(),
   clubId: text('club_id').notNull(),
   title: text('title').notNull(),
   slug: text('slug').notNull().unique(),
   description: text('description'),
-  eventDate: integer('event_date', { mode: 'timestamp' }).notNull(),
+  eventDate: timestamp('event_date').notNull(),
   location: text('location'),
   imageUrl: text('image_url'),
-  isSignatureProject: integer('is_signature_project', { mode: 'boolean' }).default(false),
+  isSignatureProject: boolean('is_signature_project').default(false),
   status: text('status').default('upcoming'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-export const eventRegistrations = sqliteTable('event_registrations', {
+export const eventRegistrations = pgTable('event_registrations', {
   id: text('id').primaryKey(),
   eventId: text('event_id').notNull(),
   userId: text('user_id').notNull(),
-  registeredAt: integer('registered_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  registeredAt: timestamp('registered_at').defaultNow(),
   status: text('status').default('confirmed'),
 });
 
-export const campaigns = sqliteTable('campaigns', {
+export const campaigns = pgTable('campaigns', {
   id: text('id').primaryKey(),
   title: text('title').notNull(),
   description: text('description'),
@@ -58,30 +57,30 @@ export const campaigns = sqliteTable('campaigns', {
   raisedAmount: real('raised_amount').default(0),
   status: text('status').default('active'),
   createdBy: text('created_by').notNull(),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-export const courses = sqliteTable('courses', {
+export const courses = pgTable('courses', {
   id: text('id').primaryKey(),
   title: text('title').notNull(),
   description: text('description'),
   thumbnailUrl: text('thumbnail_url'),
   modulesCount: integer('modules_count').default(0),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
-export const feeds = sqliteTable('feeds', {
+export const feeds = pgTable('feeds', {
   id: text('id').primaryKey(),
   type: text('type'),
   title: text('title').notNull(),
   content: text('content'),
   mediaUrl: text('media_url'),
   authorId: text('author_id'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
-export const jobs = sqliteTable('jobs', {
+export const jobs = pgTable('jobs', {
   id: text('id').primaryKey(),
   title: text('title').notNull(),
   company: text('company'),
@@ -89,38 +88,38 @@ export const jobs = sqliteTable('jobs', {
   type: text('type'),
   description: text('description'),
   applyUrl: text('apply_url'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
-export const moms = sqliteTable('moms', {
+export const moms = pgTable('moms', {
   id: text('id').primaryKey(),
   clubId: text('club_id'),
   title: text('title').notNull(),
-  meetingDate: integer('meeting_date', { mode: 'timestamp' }).notNull(),
+  meetingDate: timestamp('meeting_date').notNull(),
   fileUrl: text('file_url'),
   status: text('status').default('pending'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
-export const newsletters = sqliteTable('newsletters', {
+export const newsletters = pgTable('newsletters', {
   id: text('id').primaryKey(),
   title: text('title').notNull(),
-  issueDate: integer('issue_date', { mode: 'timestamp' }).notNull(),
+  issueDate: timestamp('issue_date').notNull(),
   fileUrl: text('file_url'),
   thumbnailUrl: text('thumbnail_url'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
-export const announcements = sqliteTable('announcements', {
+export const announcements = pgTable('announcements', {
   id: text('id').primaryKey(),
   title: text('title').notNull(),
   content: text('content').notNull(),
   priority: text('priority').default('normal'),
   createdBy: text('created_by'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
-export const coldStorageFiles = sqliteTable('cold_storage_files', {
+export const coldStorageFiles = pgTable('cold_storage_files', {
   id: text('id').primaryKey(),
   fileName: text('file_name').notNull(),
   fileSize: integer('file_size').notNull(),
@@ -128,33 +127,33 @@ export const coldStorageFiles = sqliteTable('cold_storage_files', {
   r2Key: text('r2_key').notNull().unique(),
   uploadedBy: text('uploaded_by').notNull(),
   category: text('category').default('general'),
-  isPublic: integer('is_public', { mode: 'boolean' }).default(false),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  isPublic: boolean('is_public').default(false),
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
-export const userAchievements = sqliteTable('user_achievements', {
+export const userAchievements = pgTable('user_achievements', {
   id: text('id').primaryKey(),
   userId: text('user_id').notNull(),
   title: text('title').notNull(),
   description: text('description'),
   badgeIcon: text('badge_icon'),
-  awardedAt: integer('awarded_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  awardedAt: timestamp('awarded_at').defaultNow(),
 });
 
 // Mentorship Applications: tracks mentor/mentee pairings
-export const mentorshipApplications = sqliteTable('mentorship_applications', {
+export const mentorshipApplications = pgTable('mentorship_applications', {
   id: text('id').primaryKey(),
   mentorId: text('mentor_id').notNull(),   // users.id
   menteeId: text('mentee_id').notNull(),   // users.id
   message: text('message'),               // why they want to connect
   status: text('status').default('pending'), // 'pending', 'accepted', 'rejected', 'completed'
   domain: text('domain'),                 // e.g. 'leadership', 'marketing', 'technology'
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
 // Course Modules: child records for each course in the LMS
-export const courseModules = sqliteTable('course_modules', {
+export const courseModules = pgTable('course_modules', {
   id: text('id').primaryKey(),
   courseId: text('course_id').notNull(),   // courses.id
   title: text('title').notNull(),
@@ -162,29 +161,28 @@ export const courseModules = sqliteTable('course_modules', {
   videoUrl: text('video_url'),
   duration: integer('duration'),           // in minutes
   order: integer('order').default(0),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
 // Service Hours: tracks volunteer/service hours logged by members
-export const serviceHours = sqliteTable('service_hours', {
+export const serviceHours = pgTable('service_hours', {
   id: text('id').primaryKey(),
   userId: text('user_id').notNull(),       // users.id
   eventId: text('event_id'),              // events.id (optional if logged independently)
   hours: real('hours').notNull(),
   description: text('description'),
-  loggedAt: integer('logged_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  loggedAt: timestamp('logged_at').defaultNow(),
   approvedBy: text('approved_by'),         // admin users.id
 });
 
 // Audit Logs: tracking all administrative actions
-export const auditLogs = sqliteTable('audit_logs', {
+export const auditLogs = pgTable('audit_logs', {
   id: text('id').primaryKey(),
   userId: text('user_id').notNull(),
   userName: text('user_name'),
   action: text('action').notNull(),
   resourceType: text('resource_type'), // 'event', 'club', 'member', etc.
   resourceId: text('resource_id'),
-  timestamp: integer('timestamp', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+  timestamp: timestamp('timestamp').defaultNow(),
   severity: text('severity').default('info'), // 'info', 'warning', 'critical'
 });
-

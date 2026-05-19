@@ -1,17 +1,19 @@
-import { drizzle as drizzleD1 } from 'drizzle-orm/d1';
-import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3';
-import Database from 'better-sqlite3';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 import * as schema from './schema';
+
+const connectionString = process.env.DATABASE_URL;
+
+// Disable prefetch as it is not supported for "Transaction" pool mode
+const client = connectionString 
+  ? postgres(connectionString, { prepare: false })
+  : postgres({ prepare: false }); // Fallback if no string, postgres will try local env vars
+
+const db = drizzle(client, { schema });
+
 export function getDb() {
-  if (process.env.NODE_ENV === 'development') {
-    const sqlite = new Database('local.sqlite');
-    return drizzleSqlite(sqlite, { schema }) as any;
+  if (!process.env.DATABASE_URL && process.env.NODE_ENV !== 'development') {
+    throw new Error('DATABASE_URL is not set. Please set it in Digital Ocean App Platform settings.');
   }
-
-  // ── Vercel Deployment Fallback ──────────
-  // Cloudflare D1 bindings (env.DB) are not supported on Vercel Edge/Node environments natively.
-  // We throw an error so the try-catch blocks in queries.ts can gracefully return []
-  // preventing the entire UI from crashing on Vercel.
-  throw new Error('Database not configured for Vercel. Cloudflare D1 requires Cloudflare Pages.');
+  return db;
 }
-
