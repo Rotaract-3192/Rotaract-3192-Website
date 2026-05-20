@@ -5,10 +5,13 @@ import { useState } from "react";
 
 interface LeaderEntry {
   id: string;
-  name: string;
+  firstName: string | null;
+  lastName: string | null;
+  email?: string;
   points: number | null;
   avatarUrl: string | null;
   role: string | null;
+  clubId?: string | null;
 }
 
 interface Club {
@@ -201,9 +204,9 @@ export default function HallOfFameClient({
                               }}
                             >
                               {entry.avatarUrl ? (
-                                <img src={entry.avatarUrl} alt={entry.name} className="w-full h-full object-cover" />
+                                <img src={entry.avatarUrl} alt={`${entry.firstName} ${entry.lastName}`} className="w-full h-full object-cover" />
                               ) : (
-                                <span style={{ color: tier.color }}>{getInitials(entry.name || "?")}</span>
+                                <span style={{ color: tier.color }}>{getInitials(`${entry.firstName ?? ''} ${entry.lastName ?? ''}` || "?")}</span>
                               )}
                             </div>
                             {rank === 1 && (
@@ -219,7 +222,7 @@ export default function HallOfFameClient({
                           {/* Name & Points */}
                           <div className="text-center">
                             <div className="font-black text-sm md:text-base text-white truncate max-w-[120px]">
-                              {entry.name || "Unknown"}
+                              {`${entry.firstName ?? ''} ${entry.lastName ?? ''}`.trim() || "Unknown"}
                             </div>
                             <div className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: tier.color }}>
                               {(entry.points ?? 0).toLocaleString()} pts
@@ -281,15 +284,15 @@ export default function HallOfFameClient({
                         {/* Avatar */}
                         <div className="w-11 h-11 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-sm font-black text-white/60 overflow-hidden flex-shrink-0">
                           {entry.avatarUrl ? (
-                            <img src={entry.avatarUrl} alt={entry.name} className="w-full h-full object-cover" />
+                            <img src={entry.avatarUrl} alt={`${entry.firstName} ${entry.lastName}`} className="w-full h-full object-cover" />
                           ) : (
-                            getInitials(entry.name || "?")
+                            getInitials(`${entry.firstName ?? ''} ${entry.lastName ?? ''}` || "?")
                           )}
                         </div>
 
                         {/* Info */}
                         <div className="flex-1 min-w-0">
-                          <div className="font-black text-sm text-white truncate">{entry.name || "Unknown"}</div>
+                          <div className="font-black text-sm text-white truncate">{`${entry.firstName ?? ''} ${entry.lastName ?? ''}`.trim() || "Unknown"}</div>
                           <div className="text-[9px] text-white/30 uppercase tracking-[0.2em]">{getRoleLabel(entry.role)}</div>
                         </div>
 

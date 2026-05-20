@@ -55,6 +55,8 @@ export const events = pgTable('events', {
   galleryImages: text('gallery_images'),
   featuredLinks: text('featured_links'),
   rsvpLink: text('rsvp_link'),
+  maxAttendees: integer('max_attendees'),
+  currentAttendees: integer('current_attendees').default(0),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -218,3 +220,24 @@ export const pastLeaders = pgTable('past_leaders', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
+// Point Transactions: ledger of all points awarded to members
+export const pointTransactions = pgTable('point_transactions', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  points: integer('points').notNull(),
+  reason: text('reason').notNull(),
+  category: text('category').notNull().default('general'), // service | professional | fellowship | leadership | attendance
+  awardedBy: text('awarded_by'),
+  eventId: text('event_id'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Attendance: tracks who attended which event/meeting
+export const attendance = pgTable('attendance', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  eventId: text('event_id').notNull(),
+  status: text('status').default('present'), // present | absent | excused
+  markedBy: text('marked_by'),
+  createdAt: timestamp('created_at').defaultNow(),
+});

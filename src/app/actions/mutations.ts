@@ -4,7 +4,7 @@ import { getDb } from '@/lib/db';
 import {
   clubs, events, users, feeds, campaigns, announcements, moms, courses,
   jobs, newsletters, eventRegistrations, serviceHours, mentorshipApplications,
-  coldStorageFiles, auditLogs, pastLeaders,
+  coldStorageFiles, auditLogs, pastLeaders, pointTransactions, attendance,
 } from '@/lib/db/schema';
 import { revalidatePath } from 'next/cache';
 import { eq, and, sql } from 'drizzle-orm';
@@ -396,6 +396,7 @@ export async function updateEvent(id: string, formData: FormData) {
       galleryImages: galleryImagePaths.length > 0 ? JSON.stringify(galleryImagePaths) : null,
       featuredLinks: featuredLinksArray.length > 0 ? JSON.stringify(featuredLinksArray) : null,
       rsvpLink,
+      maxAttendees: formData.get('maxAttendees') ? parseInt(formData.get('maxAttendees') as string) : undefined,
       updatedAt: new Date(),
     };
     
@@ -435,20 +436,40 @@ export async function updateUserRole(id: string, role: string) {
   }
 }
 
-export async function awardPoints(userIdToAward: string, points: number) {
-  const { userId } = await auth();
-  if (!userId) throw new Error('Unauthorized');
+// awardPoints — accepts FormData from AwardPointsPanel
+export async function awardPoints(formData: FormData) {
+  const db = getDb();
 
-  try {
-    const { sql } = await import('drizzle-orm');
-    await getDb().update(users).set({ points: sql`points + ${points}` }).where(eq(users.id, userIdToAward));
-    
-    await recordAuditLog(`Awarded ${points} points to user`, 'user', userIdToAward);
+  const userId = formData.get('userId') as string;
+  const pts = parseInt(formData.get('points') as string);
+  const reason = formData.get('reason') as string;
+  const category = (formData.get('category') as string) || 'general';
+  const eventId = (formData.get('eventId') as string) || null;
+  const awardedById = (formData.get('awardedBy') as string) || null;
 
-    revalidatePath('/admin/members');
-  } catch (error) {
-    console.error('Failed to award points:', error);
-  }
+  if (!userId || !pts || !reason) throw new Error('userId, points and reason are required');
+
+  await db.insert(pointTransactions).values({
+    id: crypto.randomUUID(),
+    userId,
+    points: pts,
+    reason,
+    category,
+    eventId: eventId || null,
+    awardedBy: awardedById || null,
+    createdAt: new Date(),
+  });
+
+  await db
+    .update(users)
+    .set({ points: sql`${users.points} + ${pts}` })
+    .where(eq(users.id, userId));
+
+  await recordAuditLog(`Awarded ${pts} points (${category}) to user ${userId}: ${reason}`, 'user', userId);
+
+  revalidatePath('/admin/members');
+  revalidatePath('/admin/leaderboard');
+  revalidatePath('/club-admin/members');
 }
 
 // ================= CAMPAIGNS =================
@@ -1246,3 +1267,4 @@ export async function setUserPermissions(formData: FormData) {
   revalidatePath('/admin/members');
   revalidatePath('/club-admin');
 }
+

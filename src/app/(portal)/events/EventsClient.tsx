@@ -145,6 +145,7 @@ export default function EventsClient({ eventsData }: { eventsData: any[] }) {
                 slug={event.slug}
                 badge={event.isSignatureProject ? 'Signature' : 'Mission'}
                 statusBadge={activeTab}
+                rsvpLink={event.rsvpLink}
               />
             ))}
 

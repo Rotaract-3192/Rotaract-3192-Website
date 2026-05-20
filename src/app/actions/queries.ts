@@ -4,7 +4,7 @@ import { getDb } from '@/lib/db';
 import {
   clubs, events, jobs, courses, moms, newsletters, users, feeds, campaigns,
   announcements, eventRegistrations, serviceHours, coldStorageFiles, auditLogs,
-  pastLeaders,
+  pastLeaders, pointTransactions,
 } from '@/lib/db/schema';
 import { desc, eq, and, ne, sql, count } from 'drizzle-orm';
 
@@ -101,16 +101,22 @@ export async function getFeeds() {
   }
 }
 
-export async function getLeaderboard() {
+export async function getLeaderboard(limit = 50) {
   try {
-    const allUsers = await getDb().select().from(users).orderBy(desc(users.points)).limit(10);
-    return allUsers.map(user => ({
-      id: user.id,
-      name: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
-      points: user.points,
-      avatarUrl: user.avatarUrl,
-      role: user.role,
-    }));
+    return await getDb()
+      .select({
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        avatarUrl: users.avatarUrl,
+        clubId: users.clubId,
+        points: users.points,
+        role: users.role,
+      })
+      .from(users)
+      .orderBy(desc(users.points))
+      .limit(limit);
   } catch (error) {
     console.error('Failed to fetch leaderboard:', error);
     return [];
@@ -340,5 +346,16 @@ export async function getPastLeaders() {
 }
 
 
-
-
+export async function getPointHistory(userId: string, limit = 20) {
+  try {
+    return await getDb()
+      .select()
+      .from(pointTransactions)
+      .where(eq(pointTransactions.userId, userId))
+      .orderBy(desc(pointTransactions.createdAt))
+      .limit(limit);
+  } catch (error) {
+    console.error('Failed to fetch point history:', error);
+    return [];
+  }
+}
