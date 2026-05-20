@@ -1,24 +1,103 @@
 'use client';
 
-import { useState } from 'react';
-import { createEvent } from '@/app/actions/mutations';
+import { useState, useEffect } from 'react';
+import { createEvent, updateEvent } from '@/app/actions/mutations';
 
 interface Club {
   id: string;
   name: string;
 }
 
-export default function EventForm({ clubs }: { clubs: Club[] }) {
-  const [slug, setSlug] = useState('');
+interface EventFormProps {
+  clubs: Club[];
+  initialData?: any;
+  onSuccess?: () => void;
+}
+
+export default function EventForm({ clubs, initialData, onSuccess }: EventFormProps) {
+  const [isEditMode] = useState(!!initialData);
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [slug, setSlug] = useState(initialData?.slug || '');
+  const [category, setCategory] = useState(initialData?.category || '');
+  const [entryType, setEntryType] = useState(initialData?.entryType || 'Event');
+  const [status, setStatus] = useState(initialData?.status || 'upcoming');
+  const [yearDateLabel, setYearDateLabel] = useState(initialData?.yearDateLabel || '');
+  const [eventDate, setEventDate] = useState(
+    initialData?.eventDate ? new Date(initialData.eventDate).toISOString().slice(0, 16) : ''
+  );
+  const [clubId, setClubId] = useState(initialData?.clubId || '');
+  const [location, setLocation] = useState(initialData?.location || '');
+  const [rsvpLink, setRsvpLink] = useState(initialData?.rsvpLink || '');
+  const [description, setDescription] = useState(initialData?.description || '');
+  const [fullContent, setFullContent] = useState(initialData?.fullContent || '');
+  const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || '');
+  
+  // Featured Links state
   const [featuredLinks, setFeaturedLinks] = useState<{ id: string; label: string; url: string }[]>([]);
+  
+  // File names for display
   const [coverFileName, setCoverFileName] = useState('');
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState(initialData?.imageUrl || '');
   const [galleryFileNames, setGalleryFileNames] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Parse existing gallery images
+  const [existingGalleryImages, setExistingGalleryImages] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title || '');
+      setSlug(initialData.slug || '');
+      setCategory(initialData.category || '');
+      setEntryType(initialData.entryType || 'Event');
+      setStatus(initialData.status || 'upcoming');
+      setYearDateLabel(initialData.yearDateLabel || '');
+      setEventDate(initialData.eventDate ? new Date(initialData.eventDate).toISOString().slice(0, 16) : '');
+      setClubId(initialData.clubId || '');
+      setLocation(initialData.location || '');
+      setRsvpLink(initialData.rsvpLink || '');
+      setDescription(initialData.description || '');
+      setFullContent(initialData.fullContent || '');
+      setImageUrl(initialData.imageUrl || '');
+      setCoverPreviewUrl(initialData.imageUrl || '');
+      
+      // Parse featured links if any
+      if (initialData.featuredLinks) {
+        try {
+          const links = typeof initialData.featuredLinks === 'string' 
+            ? JSON.parse(initialData.featuredLinks) 
+            : initialData.featuredLinks;
+          if (Array.isArray(links)) {
+            setFeaturedLinks(links.map((l: any) => ({ id: Math.random().toString(), label: l.label, url: l.url })));
+          }
+        } catch (e) {
+          console.error('Error parsing featured links:', e);
+        }
+      }
+
+      // Parse gallery images if any
+      if (initialData.galleryImages) {
+        try {
+          const images = typeof initialData.galleryImages === 'string'
+            ? JSON.parse(initialData.galleryImages)
+            : initialData.galleryImages;
+          if (Array.isArray(images)) {
+            setExistingGalleryImages(images);
+          }
+        } catch (e) {
+          console.error('Error parsing gallery images:', e);
+        }
+      }
+    }
+  }, [initialData]);
+
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const title = e.target.value;
-    const generatedSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    setSlug(generatedSlug);
+    const val = e.target.value;
+    setTitle(val);
+    if (!isEditMode) {
+      const generatedSlug = val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      setSlug(generatedSlug);
+    }
   };
 
   const addFeaturedLink = () => {
@@ -38,6 +117,23 @@ export default function EventForm({ clubs }: { clubs: Club[] }) {
     }));
   };
 
+  const handleCoverFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCoverFileName(file.name);
+      // Create local URL for preview
+      const localUrl = URL.createObjectURL(file);
+      setCoverPreviewUrl(localUrl);
+    } else {
+      setCoverFileName('');
+      setCoverPreviewUrl(imageUrl || '');
+    }
+  };
+
+  const removeExistingGalleryImage = (indexToRemove: number) => {
+    setExistingGalleryImages(existingGalleryImages.filter((_, idx) => idx !== indexToRemove));
+  };
+
   const categories = [
     'Community Service',
     'Club Service',
@@ -55,38 +151,69 @@ export default function EventForm({ clubs }: { clubs: Club[] }) {
       action={async (formData) => {
         setIsSubmitting(true);
         try {
-          await createEvent(formData);
-          setSlug('');
-          setFeaturedLinks([]);
-          setCoverFileName('');
-          setGalleryFileNames([]);
-          (document.getElementById('event-create-form') as HTMLFormElement)?.reset();
+          // Append existing gallery images if in edit mode
+          if (isEditMode) {
+            formData.append('existingGalleryImages', JSON.stringify(existingGalleryImages));
+          }
+
+          if (isEditMode) {
+            await updateEvent(initialData.id, formData);
+          } else {
+            await createEvent(formData);
+            // Reset form states
+            setTitle('');
+            setSlug('');
+            setCategory('');
+            setEntryType('Event');
+            setStatus('upcoming');
+            setYearDateLabel('');
+            setEventDate('');
+            setClubId('');
+            setLocation('');
+            setRsvpLink('');
+            setDescription('');
+            setFullContent('');
+            setImageUrl('');
+            setCoverFileName('');
+            setCoverPreviewUrl('');
+            setGalleryFileNames([]);
+            setFeaturedLinks([]);
+            (document.getElementById('event-admin-form') as HTMLFormElement)?.reset();
+          }
+
+          if (onSuccess) {
+            onSuccess();
+          }
         } catch (error) {
           console.error(error);
         } finally {
           setIsSubmitting(false);
         }
       }}
-      id="event-create-form"
-      className="space-y-10 relative z-10 text-white"
+      id="event-admin-form"
+      className="space-y-8 text-white max-w-4xl mx-auto"
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        {/* Project Title */}
-        <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Project Title *</label>
+      {/* Row 1: Title & Slug */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-sans">
+            Project Title <span className="text-[#0ea5e9]">*</span>
+          </label>
           <input 
             name="title" 
             type="text" 
             placeholder="Enter title..." 
             required
+            value={title}
             onChange={handleTitleChange}
-            className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all placeholder:text-white/20 uppercase tracking-widest font-sans"
+            className="w-full bg-[#0a1526] border border-white/10 rounded-xl py-3.5 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all placeholder:text-white/20 tracking-wider font-sans"
           />
         </div>
 
-        {/* URL Slug */}
-        <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">URL Slug *</label>
+        <div className="space-y-2">
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-sans">
+            URL Slug <span className="text-[#0ea5e9]">*</span>
+          </label>
           <input 
             name="slug" 
             type="text" 
@@ -94,181 +221,248 @@ export default function EventForm({ clubs }: { clubs: Club[] }) {
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
             required
-            className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all placeholder:text-white/20 lowercase tracking-widest font-sans"
+            className="w-full bg-[#0a1526] border border-white/10 rounded-xl py-3.5 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all placeholder:text-white/20 lowercase tracking-wider font-sans"
           />
         </div>
+      </div>
 
-        {/* Category */}
-        <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Category *</label>
+      {/* Row 2: Category Dropdown (half width) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-sans">
+            Category <span className="text-[#0ea5e9]">*</span>
+          </label>
           <div className="relative">
             <select 
               name="category" 
               required
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all appearance-none uppercase tracking-widest cursor-pointer font-sans"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full bg-[#0a1526] border border-white/10 rounded-xl py-3.5 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all appearance-none uppercase tracking-wider cursor-pointer font-sans"
             >
-              <option value="" className="bg-slate-900">Select Category...</option>
+              <option value="" className="bg-[#091124]">Select Category...</option>
               {categories.map((cat) => (
-                <option key={cat} value={cat} className="bg-slate-900">{cat.toUpperCase()}</option>
+                <option key={cat} value={cat} className="bg-[#091124]">{cat.toUpperCase()}</option>
               ))}
             </select>
-            <span className="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-primary opacity-40">expand_more</span>
+            <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 opacity-60">expand_more</span>
           </div>
         </div>
 
-        {/* Entry Type */}
-        <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Entry Type *</label>
+        {/* Host Club Option */}
+        <div className="space-y-2">
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-sans">
+            Host Club (Optional)
+          </label>
+          <div className="relative">
+            <select 
+              name="clubId" 
+              value={clubId}
+              onChange={(e) => setClubId(e.target.value)}
+              className="w-full bg-[#0a1526] border border-white/10 rounded-xl py-3.5 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all appearance-none uppercase tracking-wider cursor-pointer font-sans"
+            >
+              <option value="" className="bg-[#091124]">Select host club...</option>
+              {clubs.map((club) => (
+                <option key={club.id} value={club.id} className="bg-[#091124]">{club.name.toUpperCase()}</option>
+              ))}
+            </select>
+            <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 opacity-60">expand_more</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Row 3: Entry Type, Status, Year/Date Label */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="space-y-2">
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-sans">
+            Entry Type <span className="text-[#0ea5e9]">*</span>
+          </label>
           <div className="relative">
             <select 
               name="entryType" 
               required
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all appearance-none uppercase tracking-widest cursor-pointer font-sans"
+              value={entryType}
+              onChange={(e) => setEntryType(e.target.value)}
+              className="w-full bg-[#0a1526] border border-white/10 rounded-xl py-3.5 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all appearance-none uppercase tracking-wider cursor-pointer font-sans"
             >
-              <option value="Event" className="bg-slate-900">EVENT</option>
-              <option value="Project" className="bg-slate-900">PROJECT</option>
+              <option value="Event" className="bg-[#091124]">EVENT</option>
+              <option value="Project" className="bg-[#091124]">PROJECT</option>
             </select>
-            <span className="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-primary opacity-40">expand_more</span>
+            <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 opacity-60">expand_more</span>
           </div>
         </div>
 
-        {/* Status */}
-        <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Status *</label>
+        <div className="space-y-2">
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-sans">
+            Status <span className="text-[#0ea5e9]">*</span>
+          </label>
           <div className="relative">
             <select 
               name="status" 
               required
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all appearance-none uppercase tracking-widest cursor-pointer font-sans"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full bg-[#0a1526] border border-white/10 rounded-xl py-3.5 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all appearance-none uppercase tracking-wider cursor-pointer font-sans"
             >
-              <option value="upcoming" className="bg-slate-900">UPCOMING</option>
-              <option value="ongoing" className="bg-slate-900">ONGOING</option>
-              <option value="completed" className="bg-slate-900">COMPLETED</option>
+              <option value="upcoming" className="bg-[#091124]">UPCOMING</option>
+              <option value="ongoing" className="bg-[#091124]">ONGOING</option>
+              <option value="completed" className="bg-[#091124]">COMPLETED</option>
             </select>
-            <span className="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-primary opacity-40">expand_more</span>
+            <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 opacity-60">expand_more</span>
           </div>
         </div>
 
-        {/* Year / Date Label */}
-        <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Year / Date Label *</label>
+        <div className="space-y-2">
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-sans">
+            Year / Date Label <span className="text-[#0ea5e9]">*</span>
+          </label>
           <input 
             name="yearDateLabel" 
             type="text" 
             placeholder="e.g. 2025-2026 or MAY 24" 
             required
-            className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all placeholder:text-white/20 uppercase tracking-widest font-sans"
+            value={yearDateLabel}
+            onChange={(e) => setYearDateLabel(e.target.value)}
+            className="w-full bg-[#0a1526] border border-white/10 rounded-xl py-3.5 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all placeholder:text-white/20 uppercase tracking-wider font-sans"
           />
         </div>
+      </div>
 
-        {/* Event Date (Optional) */}
-        <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Exact Event Date (Optional)</label>
+      {/* Date & RSVP links (Row 3b) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="space-y-2">
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-sans">Exact Event Date (Optional)</label>
           <input 
             name="eventDate" 
             type="datetime-local" 
-            className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all uppercase tracking-widest font-sans"
+            value={eventDate}
+            onChange={(e) => setEventDate(e.target.value)}
+            className="w-full bg-[#0a1526] border border-white/10 rounded-xl py-3.5 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all uppercase tracking-wider font-sans"
           />
         </div>
 
-        {/* Host Club (Optional) */}
-        <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Host Club (Optional)</label>
-          <div className="relative">
-            <select 
-              name="clubId" 
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all appearance-none uppercase tracking-widest cursor-pointer font-sans"
-            >
-              <option value="" className="bg-slate-900">Select host club...</option>
-              {clubs.map((club) => (
-                <option key={club.id} value={club.id} className="bg-slate-900">{club.name.toUpperCase()}</option>
-              ))}
-            </select>
-            <span className="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-primary opacity-40">expand_more</span>
-          </div>
-        </div>
-
-        {/* Venue/Location */}
-        <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Venue / Location (Optional)</label>
+        <div className="space-y-2">
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-sans">Venue / Location (Optional)</label>
           <input 
             name="location" 
             type="text" 
             placeholder="Physical address or digital link..." 
-            className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all placeholder:text-white/20 uppercase tracking-widest font-sans"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            className="w-full bg-[#0a1526] border border-white/10 rounded-xl py-3.5 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all placeholder:text-white/20 uppercase tracking-wider font-sans"
           />
         </div>
 
-        {/* RSVP/Ticket Link */}
-        <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">RSVP / Ticket Link (Optional)</label>
+        <div className="space-y-2">
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-sans">RSVP / Ticket Link (Optional)</label>
           <input 
             name="rsvpLink" 
             type="url" 
             placeholder="https://example.com/rsvp" 
-            className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all placeholder:text-white/20 lowercase tracking-widest font-sans"
+            value={rsvpLink}
+            onChange={(e) => setRsvpLink(e.target.value)}
+            className="w-full bg-[#0a1526] border border-white/10 rounded-xl py-3.5 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all placeholder:text-white/20 lowercase tracking-wider font-sans"
           />
         </div>
       </div>
 
-      {/* Short Description */}
-      <div className="space-y-3">
-        <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Short Description *</label>
+      {/* Row 4: Short Description */}
+      <div className="space-y-2">
+        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-sans">
+          Short Description <span className="text-[#0ea5e9]">*</span>
+        </label>
         <textarea 
           name="description" 
           rows={3}
           required
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           placeholder="Provide a short overview of the event/project..." 
-          className="w-full bg-white/5 border border-white/10 rounded-2xl py-6 px-8 text-sm font-medium text-white focus:border-primary/50 outline-none transition-all resize-none leading-relaxed placeholder:text-white/20 font-sans"
+          className="w-full bg-[#0a1526] border border-white/10 rounded-2xl py-4 px-6 text-sm font-medium text-white focus:border-[#f9a826]/50 outline-none transition-all resize-none leading-relaxed placeholder:text-white/20 font-sans"
         ></textarea>
       </div>
 
       {/* Full Content (Markdown) */}
-      <div className="space-y-3">
-        <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Full Article / Details (Markdown, Optional)</label>
+      <div className="space-y-2">
+        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-sans">Full Article / Details (Markdown, Optional)</label>
         <textarea 
           name="fullContent" 
-          rows={8}
+          rows={6}
+          value={fullContent}
+          onChange={(e) => setFullContent(e.target.value)}
           placeholder="Provide detailed article, schedule, speakers, or project details..." 
-          className="w-full bg-white/5 border border-white/10 rounded-2xl py-6 px-8 text-sm font-medium text-white focus:border-primary/50 outline-none transition-all resize-y leading-relaxed placeholder:text-white/20 font-mono"
+          className="w-full bg-[#0a1526] border border-white/10 rounded-2xl py-4 px-6 text-sm font-medium text-white focus:border-[#f9a826]/50 outline-none transition-all resize-y leading-relaxed placeholder:text-white/20 font-mono"
         ></textarea>
       </div>
 
-      {/* Cover Image */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 border-t border-white/5 pt-10">
-        <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Cover Image File</label>
-          <div className="relative border border-dashed border-white/15 hover:border-primary/50 rounded-xl transition-colors cursor-pointer group flex flex-col items-center justify-center p-6 bg-white/2">
-            <input 
-              type="file" 
-              name="coverImage"
-              accept="image/*"
-              onChange={(e) => setCoverFileName(e.target.files?.[0]?.name || '')}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
-            <span className="material-symbols-outlined text-3xl text-primary/60 group-hover:text-primary mb-2 transition-colors">cloud_upload</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-white/50 group-hover:text-white transition-colors">
-              {coverFileName || 'Choose File'}
-            </span>
+      {/* Row 5: Cover Image Split Container */}
+      <div className="space-y-3 border-t border-white/5 pt-6">
+        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-sans">
+          Cover Image <span className="text-[#0ea5e9]">*</span>
+        </span>
+        
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+          {/* Left Preview Box */}
+          <div className="col-span-12 md:col-span-4 border border-dashed border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center bg-[#0a1526]/40 min-h-[160px] relative overflow-hidden group">
+            {coverPreviewUrl ? (
+              <>
+                <img 
+                  src={coverPreviewUrl} 
+                  alt="Cover Preview" 
+                  className="absolute inset-0 w-full h-full object-cover rounded-2xl transition-transform group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-white">Image Uploaded</span>
+                </div>
+              </>
+            ) : (
+              <div className="text-center space-y-1">
+                <span className="material-symbols-outlined text-3xl text-slate-500">image</span>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">No Image</p>
+                <p className="text-[8px] text-slate-600 font-semibold uppercase tracking-widest">800x600 recommended</p>
+              </div>
+            )}
           </div>
-        </div>
 
-        <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Cover Image URL (Fallback)</label>
-          <input 
-            name="imageUrl" 
-            type="text" 
-            placeholder="https://example.com/image.jpg" 
-            className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all placeholder:text-white/20 lowercase tracking-widest font-sans"
-          />
+          {/* Right Controls Box */}
+          <div className="col-span-12 md:col-span-8 flex flex-col justify-between gap-4">
+            <div className="relative border border-dashed border-white/15 hover:border-[#f9a826]/40 rounded-xl transition-all cursor-pointer group flex flex-col items-center justify-center p-6 bg-[#0a1526]/60 flex-1 min-h-[90px]">
+              <input 
+                type="file" 
+                name="coverImage"
+                accept="image/*"
+                onChange={handleCoverFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              />
+              <span className="material-symbols-outlined text-2xl text-[#f9a826]/80 group-hover:text-[#f9a826] mb-1.5 transition-colors">cloud_upload</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300 group-hover:text-white transition-colors text-center">
+                {coverFileName || 'Click to Upload Image'}
+              </span>
+            </div>
+
+            <div className="space-y-1">
+              <input 
+                name="imageUrl" 
+                type="text" 
+                placeholder="Fallback Image URL (e.g. https://...)" 
+                value={imageUrl}
+                onChange={(e) => {
+                  setImageUrl(e.target.value);
+                  setCoverPreviewUrl(e.target.value);
+                }}
+                className="w-full bg-[#0a1526] border border-white/10 rounded-xl py-3 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all placeholder:text-white/20 lowercase tracking-wider font-sans"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Gallery Images */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 border-t border-white/5 pt-10">
-        <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Gallery Images Files</label>
-          <div className="relative border border-dashed border-white/15 hover:border-primary/50 rounded-xl transition-colors cursor-pointer group flex flex-col items-center justify-center p-6 bg-white/2">
+      {/* Gallery Images Section */}
+      <div className="space-y-4 border-t border-white/5 pt-6">
+        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-sans">Gallery Images (Optional)</label>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="relative border border-dashed border-white/15 hover:border-[#f9a826]/40 rounded-xl transition-all cursor-pointer group flex flex-col items-center justify-center p-6 bg-[#0a1526]/60 min-h-[110px]">
             <input 
               type="file" 
               name="galleryImages"
@@ -286,35 +480,55 @@ export default function EventForm({ clubs }: { clubs: Club[] }) {
               }}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
-            <span className="material-symbols-outlined text-3xl text-primary/60 group-hover:text-primary mb-2 transition-colors">collections</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-white/50 group-hover:text-white transition-colors text-center px-4">
+            <span className="material-symbols-outlined text-2xl text-[#f9a826]/80 group-hover:text-[#f9a826] mb-1.5 transition-colors">collections</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300 group-hover:text-white transition-colors text-center px-4">
               {galleryFileNames.length > 0 ? `${galleryFileNames.length} Files Selected` : 'Choose Multiple Files'}
             </span>
           </div>
+
+          <div className="space-y-2">
+            <textarea 
+              name="externalGalleryUrls" 
+              rows={2}
+              placeholder="Or provide fallback Image URLs (comma-separated)" 
+              className="w-full bg-[#0a1526] border border-white/10 rounded-xl py-3 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all placeholder:text-white/20 lowercase tracking-wider font-sans resize-none"
+            ></textarea>
+          </div>
         </div>
 
-        <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Gallery Image URLs (Fallback, comma-separated)</label>
-          <textarea 
-            name="externalGalleryUrls" 
-            rows={2}
-            placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg" 
-            className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all placeholder:text-white/20 lowercase tracking-widest font-sans resize-none"
-          ></textarea>
-        </div>
+        {/* Existing Gallery Images display with removal */}
+        {isEditMode && existingGalleryImages.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Current Gallery Images (click to remove):</p>
+            <div className="flex flex-wrap gap-3">
+              {existingGalleryImages.map((img, idx) => (
+                <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden group border border-white/5">
+                  <img src={img} alt="gallery-thumb" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeExistingGalleryImage(idx)}
+                    className="absolute inset-0 bg-red-600/80 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                  >
+                    <span className="material-symbols-outlined text-white text-base">delete</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Featured Links Section */}
-      <div className="space-y-6 border-t border-white/5 pt-10">
+      <div className="space-y-4 border-t border-white/5 pt-6">
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-white">Featured Links</h3>
-            <p className="text-[10px] text-text-muted/60 uppercase tracking-widest font-sans mt-1">Add reference links, news articles, or social media posts</p>
+            <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-white">Featured Links</h3>
+            <p className="text-[9px] text-slate-500 uppercase tracking-widest font-sans mt-0.5">Reference links, news articles, or attachments</p>
           </div>
           <button
             type="button"
             onClick={addFeaturedLink}
-            className="border border-primary/30 text-primary font-bold uppercase tracking-[0.2em] text-[10px] px-6 py-2.5 rounded-lg hover:bg-primary/5 transition-colors flex items-center gap-2 font-sans"
+            className="border border-[#f9a826]/30 text-[#f9a826] hover:bg-[#f9a826]/5 font-bold uppercase tracking-[0.15em] text-[9px] px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 font-sans"
           >
             <span className="material-symbols-outlined text-sm">add</span>
             Add Link
@@ -322,33 +536,33 @@ export default function EventForm({ clubs }: { clubs: Club[] }) {
         </div>
 
         {featuredLinks.length > 0 && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {featuredLinks.map((link) => (
-              <div key={link.id} className="flex gap-4 items-center">
+              <div key={link.id} className="flex gap-3 items-center">
                 <input
                   type="text"
                   name="featuredLinkLabel"
-                  placeholder="Link Label (e.g. Register)"
+                  placeholder="Label (e.g. Register)"
                   value={link.label}
                   onChange={(e) => handleLinkChange(link.id, 'label', e.target.value)}
                   required
-                  className="flex-1 bg-white/5 border border-white/10 rounded-xl py-4 px-6 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all placeholder:text-white/20 uppercase tracking-widest font-sans"
+                  className="flex-1 bg-[#0a1526] border border-white/10 rounded-xl py-3 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all placeholder:text-white/20 uppercase tracking-wider font-sans"
                 />
                 <input
                   type="url"
                   name="featuredLinkUrl"
-                  placeholder="Link URL (e.g. https://...)"
+                  placeholder="URL (e.g. https://...)"
                   value={link.url}
                   onChange={(e) => handleLinkChange(link.id, 'url', e.target.value)}
                   required
-                  className="flex-[2] bg-white/5 border border-white/10 rounded-xl py-4 px-6 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all placeholder:text-white/20 lowercase tracking-widest font-sans"
+                  className="flex-[2] bg-[#0a1526] border border-white/10 rounded-xl py-3 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all placeholder:text-white/20 lowercase tracking-wider font-sans"
                 />
                 <button
                   type="button"
                   onClick={() => removeFeaturedLink(link.id)}
-                  className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-red-500/50 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all"
+                  className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all"
                 >
-                  <span className="material-symbols-outlined text-lg">delete</span>
+                  <span className="material-symbols-outlined text-base">delete</span>
                 </button>
               </div>
             ))}
@@ -357,18 +571,28 @@ export default function EventForm({ clubs }: { clubs: Club[] }) {
       </div>
 
       {/* Form Submit */}
-      <div className="flex justify-end pt-4 border-t border-white/5">
+      <div className="flex justify-end pt-4 border-t border-white/5 gap-4">
+        {onSuccess && (
+          <button
+            type="button"
+            onClick={onSuccess}
+            className="px-6 py-3 border border-white/10 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white/5 transition-all text-slate-300"
+          >
+            Cancel
+          </button>
+        )}
         <button 
           type="submit"
           disabled={isSubmitting}
-          className="bg-primary text-white font-bold uppercase tracking-[0.4em] text-[11px] px-14 py-5 rounded-xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:pointer-events-none transition-all flex items-center justify-center gap-3 group"
+          className="bg-[#f9a826] text-[#091124] hover:bg-[#ff9f1c] font-bold uppercase tracking-[0.2em] text-[10px] px-8 py-3.5 rounded-xl shadow-md hover:scale-102 active:scale-98 disabled:opacity-50 disabled:pointer-events-none transition-all flex items-center justify-center gap-2 group font-sans"
         >
-          <span className="material-symbols-outlined text-lg group-hover:rotate-45 transition-transform">
+          <span className="material-symbols-outlined text-sm group-hover:rotate-45 transition-transform">
             {isSubmitting ? 'sync' : 'add'}
           </span>
-          {isSubmitting ? 'Publishing...' : 'Publish Entry'}
+          {isSubmitting ? 'Saving...' : isEditMode ? 'Update Entry' : 'Publish Entry'}
         </button>
       </div>
     </form>
   );
 }
+

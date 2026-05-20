@@ -122,21 +122,23 @@ export default function ClubsClient({ clubsData }: { clubsData: any[] }) {
                 {viewProtocol === 'GRID' ? (
                   <ClubCard
                     name={club.name}
-                    city="District 3192"
+                    city={club.city ? `${club.city}${club.zone ? ` • ${club.zone}` : ''}` : 'District 3192'}
                     members={0}
                     engagement={Number(Math.floor(Math.random() * 20) + 80)}
-                    badge={idx % 4 === 0 ? "Top Performing" : "Active Chapter"}
+                    badge={club.zone || "Active Chapter"}
                     type={idx % 2 === 0 ? "primary" : "secondary"}
                     slug={club.slug}
+                    logoUrl={club.logoUrl}
                     icon={idx % 3 === 0 ? "stars" : idx % 3 === 1 ? "school" : "waves"}
                   />
                 ) : (
                   <ClubListItem
                     name={club.name}
-                    city="District 3192"
+                    city={club.city ? `${club.city}${club.zone ? ` • ${club.zone}` : ''}` : 'District 3192'}
                     members={0}
                     engagement={Number(Math.floor(Math.random() * 20) + 80)}
                     slug={club.slug}
+                    logoUrl={club.logoUrl}
                     icon={idx % 3 === 0 ? "stars" : idx % 3 === 1 ? "school" : "waves"}
                   />
                 )}

@@ -76,18 +76,34 @@ export default function ClubProfileClient({ club, events, feeds }: { club: any, 
                     <span className="material-symbols-outlined">location_on</span>
                   </div>
                   <div>
-                    <p className="text-[9px] font-black text-text-muted uppercase tracking-widest">Zone of Influence</p>
-                    <p className="text-lg font-bold text-white uppercase tracking-tight italic">{club.city || 'District Wide'}</p>
+                    <p className="text-[9px] font-black text-text-muted uppercase tracking-widest">Zone & City</p>
+                    <p className="text-lg font-bold text-white uppercase tracking-tight italic">
+                      {club.zone ? `${club.zone} (${club.city || 'Classified'})` : club.city || 'District Wide'}
+                    </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-6">
                   <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-primary border border-white/5">
-                    <span className="material-symbols-outlined">groups</span>
+                    <span className="material-symbols-outlined">home</span>
                   </div>
                   <div>
-                    <p className="text-[9px] font-black text-text-muted uppercase tracking-widest">Active Force</p>
-                    <p className="text-lg font-bold text-white uppercase tracking-tight italic">52 Operatives</p>
+                    <p className="text-[9px] font-black text-text-muted uppercase tracking-widest">Base of Operations</p>
+                    <p className="text-lg font-bold text-white uppercase tracking-tight italic">
+                      {club.venue || 'Classified'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-6">
+                  <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-primary border border-white/5">
+                    <span className="material-symbols-outlined">schedule</span>
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-black text-text-muted uppercase tracking-widest font-sans">Briefing Schedule</p>
+                    <p className="text-lg font-bold text-white uppercase tracking-tight italic">
+                      {club.meetingDayTime || 'Classified'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -96,19 +112,49 @@ export default function ClubProfileClient({ club, events, feeds }: { club: any, 
             <div className="pt-12 border-t border-white/5 space-y-8">
               <h3 className="text-sm font-black text-white uppercase tracking-[0.3em] flex items-center gap-4">
                 <span className="w-8 h-[1px] bg-primary"></span>
-                Lead Officer
+                Leadership Command
               </h3>
               
-              <div className="flex items-center gap-6">
-                <div className="w-16 h-16 rounded-full border-2 border-primary/20 p-1">
-                  <div className="w-full h-full rounded-full bg-white/10 overflow-hidden">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" className="w-full h-full object-cover" alt="President" />
+              {/* President */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-6">
+                  <div className="w-14 h-14 rounded-full border-2 border-primary/20 p-1 shrink-0">
+                    <div className="w-full h-full rounded-full bg-white/10 overflow-hidden">
+                      <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(club.presidentName || 'President')}`} className="w-full h-full object-cover" alt="President" />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold text-white uppercase tracking-tighter italic leading-none">{club.presidentName || 'Classified'}</p>
+                    <p className="text-[9px] font-black text-primary uppercase tracking-[0.2em] mt-2">President 24-25</p>
                   </div>
                 </div>
-                <div>
-                  <p className="text-xl font-bold text-white uppercase tracking-tighter italic">Rtr. John Doe</p>
-                  <p className="text-[9px] font-black text-primary uppercase tracking-[0.2em]">President 24-25</p>
+                {(club.presidentPhone || club.presidentEmail) && (
+                  <div className="pl-4 space-y-1.5 text-[10px] font-semibold text-text-muted/60 uppercase tracking-widest font-sans">
+                    {club.presidentPhone && <p className="flex items-center gap-2"><span className="material-symbols-outlined text-sm">phone</span> {club.presidentPhone}</p>}
+                    {club.presidentEmail && <p className="flex items-center gap-2"><span className="material-symbols-outlined text-sm">mail</span> {club.presidentEmail}</p>}
+                  </div>
+                )}
+              </div>
+
+              {/* Secretary */}
+              <div className="space-y-4 pt-6 border-t border-white/5">
+                <div className="flex items-center gap-6">
+                  <div className="w-14 h-14 rounded-full border-2 border-primary/20 p-1 shrink-0">
+                    <div className="w-full h-full rounded-full bg-white/10 overflow-hidden">
+                      <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(club.secretaryName || 'Secretary')}`} className="w-full h-full object-cover" alt="Secretary" />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold text-white uppercase tracking-tighter italic leading-none">{club.secretaryName || 'Classified'}</p>
+                    <p className="text-[9px] font-black text-primary/70 uppercase tracking-[0.2em] mt-2">Secretary 24-25</p>
+                  </div>
                 </div>
+                {(club.secretaryPhone || club.secretaryEmail) && (
+                  <div className="pl-4 space-y-1.5 text-[10px] font-semibold text-text-muted/60 uppercase tracking-widest font-sans">
+                    {club.secretaryPhone && <p className="flex items-center gap-2"><span className="material-symbols-outlined text-sm">phone</span> {club.secretaryPhone}</p>}
+                    {club.secretaryEmail && <p className="flex items-center gap-2"><span className="material-symbols-outlined text-sm">mail</span> {club.secretaryEmail}</p>}
+                  </div>
+                )}
               </div>
             </div>
 

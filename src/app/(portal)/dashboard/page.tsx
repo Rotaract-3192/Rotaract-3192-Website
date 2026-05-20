@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@/lib/mockAuth';
 import { getUserProfile, getDashboardStats, getUpcomingEvents, getAnnouncements } from '@/app/actions/queries';
 
 export const metadata = {

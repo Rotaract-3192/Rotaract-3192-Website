@@ -9,10 +9,11 @@ interface ClubCardProps {
   type?: 'primary' | 'secondary';
   slug: string;
   icon?: string;
+  logoUrl?: string;
 }
 
 export default function ClubCard({ 
-  name, city, members, engagement, badge, type = 'primary', slug, icon = 'stars' 
+  name, city, members, engagement, badge, type = 'primary', slug, icon = 'stars', logoUrl 
 }: ClubCardProps) {
   return (
     <div className="bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white/5 shadow-2xl group hover:shadow-primary/5 transition-all duration-700 overflow-hidden p-8 flex flex-col h-full relative">
@@ -21,10 +22,14 @@ export default function ClubCard({
 
       {/* Header Area */}
       <div className="flex justify-between items-start mb-10 relative z-10">
-        <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-surface transition-all duration-500">
-          <span className="material-symbols-outlined text-3xl">
-            {icon}
-          </span>
+        <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-surface transition-all duration-500 overflow-hidden">
+          {logoUrl ? (
+            <img src={logoUrl} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <span className="material-symbols-outlined text-3xl">
+              {icon}
+            </span>
+          )}
         </div>
         <span className="px-5 py-1.5 rounded-full bg-white/5 text-primary font-bold text-[9px] uppercase tracking-[0.3em] border border-white/10">
           {badge}

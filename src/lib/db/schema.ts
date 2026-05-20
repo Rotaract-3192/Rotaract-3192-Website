@@ -6,6 +6,7 @@ export const users = pgTable('users', {
   firstName: text('first_name'),
   lastName: text('last_name'),
   role: text('role').default('member'),
+  permissionBits: integer('permission_bits').default(0),
   clubId: text('club_id'),
   bio: text('bio'),
   avatarUrl: text('avatar_url'),
@@ -22,6 +23,16 @@ export const clubs = pgTable('clubs', {
   description: text('description'),
   logoUrl: text('logo_url'),
   presidentId: text('president_id'),
+  city: text('city'),
+  zone: text('zone'),
+  venue: text('venue'),
+  meetingDayTime: text('meeting_day_time'),
+  presidentName: text('president_name'),
+  presidentPhone: text('president_phone'),
+  presidentEmail: text('president_email'),
+  secretaryName: text('secretary_name'),
+  secretaryPhone: text('secretary_phone'),
+  secretaryEmail: text('secretary_email'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -193,3 +204,17 @@ export const auditLogs = pgTable('audit_logs', {
   timestamp: timestamp('timestamp').defaultNow(),
   severity: text('severity').default('info'), // 'info', 'warning', 'critical'
 });
+
+// Past Leaders: timeline of historical District leaders (DRRs, Secretary, etc.)
+export const pastLeaders = pgTable('past_leaders', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  role: text('role').notNull(),
+  year: text('year').notNull(),
+  avatarUrl: text('avatar_url'),
+  themeName: text('theme_name'),
+  citation: text('citation'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+

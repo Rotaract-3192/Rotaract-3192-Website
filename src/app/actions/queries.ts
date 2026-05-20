@@ -4,8 +4,9 @@ import { getDb } from '@/lib/db';
 import {
   clubs, events, jobs, courses, moms, newsletters, users, feeds, campaigns,
   announcements, eventRegistrations, serviceHours, coldStorageFiles, auditLogs,
+  pastLeaders,
 } from '@/lib/db/schema';
-import { desc, eq, and, sql, count } from 'drizzle-orm';
+import { desc, eq, and, ne, sql, count } from 'drizzle-orm';
 
 export async function getClubs() {
   try {
@@ -16,9 +17,16 @@ export async function getClubs() {
   }
 }
 
-export async function getEvents() {
+export async function getEvents(includeTrash = false) {
   try {
-    return await getDb().select().from(events).orderBy(desc(events.eventDate));
+    if (includeTrash) {
+      return await getDb().select().from(events).orderBy(desc(events.eventDate));
+    }
+    return await getDb()
+      .select()
+      .from(events)
+      .where(ne(events.status, 'trash'))
+      .orderBy(desc(events.eventDate));
   } catch (error) {
     console.error('Failed to fetch events:', error);
     return [];
@@ -226,11 +234,12 @@ export async function getMentors() {
 export async function getDistrictStats() {
   try {
     const db = getDb() as any;
-    const [clubsCount, membersCount, eventsCount, announcementsCount] = await Promise.all([
+    const [clubsCount, membersCount, eventsCount, announcementsCount, momsCount] = await Promise.all([
       db.select({ count: sql<number>`count(*)` }).from(clubs),
       db.select({ count: sql<number>`count(*)` }).from(users),
       db.select({ count: sql<number>`count(*)` }).from(events),
-      db.select({ count: sql<number>`count(*)` }).from(announcements)
+      db.select({ count: sql<number>`count(*)` }).from(announcements),
+      db.select({ count: sql<number>`count(*)` }).from(moms)
     ]);
 
     return {
@@ -238,10 +247,11 @@ export async function getDistrictStats() {
       totalMembers: membersCount[0]?.count || 0,
       totalEvents: eventsCount[0]?.count || 0,
       totalAnnouncements: announcementsCount[0]?.count || 0,
+      totalMoms: momsCount[0]?.count || 0,
     };
   } catch (error) {
     console.error('Failed to fetch district stats:', error);
-    return { totalClubs: 0, totalMembers: 0, totalEvents: 0, totalAnnouncements: 0 };
+    return { totalClubs: 0, totalMembers: 0, totalEvents: 0, totalAnnouncements: 0, totalMoms: 0 };
   }
 }
 
@@ -273,7 +283,7 @@ export async function getEventBySlug(slug: string) {
     const result = await getDb()
       .select()
       .from(events)
-      .where(eq(events.slug, slug))
+      .where(and(eq(events.slug, slug), ne(events.status, 'trash')))
       .limit(1);
     return result[0] ?? null;
   } catch (error) {
@@ -287,7 +297,7 @@ export async function getEventsByClubId(clubId: string) {
     return await getDb()
       .select()
       .from(events)
-      .where(eq(events.clubId, clubId))
+      .where(and(eq(events.clubId, clubId), ne(events.status, 'trash')))
       .orderBy(desc(events.eventDate));
   } catch (error) {
     console.error('Failed to fetch events by club ID:', error);
@@ -316,6 +326,19 @@ export async function getFeedsByClubId(clubId: string) {
     return [];
   }
 }
+
+export async function getPastLeaders() {
+  try {
+    return await getDb()
+      .select()
+      .from(pastLeaders)
+      .orderBy(desc(pastLeaders.year));
+  } catch (error) {
+    console.error('Failed to fetch past leaders:', error);
+    return [];
+  }
+}
+
 
 
 

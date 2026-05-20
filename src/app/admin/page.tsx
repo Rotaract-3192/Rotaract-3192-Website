@@ -19,7 +19,7 @@ export default async function AdminDashboardPage() {
     { label: 'Active Clubs', val: stats.totalClubs, icon: 'hub', color: 'text-primary', link: '/admin/clubs', trend: 'DISTRICT' },
     { label: 'Total Members', val: stats.totalMembers, icon: 'groups', color: 'text-primary', link: '/admin/members', trend: 'GROWING' },
     { label: 'Major Events', val: stats.totalEvents, icon: 'event', color: 'text-primary', link: '/admin/events', trend: 'ONGOING' },
-    { label: 'Bulletins', val: stats.totalAnnouncements, icon: 'campaign', color: 'text-primary', link: '/admin/announcements', trend: 'UPDATED' }
+    { label: 'Minutes (MOMs)', val: stats.totalMoms, icon: 'description', color: 'text-primary', link: '/admin/mom', trend: 'ARCHIVED' }
   ];
 
   return (
@@ -86,7 +86,7 @@ export default async function AdminDashboardPage() {
            <section className="glass-panel overflow-hidden">
               <div className="px-10 py-8 border-b border-white/5 bg-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-white uppercase tracking-tight font-display">Latest <span className="text-primary">Chapters</span></h2>
+                  <h2 className="text-2xl font-bold text-white uppercase tracking-tight font-display">Latest <span className="text-primary">Clubs</span></h2>
                   <p className="text-[9px] text-text-muted font-bold uppercase tracking-[0.4em] opacity-40 mt-2 font-sans">Recent club updates across the district</p>
                 </div>
                 <Link href="/admin/clubs" className="px-8 py-3 rounded-xl bg-primary text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:scale-105 transition-all shadow-lg shadow-primary/20 no-underline font-sans">View All Clubs</Link>
@@ -119,7 +119,7 @@ export default async function AdminDashboardPage() {
                     ))}
                     {activeClubs.length === 0 && (
                       <tr>
-                        <td colSpan={3} className="py-24 text-center text-text-muted opacity-40 text-[11px] font-bold uppercase tracking-[0.5em] font-sans">No active chapters found</td>
+                        <td colSpan={3} className="py-24 text-center text-text-muted opacity-40 text-[11px] font-bold uppercase tracking-[0.5em] font-sans">No active clubs found</td>
                       </tr>
                     )}
                   </tbody>
@@ -174,10 +174,10 @@ export default async function AdminDashboardPage() {
             <h2 className="text-2xl font-bold text-white uppercase tracking-tight font-display leading-none">Quick <span className="text-primary">Links</span></h2>
             <div className="space-y-4">
               {[
-                { label: 'Security Log', sub: 'Audit Protocols', href: '/admin/audit', icon: 'shield_locked', active: true },
-                { label: 'Content Manager', sub: 'Social Feeds', href: '/admin/feeds', icon: 'broadcast_on_home', active: false },
-                { label: 'Project Hub', sub: 'Event Control', href: '/admin/events', icon: 'analytics', active: false },
-                { label: 'Member List', sub: 'Access Management', href: '/admin/members', icon: 'badge', active: false }
+                { label: 'System Audit', sub: 'Audit Protocols', href: '/admin/audit', icon: 'security', active: true },
+                { label: 'Hall of Honor', sub: 'Leader Timeline', href: '/admin/president', icon: 'military_tech', active: false },
+                { label: 'Events Hub', sub: 'Project Control', href: '/admin/events', icon: 'event', active: false },
+                { label: 'Members Directory', sub: 'Access Management', href: '/admin/members', icon: 'groups', active: false }
               ].map((fn, i) => (
                 <Link key={i} href={fn.href} className={`w-full group p-6 rounded-2xl border transition-all flex items-center justify-between no-underline block font-sans ${fn.active ? 'bg-primary border-primary shadow-lg shadow-primary/20' : 'bg-white/5 border-white/5 hover:bg-white/10'}`}>
                   <div className="space-y-1">
@@ -204,7 +204,7 @@ export default async function AdminDashboardPage() {
                 <p className="text-[10px] font-bold text-white/50 uppercase tracking-[0.4em] font-sans">Official Protocol</p>
               </div>
               <p className="text-sm font-medium text-white/80 leading-relaxed border-l-2 border-white/20 pl-6 font-sans">
-                Manage and support all district chapters to ensure maximum community impact.
+                Manage and support all district clubs to ensure maximum community impact.
               </p>
               <Link href="/admin/members" className="w-full bg-white text-primary font-bold text-[10px] py-5 rounded-xl uppercase tracking-[0.3em] shadow-xl hover:bg-[#020617] hover:text-white transition-all flex items-center justify-center group/btn no-underline font-sans">
                 Manage Network
@@ -217,3 +217,4 @@ export default async function AdminDashboardPage() {
     </div>
   );
 }
+

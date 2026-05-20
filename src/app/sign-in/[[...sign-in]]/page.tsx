@@ -1,4 +1,4 @@
-import { SignIn } from "@clerk/nextjs";
+import { SignIn } from "@/lib/mockAuthClient";
 
 export default function Page() {
   return (

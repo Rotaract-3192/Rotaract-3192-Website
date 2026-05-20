@@ -1,11 +1,11 @@
-import { getMOMs } from "@/app/actions/queries";
-import { createMOM, deleteMOM } from "@/app/actions/mutations";
-import Image from 'next/image';
+import { getMOMs, getClubs } from "@/app/actions/queries";
+import { deleteMOM } from "@/app/actions/mutations";
+import NewMOMButton from '@/components/admin/NewMOMButton';
 
 export const revalidate = 0;
 
 export default async function AdminMOMPage() {
-  const momList = await getMOMs();
+  const [momList, clubs] = await Promise.all([getMOMs(), getClubs()]);
 
   return (
     <div className="space-y-16 pb-24 px-4 lg:px-8">
@@ -23,64 +23,9 @@ export default async function AdminMOMPage() {
             Archive and manage district meeting documentation and records.
           </p>
         </div>
+        <NewMOMButton clubs={clubs} />
       </header>
 
-      {/* Create MOM Form */}
-      <section className="glass-panel p-10 lg:p-14 relative overflow-hidden">
-        <div className="flex items-center gap-8 mb-12">
-           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-              <span className="material-symbols-outlined text-3xl">description</span>
-           </div>
-           <div>
-              <h2 className="text-3xl font-bold font-display uppercase tracking-tight leading-none text-white">Archive <span className="text-primary">Minutes</span></h2>
-              <p className="text-[10px] text-text-muted font-bold uppercase tracking-[0.3em] opacity-40 mt-3 font-sans">Commit a new meeting record to the district archive</p>
-           </div>
-        </div>
-
-        <form action={createMOM} className="space-y-10 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-3">
-              <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Meeting Title</label>
-              <input 
-                name="title" 
-                type="text" 
-                placeholder="Enter meeting name..." 
-                required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all placeholder:text-white/20 uppercase tracking-widest font-sans"
-              />
-            </div>
-            <div className="space-y-3">
-              <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Meeting Date</label>
-              <input 
-                name="meetingDate" 
-                type="date" 
-                required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all uppercase tracking-widest font-sans"
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-3">
-            <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Document URL (PDF/Drive)</label>
-            <input 
-              name="fileUrl" 
-              type="url" 
-              placeholder="https://drive.google.com/..." 
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all placeholder:text-white/20 uppercase tracking-widest font-sans"
-            />
-          </div>
-
-          <div className="flex justify-end pt-4">
-            <button 
-              type="submit"
-              className="bg-primary text-white font-bold uppercase tracking-[0.4em] text-[11px] px-14 py-5 rounded-xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 group font-sans"
-            >
-              <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">save</span>
-              Save to Archive
-            </button>
-          </div>
-        </form>
-      </section>
 
       {/* Archived Protocols Table */}
       <section className="glass-panel overflow-hidden">

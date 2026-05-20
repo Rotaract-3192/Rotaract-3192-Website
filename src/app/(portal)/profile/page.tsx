@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@/lib/mockAuth';
 import { getUserProfile, getDashboardStats } from '@/app/actions/queries';
 
 export const metadata = {

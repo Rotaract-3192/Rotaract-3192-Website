@@ -1,4 +1,4 @@
-import { getLeaderboard, getClubs, getDistrictStats } from '@/app/actions/queries';
+import { getLeaderboard, getClubs, getDistrictStats, getPastLeaders } from '@/app/actions/queries';
 import HallOfFameClient from './HallOfFameClient';
 
 export const metadata = {
@@ -9,10 +9,11 @@ export const metadata = {
 export const revalidate = 60;
 
 export default async function HallOfFamePage() {
-  const [leaderboard, clubs, stats] = await Promise.all([
+  const [leaderboard, clubs, stats, pastLeaders] = await Promise.all([
     getLeaderboard(),
     getClubs(),
     getDistrictStats(),
+    getPastLeaders(),
   ]);
 
   return (
@@ -20,6 +21,8 @@ export default async function HallOfFamePage() {
       leaderboard={leaderboard}
       clubs={clubs}
       stats={stats}
+      pastLeaders={pastLeaders}
     />
   );
 }
+

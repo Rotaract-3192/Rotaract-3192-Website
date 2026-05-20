@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
+import { ClerkProvider } from "@/lib/mockAuthClient";
 
 export const metadata: Metadata = {
   title: "Rotaract District 3192 Portal",

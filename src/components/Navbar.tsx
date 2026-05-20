@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useUser, UserButton } from "@clerk/nextjs";
+import { useUser, UserButton } from "@/lib/mockAuthClient";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {

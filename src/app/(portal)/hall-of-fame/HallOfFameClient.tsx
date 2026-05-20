@@ -18,6 +18,16 @@ interface Club {
   logoUrl: string | null;
 }
 
+interface PastLeader {
+  id: string;
+  name: string;
+  role: string;
+  year: string;
+  avatarUrl: string | null;
+  themeName: string | null;
+  citation: string | null;
+}
+
 interface Stats {
   totalClubs: number;
   totalMembers: number;
@@ -54,12 +64,14 @@ export default function HallOfFameClient({
   leaderboard,
   clubs,
   stats,
+  pastLeaders,
 }: {
   leaderboard: LeaderEntry[];
   clubs: Club[];
   stats: Stats;
+  pastLeaders: PastLeader[];
 }) {
-  const [activeTab, setActiveTab] = useState<"individuals" | "clubs">("individuals");
+  const [activeTab, setActiveTab] = useState<"individuals" | "clubs" | "honor">("individuals");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const top3 = leaderboard.slice(0, 3);
@@ -134,10 +146,11 @@ export default function HallOfFameClient({
           {[
             { key: "individuals", label: "Top Members", icon: "person" },
             { key: "clubs", label: "Clubs", icon: "groups" },
+            { key: "honor", label: "Hall of Honor", icon: "military_tech" },
           ].map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key as "individuals" | "clubs")}
+              onClick={() => setActiveTab(tab.key as "individuals" | "clubs" | "honor")}
               className={`flex items-center gap-2 px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all ${
                 activeTab === tab.key
                   ? "bg-[#FFD700] text-[#020617]"
@@ -355,6 +368,105 @@ export default function HallOfFameClient({
                     ))}
                   </div>
                 )}
+              </div>
+            </section>
+          </motion.div>
+        )}
+        {activeTab === "honor" && (
+          <motion.div
+            key="honor"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <section className="relative z-10 px-8 pb-32">
+              <div className="max-w-4xl mx-auto relative">
+                {/* Timeline vertical bar */}
+                {pastLeaders.length > 0 && (
+                  <div className="absolute left-8 md:left-1/2 top-4 bottom-4 w-[2px] bg-gradient-to-b from-[#FFD700]/80 via-[#FFD700]/20 to-transparent -translate-x-1/2" />
+                )}
+
+                <div className="space-y-16">
+                  {pastLeaders.map((leader, idx) => {
+                    const isEven = idx % 2 === 0;
+                    return (
+                      <motion.div
+                        key={leader.id}
+                        initial={{ opacity: 0, y: 40 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-100px" }}
+                        transition={{ duration: 0.6, delay: idx * 0.1 }}
+                        className={`flex flex-col md:flex-row items-start md:items-center justify-between gap-8 md:gap-0 relative ${
+                          isEven ? "md:flex-row-reverse" : ""
+                        }`}
+                      >
+                        {/* Timeline Node Point */}
+                        <div className="absolute left-8 md:left-1/2 w-8 h-8 rounded-full bg-[#020617] border-2 border-[#FFD700] flex items-center justify-center -translate-x-1/2 z-10 shadow-[0_0_15px_rgba(255,215,0,0.3)]">
+                          <div className="w-2.5 h-2.5 rounded-full bg-[#FFD700]" />
+                        </div>
+
+                        {/* Leader Year Badge */}
+                        <div className="w-full md:w-[45%] flex justify-start md:justify-end pl-16 md:pl-0 md:pr-12 md:text-right">
+                          <div className={`${isEven ? "md:text-left md:pl-12 md:pr-0" : ""} space-y-2`}>
+                            <span className="text-3xl font-black font-display text-white tracking-wider block bg-gradient-to-r from-white to-white/40 bg-clip-text text-transparent">
+                              {leader.year}
+                            </span>
+                            {leader.themeName && (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#FFD700]/20 bg-[#FFD700]/5 text-[#FFD700] text-[9px] font-black uppercase tracking-wider font-sans">
+                                <span className="material-symbols-outlined text-[10px]">local_activity</span>
+                                {leader.themeName}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Card Container */}
+                        <div className="w-full md:w-[45%] pl-16 md:pl-0">
+                          <div className="glass-panel p-8 relative overflow-hidden group hover:border-[#FFD700]/30 transition-all duration-300">
+                            {/* Card Glow */}
+                            <div className="absolute -top-12 -right-12 w-32 h-32 bg-gradient-to-br from-[#FFD700]/10 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                            <div className="flex gap-6 items-start">
+                              {/* Leader Photo */}
+                              <div className="w-20 h-20 rounded-2xl overflow-hidden border border-white/10 bg-white/5 relative shrink-0">
+                                <img
+                                  src={leader.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(leader.name)}&background=003F8A&color=fff`}
+                                  alt={leader.name}
+                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                />
+                              </div>
+                              {/* Name, Role & Citation */}
+                              <div className="space-y-3 min-w-0 flex-1">
+                                <div>
+                                  <h3 className="text-xl font-bold text-white uppercase tracking-tight font-display truncate leading-tight group-hover:text-[#FFD700] transition-colors">
+                                    {leader.name}
+                                  </h3>
+                                  <p className="text-[9px] text-[#FFD700] uppercase tracking-widest font-black mt-1 font-sans">
+                                    {leader.role}
+                                  </p>
+                                </div>
+                                {leader.citation && (
+                                  <p className="text-xs text-white/50 leading-relaxed font-sans mt-2">
+                                    {leader.citation}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+
+                  {pastLeaders.length === 0 && (
+                    <div className="text-center py-24 space-y-4">
+                      <span className="material-symbols-outlined text-6xl text-white/10">military_tech</span>
+                      <p className="text-white/20 text-sm uppercase tracking-[0.3em] font-sans">
+                        No past district leaders registered in the Hall of Honor yet.
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </section>
           </motion.div>
