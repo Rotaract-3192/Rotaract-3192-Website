@@ -14,12 +14,27 @@ interface LeaderEntry {
   clubId?: string | null;
 }
 
+interface ProjectStat {
+  id: string;
+  title: string;
+  slug: string;
+  score: number;
+  aiAnalysis: string | null;
+}
+
 interface Club {
   id: string;
   name: string;
   slug: string;
   logoUrl: string | null;
+  city?: string | null;
+  zone?: string | null;
+  totalProjects: number;
+  totalAiPoints: number;
+  averageAiScore: number;
+  projects: ProjectStat[];
 }
+
 
 interface PastLeader {
   id: string;
@@ -63,6 +78,57 @@ function getRoleLabel(role: string | null) {
   return map[role] ?? role;
 }
 
+function MarkdownViewer({ content }: { content: string }) {
+  const lines = content.split('\n');
+  return (
+    <div className="space-y-3 text-sm text-white/70 leading-relaxed font-sans">
+      {lines.map((line, idx) => {
+        if (line.startsWith('### ')) {
+          return <h3 key={idx} className="text-sm font-black text-primary mt-4 mb-2 uppercase tracking-wider">{line.replace('### ', '')}</h3>;
+        }
+        if (line.startsWith('#### ')) {
+          return <h4 key={idx} className="text-xs font-black text-white mt-3 mb-1 uppercase tracking-wider">{line.replace('#### ', '')}</h4>;
+        }
+        if (line.startsWith('* **') && line.includes(':**')) {
+          const parts = line.split(':**');
+          const label = parts[0].replace('* **', '') + ':';
+          const val = parts[1].replace(/`/g, '');
+          return (
+            <div key={idx} className="flex gap-2 items-center text-xs">
+              <span className="text-white/40 font-mono">•</span>
+              <span className="text-white/50">{label}</span>
+              <span className="text-yellow-400 font-bold">{val}</span>
+            </div>
+          );
+        }
+        if (line.startsWith('1. **') && line.includes('**')) {
+          const parts = line.split('**');
+          const bold = parts[1];
+          const text = parts.slice(2).join('**');
+          return (
+            <div key={idx} className="pl-4 border-l-2 border-primary/20 py-0.5 text-xs text-white/80">
+              <strong className="text-white font-semibold">{bold}</strong>{text}
+            </div>
+          );
+        }
+        if (line.startsWith('> **') || line.startsWith('> ')) {
+          return (
+            <blockquote key={idx} className="p-4 rounded-xl border border-[#FFD700]/20 bg-[#FFD700]/5 text-xs italic text-[#FFD700]/80 my-4">
+              {line.replace(/^>\s*(\*\*)?/, '').replace(/(\*\*)?\s*$/, '')}
+            </blockquote>
+          );
+        }
+        if (line.trim() === '---') {
+          return <hr key={idx} className="border-white/5 my-4" />;
+        }
+        if (line.trim() === '') return null;
+        return <p key={idx} className="text-xs text-white/60">{line}</p>;
+      })}
+    </div>
+  );
+}
+
+
 export default function HallOfFameClient({
   leaderboard,
   clubs,
@@ -76,6 +142,9 @@ export default function HallOfFameClient({
 }) {
   const [activeTab, setActiveTab] = useState<"individuals" | "clubs" | "honor">("individuals");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [selectedClub, setSelectedClub] = useState<Club | null>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectStat | null>(null);
+
 
   const top3 = leaderboard.slice(0, 3);
   const rest = leaderboard.slice(3);
@@ -326,6 +395,17 @@ export default function HallOfFameClient({
           >
             <section className="relative z-10 px-8 pb-32">
               <div className="max-w-5xl mx-auto">
+                <div className="text-center mb-12">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-wider mb-3">
+                    <span className="material-symbols-outlined text-xs">auto_awesome</span>
+                    District Club Leaderboard
+                  </div>
+                  <h2 className="text-3xl md:text-5xl font-black font-display uppercase tracking-tight">AI Project Impact Rankings</h2>
+                  <p className="text-white/40 text-xs mt-3 max-w-md mx-auto leading-relaxed">
+                    Clubs are ranked based on the aggregate uniqueness and social impact scores of their project portfolios, evaluated by the District AI engine.
+                  </p>
+                </div>
+
                 {clubs.length === 0 ? (
                   <div className="text-center py-24 space-y-4">
                     <span className="material-symbols-outlined text-6xl text-white/10">groups</span>
@@ -333,42 +413,83 @@ export default function HallOfFameClient({
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {clubs.map((club, idx) => (
-                      <motion.div
-                        key={club.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        whileHover={{ y: -6 }}
-                        className="relative p-8 rounded-3xl bg-white/5 border border-white/5 hover:border-primary/30 backdrop-blur-xl transition-all group overflow-hidden"
-                      >
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-all" />
+                    {clubs.map((club, idx) => {
+                      const rank = idx + 1;
+                      const rankLabel = rank === 1 ? "🥇 1st" : rank === 2 ? "🥈 2nd" : rank === 3 ? "🥉 3rd" : `#${rank}`;
+                      const borderGlow = rank === 1 ? 'hover:border-[#FFD700]/30' : rank === 2 ? 'hover:border-[#C0C0C0]/30' : rank === 3 ? 'hover:border-[#CD7F32]/30' : 'hover:border-primary/30';
+                      const badgeBg = rank === 1 ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20' : rank === 2 ? 'bg-[#C0C0C0]/10 text-white/80 border border-white/10' : rank === 3 ? 'bg-[#CD7F32]/10 text-[#CD7F32] border border-[#CD7F32]/20' : 'bg-white/5 text-white/40 border border-white/5';
 
-                        <div className="relative z-10 space-y-4">
-                          {/* Club Logo / Initials */}
-                          <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center overflow-hidden group-hover:border-primary/30 transition-all">
-                            {club.logoUrl ? (
-                              <img src={club.logoUrl} alt={club.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <span className="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors text-3xl">
-                                groups
-                              </span>
-                            )}
+                      return (
+                        <motion.div
+                          key={club.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.05 }}
+                          whileHover={{ y: -6 }}
+                          className={`relative p-8 rounded-3xl bg-white/5 border border-white/5 ${borderGlow} backdrop-blur-xl transition-all group overflow-hidden flex flex-col justify-between`}
+                        >
+                          {/* Rank Ribbon */}
+                          <div className="absolute top-4 right-4">
+                            <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${badgeBg} font-mono shadow-sm`}>
+                              {rankLabel}
+                            </span>
                           </div>
 
-                          <div>
-                            <div className="font-black text-white text-base leading-tight">{club.name}</div>
-                            <div className="text-[9px] text-white/30 uppercase tracking-[0.3em] mt-1 font-bold">
-                              {club.slug}
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-all" />
+
+                          <div className="relative z-10 space-y-6 flex-grow flex flex-col justify-between">
+                            <div className="space-y-4">
+                              {/* Club Logo / Initials */}
+                              <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center overflow-hidden group-hover:border-primary/30 transition-all">
+                                {club.logoUrl ? (
+                                  <img src={club.logoUrl} alt={club.name} className="w-full h-full object-cover" />
+                                ) : (
+                                  <span className="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors text-3xl">
+                                    groups
+                                  </span>
+                                )}
+                              </div>
+
+                              <div>
+                                <div className="font-black text-white text-base leading-tight group-hover:text-primary transition-colors">{club.name}</div>
+                                <div className="text-[9px] text-white/30 uppercase tracking-[0.2em] mt-1 font-bold">
+                                  {club.city || 'District 3192'} • Zone {club.zone || 'A'}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Scoring Stats Block */}
+                            <div className="py-4 border-y border-white/5 grid grid-cols-2 gap-4">
+                              <div>
+                                <div className="text-[8px] text-white/30 uppercase tracking-[0.2em] font-bold">Aggregate Score</div>
+                                <div className="text-2xl font-black text-primary mt-1 font-display">
+                                  {club.totalAiPoints.toLocaleString()} <span className="text-[10px] font-sans font-medium text-white/40">pts</span>
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-[8px] text-white/30 uppercase tracking-[0.2em] font-bold">Projects Audited</div>
+                                <div className="text-xl font-bold text-white mt-1.5 font-mono">
+                                  {club.totalProjects} <span className="text-[10px] font-sans font-medium text-white/40">items</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-3 pt-2">
+                              <div className="text-[9px] text-white/40 font-medium">
+                                Avg Score: <span className="text-white/80 font-bold font-mono">{club.averageAiScore || 0}/100</span>
+                              </div>
+                              <button
+                                onClick={() => setSelectedClub(club)}
+                                className="text-[10px] font-black uppercase tracking-wider text-primary hover:text-white transition-colors bg-primary/10 hover:bg-primary px-3.5 py-2 rounded-full flex items-center gap-1 cursor-pointer"
+                              >
+                                <span className="material-symbols-outlined text-xs">analytics</span>
+                                View Audits
+                              </button>
                             </div>
                           </div>
-
-                          <div className="pt-2 border-t border-white/5">
-                            <div className="text-[9px] text-primary/60 uppercase tracking-[0.3em] font-black">Active Club</div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
+                        </motion.div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -475,6 +596,176 @@ export default function HallOfFameClient({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ─── Club AI Audit Modal ─── */}
+      <AnimatePresence>
+        {selectedClub && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl max-h-[85vh] overflow-hidden rounded-3xl border border-white/10 bg-slate-900/90 p-8 shadow-2xl backdrop-blur-2xl flex flex-col justify-between"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedClub(null)}
+                className="absolute top-6 right-6 w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors cursor-pointer text-white/50 hover:text-white"
+              >
+                <span className="material-symbols-outlined text-sm">close</span>
+              </button>
+
+              <div className="space-y-6 overflow-y-auto flex-grow pr-2 my-2">
+                {/* Header */}
+                <div className="flex gap-5 items-center pb-6 border-b border-white/5">
+                  <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
+                    {selectedClub.logoUrl ? (
+                      <img src={selectedClub.logoUrl} alt={selectedClub.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="material-symbols-outlined text-white/30 text-3xl">groups</span>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white uppercase tracking-tight">{selectedClub.name}</h3>
+                    <p className="text-[10px] text-white/40 uppercase tracking-[0.2em] mt-1 font-semibold">
+                      {selectedClub.city || 'District 3192'} • Zone {selectedClub.zone || 'A'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Score Summary */}
+                <div className="grid grid-cols-3 gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
+                  <div className="text-center">
+                    <div className="text-[8px] text-white/40 uppercase tracking-wider font-bold">Total AI Points</div>
+                    <div className="text-2xl font-black text-primary mt-1">{selectedClub.totalAiPoints}</div>
+                  </div>
+                  <div className="text-center border-x border-white/5">
+                    <div className="text-[8px] text-white/40 uppercase tracking-wider font-bold">Projects Audited</div>
+                    <div className="text-2xl font-black text-white mt-1">{selectedClub.totalProjects}</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-[8px] text-white/40 uppercase tracking-wider font-bold">Average Grade</div>
+                    <div className="text-2xl font-black text-green-400 mt-1">{selectedClub.averageAiScore}/100</div>
+                  </div>
+                </div>
+
+                {/* Projects List */}
+                <div className="space-y-4 pt-2">
+                  <h4 className="text-xs font-black uppercase tracking-widest text-white/40">Portfolio Evaluation</h4>
+                  {selectedClub.projects.length === 0 ? (
+                    <div className="text-center py-12 border border-dashed border-white/5 rounded-2xl">
+                      <span className="material-symbols-outlined text-4xl text-white/10 mb-2">auto_awesome</span>
+                      <p className="text-white/20 text-xs uppercase tracking-wider font-mono">No AI projects logged yet</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {selectedClub.projects.map((project) => (
+                        <div
+                          key={project.id}
+                          className="p-4 rounded-xl border border-white/5 bg-white/5 flex items-center justify-between gap-4 hover:border-primary/20 transition-all group"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <h5 className="font-bold text-white text-sm truncate leading-tight group-hover:text-primary transition-colors">
+                              {project.title}
+                            </h5>
+                            <p className="text-[9px] text-white/30 font-mono mt-1 uppercase tracking-wider">
+                              ID: {project.slug}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-4 shrink-0">
+                            <div className="text-right">
+                              <span className="text-xs font-black text-primary font-mono bg-primary/10 px-2.5 py-1 rounded-full">
+                                {project.score}/100
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => setSelectedProject(project)}
+                              className="text-[10px] font-black uppercase tracking-wider text-white hover:text-primary bg-white/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg cursor-pointer transition-all"
+                            >
+                              Audit Report
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-white/5 flex justify-end">
+                <button
+                  onClick={() => setSelectedClub(null)}
+                  className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── Project AI Audit Detail Drawer/Submodal ─── */}
+      <AnimatePresence>
+        {selectedProject && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="relative w-full max-w-xl max-h-[80vh] overflow-hidden rounded-3xl border border-white/10 bg-slate-900/95 p-8 shadow-2xl backdrop-blur-2xl flex flex-col justify-between"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedProject(null)}
+                className="absolute top-6 right-6 w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors cursor-pointer text-white/50 hover:text-white"
+              >
+                <span className="material-symbols-outlined text-sm">close</span>
+              </button>
+
+              <div className="space-y-6 overflow-y-auto flex-grow pr-2 my-2">
+                {/* Header */}
+                <div className="pb-6 border-b border-white/5 space-y-1">
+                  <span className="text-[9px] font-black text-primary uppercase tracking-[0.3em]">AI Project Evaluation Audit</span>
+                  <h3 className="text-lg font-bold text-white tracking-tight leading-tight">{selectedProject.title}</h3>
+                </div>
+
+                {/* Audit Body */}
+                <div className="py-2">
+                  {selectedProject.aiAnalysis ? (
+                    <MarkdownViewer content={selectedProject.aiAnalysis} />
+                  ) : (
+                    <div className="text-center py-12 space-y-3">
+                      <span className="material-symbols-outlined text-4xl text-white/10">auto_awesome</span>
+                      <p className="text-white/20 text-xs font-mono">No evaluation report available for this entry.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-white/5 flex justify-end">
+                <button
+                  onClick={() => setSelectedProject(null)}
+                  className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/80 text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                >
+                  Go Back
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+

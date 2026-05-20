@@ -57,6 +57,8 @@ export const events = pgTable('events', {
   rsvpLink: text('rsvp_link'),
   maxAttendees: integer('max_attendees'),
   currentAttendees: integer('current_attendees').default(0),
+  aiScore: integer('ai_score'),
+  aiAnalysis: text('ai_analysis'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });

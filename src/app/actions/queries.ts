@@ -359,3 +359,69 @@ export async function getPointHistory(userId: string, limit = 20) {
     return [];
   }
 }
+
+export async function getClubsWithProjectStats() {
+  try {
+    const db = getDb();
+    const allClubs = await db.select().from(clubs);
+    const allProjects = await db
+      .select()
+      .from(events)
+      .where(and(eq(events.entryType, 'Project'), ne(events.status, 'trash')));
+
+    const clubStatsMap = new Map();
+
+    for (const project of allProjects) {
+      if (!project.clubId) continue;
+      const current = clubStatsMap.get(project.clubId) || {
+        totalProjects: 0,
+        totalAiPoints: 0,
+        projects: [],
+      };
+      const score = project.aiScore || 0;
+      current.totalProjects += 1;
+      current.totalAiPoints += score;
+      current.projects.push({
+        id: project.id,
+        title: project.title,
+        slug: project.slug,
+        score,
+        aiAnalysis: project.aiAnalysis,
+      });
+      clubStatsMap.set(project.clubId, current);
+    }
+
+    const clubsWithStats = allClubs.map((club) => {
+      const stats = clubStatsMap.get(club.id) || {
+        totalProjects: 0,
+        totalAiPoints: 0,
+        projects: [],
+      };
+      return {
+        id: club.id,
+        name: club.name,
+        slug: club.slug,
+        logoUrl: club.logoUrl,
+        charterDate: club.charterDate,
+        city: club.city,
+        zone: club.zone,
+        totalProjects: stats.totalProjects,
+        totalAiPoints: stats.totalAiPoints,
+        averageAiScore: stats.totalProjects > 0 ? Math.round(stats.totalAiPoints / stats.totalProjects) : 0,
+        projects: stats.projects.sort((a: any, b: any) => b.score - a.score),
+      };
+    });
+
+    // Sort by totalAiPoints desc, then by totalProjects desc
+    return clubsWithStats.sort((a, b) => {
+      if (b.totalAiPoints !== a.totalAiPoints) {
+        return b.totalAiPoints - a.totalAiPoints;
+      }
+      return b.totalProjects - a.totalProjects;
+    });
+  } catch (error) {
+    console.error('Failed to fetch clubs with project stats:', error);
+    return [];
+  }
+}
+

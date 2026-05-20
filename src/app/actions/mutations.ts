@@ -198,6 +198,19 @@ export async function createEvent(formData: FormData) {
     }
   }
 
+  let aiScore: number | null = null;
+  let aiAnalysis: string | null = null;
+  if (entryType === 'Project') {
+    try {
+      const { analyzeProject } = await import('@/lib/ai');
+      const evalResult = await analyzeProject(title, description || '', fullContent || '');
+      aiScore = evalResult.score;
+      aiAnalysis = evalResult.analysis;
+    } catch (err) {
+      console.error('AI evaluation failed during project creation:', err);
+    }
+  }
+
   try {
     const id = generateId();
     await getDb().insert(events).values({
@@ -217,6 +230,8 @@ export async function createEvent(formData: FormData) {
       galleryImages: galleryImagePaths.length > 0 ? JSON.stringify(galleryImagePaths) : null,
       featuredLinks: featuredLinksArray.length > 0 ? JSON.stringify(featuredLinksArray) : null,
       rsvpLink,
+      aiScore,
+      aiAnalysis,
     });
 
     await recordAuditLog(`Created Event/Project: ${title}`, 'event', id);
@@ -379,6 +394,19 @@ export async function updateEvent(id: string, formData: FormData) {
     }
   }
 
+  let aiScore: number | undefined = undefined;
+  let aiAnalysis: string | undefined = undefined;
+  if (entryType === 'Project') {
+    try {
+      const { analyzeProject } = await import('@/lib/ai');
+      const evalResult = await analyzeProject(title, description || '', fullContent || '');
+      aiScore = evalResult.score;
+      aiAnalysis = evalResult.analysis;
+    } catch (err) {
+      console.error('AI evaluation failed during project update:', err);
+    }
+  }
+
   try {
     const db = getDb();
     const updateValues: any = {
@@ -399,6 +427,9 @@ export async function updateEvent(id: string, formData: FormData) {
       maxAttendees: formData.get('maxAttendees') ? parseInt(formData.get('maxAttendees') as string) : undefined,
       updatedAt: new Date(),
     };
+    
+    if (aiScore !== undefined) updateValues.aiScore = aiScore;
+    if (aiAnalysis !== undefined) updateValues.aiAnalysis = aiAnalysis;
     
     if (imageUrl) {
       updateValues.imageUrl = imageUrl;
