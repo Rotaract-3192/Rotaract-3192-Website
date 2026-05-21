@@ -1,7 +1,7 @@
 import { getUsers, getClubs } from '@/app/actions/queries';
-import { deleteUser } from '@/app/actions/mutations';
 import PermissionAssigner from '@/components/PermissionAssigner';
 import NewMemberButton from '@/components/admin/NewMemberButton';
+import DeleteUserButton from '@/components/admin/DeleteUserButton';
 
 export const revalidate = 0;
 
@@ -26,14 +26,14 @@ export default async function AdminMembersPage() {
       <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-10">
         <div className="space-y-4">
           <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-md">
-            <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_#3B82F6]"></div>
+            <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_#3B82F6]" />
             <span className="text-[10px] font-bold text-primary uppercase tracking-[0.4em]">Identity Management</span>
           </div>
           <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tight font-display uppercase leading-none">
             Member <span className="text-primary">Directory</span>
           </h1>
           <p className="text-text-muted text-sm font-medium opacity-60 flex items-center gap-3 font-sans">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
             {members.length} unique members recognized in the district network.
           </p>
         </div>
@@ -93,11 +93,7 @@ export default async function AdminMembersPage() {
                           currentClubId={member.clubId ?? null}
                           clubs={clubOptions}
                         />
-                        <form action={deleteUser.bind(null, member.id)}>
-                          <button type="submit" className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 text-red-500/30 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all flex items-center justify-center">
-                            <span className="material-symbols-outlined text-base">person_remove</span>
-                          </button>
-                        </form>
+                        <DeleteUserButton userId={member.id} />
                       </div>
                     </td>
                   </tr>

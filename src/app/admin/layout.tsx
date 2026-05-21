@@ -42,8 +42,8 @@ export default function AdminLayout({
 
       {/* Page Content */}
       <div className="flex-1 flex flex-col min-h-screen relative lg:pl-72">
-        {/* Sticky Header Bar (both mobile and desktop) */}
-        <header className="h-20 bg-[#091124]/80 backdrop-blur-md border-b border-white/5 flex items-center px-8 sticky top-0 z-30 justify-between">
+        {/* Sticky Header Bar */}
+        <header className="h-20 bg-[#091124]/80 backdrop-blur-md border-b border-white/5 flex items-center px-8 sticky top-0 z-30 justify-between shrink-0">
           <div className="flex items-center gap-5">
             {/* Mobile Sidebar Menu Button */}
             <button 
@@ -64,8 +64,8 @@ export default function AdminLayout({
             </span>
           </div>
 
-          {/* Pill-shaped User Badge with Avatar */}
-          <div className="flex items-center gap-3 bg-[#0f2444] border border-[#1d3d6b]/50 px-4 py-1.5 rounded-full shadow-inner transition-transform hover:scale-102">
+          {/* Pill-shaped User Badge */}
+          <div className="flex items-center gap-3 bg-[#0f2444] border border-[#1d3d6b]/50 px-4 py-1.5 rounded-full shadow-inner transition-transform hover:scale-102 shrink-0">
             <span className="text-[9px] font-bold text-slate-200 uppercase tracking-wider select-none">
               {mounted && isLoaded && user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'District Admin' : 'District Admin'}
             </span>
@@ -94,4 +94,3 @@ export default function AdminLayout({
     </div>
   );
 }
-

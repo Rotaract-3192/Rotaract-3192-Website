@@ -10,6 +10,12 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' },
     ],
   },
+  // Allow HMR from network hosts (for VM/docker development)
+  allowedDevOrigins: [
+    'localhost',
+    '127.0.0.1',
+    '192.168.56.1', // VM network interface
+  ],
   experimental: {}
 };
 
