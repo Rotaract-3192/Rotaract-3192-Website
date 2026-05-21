@@ -43,3 +43,46 @@ export function getRoleBadgeClass(bits: number): string {
     default: return 'bg-white/5 text-white/30 border-white/10';
   }
 }
+
+/**
+ * Authorization helpers for Server Actions
+ * Use these to enforce role-based access control
+ */
+
+export class UnauthorizedError extends Error {
+  constructor(message: string = 'Unauthorized') {
+    super(message);
+    this.name = 'UnauthorizedError';
+  }
+}
+
+/**
+ * Requires master admin access (permissionBits === 1)
+ * Throws UnauthorizedError if user lacks permission
+ */
+export function requireMasterAdmin(permissionBits: number): void {
+  if (!isMasterAdmin(permissionBits)) {
+    throw new UnauthorizedError('Master admin access required');
+  }
+}
+
+/**
+ * Requires club panel access (permissionBits & 2)
+ * Includes master admin and club admin/president
+ * Throws UnauthorizedError if user lacks permission
+ */
+export function requireClubPanel(permissionBits: number): void {
+  if (!hasClubPanel(permissionBits)) {
+    throw new UnauthorizedError('Club admin access required');
+  }
+}
+
+/**
+ * Requires either master admin or club panel
+ * Throws UnauthorizedError if user is regular member
+ */
+export function requireAdminAccess(permissionBits: number): void {
+  if (permissionBits === 0) {
+    throw new UnauthorizedError('Admin access required');
+  }
+}

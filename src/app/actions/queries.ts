@@ -8,25 +8,26 @@ import {
 } from '@/lib/db/schema';
 import { desc, eq, and, ne, sql, count } from 'drizzle-orm';
 
-export async function getClubs() {
+export async function getClubs(limit = 100) {
   try {
-    return await getDb().select().from(clubs);
+    return await getDb().select().from(clubs).limit(limit);
   } catch (error) {
     console.error('Failed to fetch clubs:', error);
     return [];
   }
 }
 
-export async function getEvents(includeTrash = false) {
+export async function getEvents(includeTrash = false, limit = 100) {
   try {
     if (includeTrash) {
-      return await getDb().select().from(events).orderBy(desc(events.eventDate));
+      return await getDb().select().from(events).orderBy(desc(events.eventDate)).limit(limit);
     }
     return await getDb()
       .select()
       .from(events)
       .where(ne(events.status, 'trash'))
-      .orderBy(desc(events.eventDate));
+      .orderBy(desc(events.eventDate))
+      .limit(limit);
   } catch (error) {
     console.error('Failed to fetch events:', error);
     return [];
@@ -47,54 +48,54 @@ export async function getUpcomingEvents(limit = 5) {
   }
 }
 
-export async function getJobs() {
+export async function getJobs(limit = 50) {
   try {
-    return await getDb().select().from(jobs).orderBy(desc(jobs.createdAt));
+    return await getDb().select().from(jobs).orderBy(desc(jobs.createdAt)).limit(limit);
   } catch (error) {
     console.error('Failed to fetch jobs:', error);
     return [];
   }
 }
 
-export async function getCourses() {
+export async function getCourses(limit = 50) {
   try {
-    return await getDb().select().from(courses).orderBy(desc(courses.createdAt));
+    return await getDb().select().from(courses).orderBy(desc(courses.createdAt)).limit(limit);
   } catch (error) {
     console.error('Failed to fetch courses:', error);
     return [];
   }
 }
 
-export async function getMOMs() {
+export async function getMOMs(limit = 50) {
   try {
-    return await getDb().select().from(moms).orderBy(desc(moms.meetingDate));
+    return await getDb().select().from(moms).orderBy(desc(moms.meetingDate)).limit(limit);
   } catch (error) {
     console.error('Failed to fetch MOMs:', error);
     return [];
   }
 }
 
-export async function getNewsletters() {
+export async function getNewsletters(limit = 50) {
   try {
-    return await getDb().select().from(newsletters).orderBy(desc(newsletters.issueDate));
+    return await getDb().select().from(newsletters).orderBy(desc(newsletters.issueDate)).limit(limit);
   } catch (error) {
     console.error('Failed to fetch newsletters:', error);
     return [];
   }
 }
 
-export async function getUsers() {
+export async function getUsers(limit = 100) {
   try {
-    return await getDb().select().from(users).orderBy(desc(users.createdAt));
+    return await getDb().select().from(users).orderBy(desc(users.createdAt)).limit(limit);
   } catch (error) {
     console.error('Failed to fetch users:', error);
     return [];
   }
 }
 
-export async function getFeeds() {
+export async function getFeeds(limit = 50) {
   try {
-    return await getDb().select().from(feeds).orderBy(desc(feeds.createdAt));
+    return await getDb().select().from(feeds).orderBy(desc(feeds.createdAt)).limit(limit);
   } catch (error) {
     console.error('Failed to fetch feeds:', error);
     return [];
@@ -123,18 +124,18 @@ export async function getLeaderboard(limit = 50) {
   }
 }
 
-export async function getCampaigns() {
+export async function getCampaigns(limit = 50) {
   try {
-    return await getDb().select().from(campaigns).orderBy(desc(campaigns.createdAt));
+    return await getDb().select().from(campaigns).orderBy(desc(campaigns.createdAt)).limit(limit);
   } catch (error) {
     console.error('Failed to fetch campaigns:', error);
     return [];
   }
 }
 
-export async function getAnnouncements() {
+export async function getAnnouncements(limit = 50) {
   try {
-    return await getDb().select().from(announcements).orderBy(desc(announcements.createdAt));
+    return await getDb().select().from(announcements).orderBy(desc(announcements.createdAt)).limit(limit);
   } catch (error) {
     console.error('Failed to fetch announcements:', error);
     return [];

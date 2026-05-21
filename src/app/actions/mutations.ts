@@ -8,7 +8,7 @@ import {
 } from '@/lib/db/schema';
 import { revalidatePath } from 'next/cache';
 import { eq, and, sql } from 'drizzle-orm';
-import { getRoleLabel, getBinaryStr } from '@/lib/permissions';
+import { getRoleLabel, getBinaryStr, isMasterAdmin } from '@/lib/permissions';
 import { auth } from '@/lib/mockAuth';
 
 
@@ -468,39 +468,46 @@ export async function updateUserRole(id: string, role: string) {
 }
 
 // awardPoints — accepts FormData from AwardPointsPanel
+// CRITICAL FIX: Added missing auth check (was allowing anyone to award points)
 export async function awardPoints(formData: FormData) {
-  const db = getDb();
+  const { userId: adminId } = await auth();
+  if (!adminId) throw new Error('Unauthorized');
 
   const userId = formData.get('userId') as string;
   const pts = parseInt(formData.get('points') as string);
   const reason = formData.get('reason') as string;
   const category = (formData.get('category') as string) || 'general';
   const eventId = (formData.get('eventId') as string) || null;
-  const awardedById = (formData.get('awardedBy') as string) || null;
 
   if (!userId || !pts || !reason) throw new Error('userId, points and reason are required');
 
-  await db.insert(pointTransactions).values({
-    id: crypto.randomUUID(),
-    userId,
-    points: pts,
-    reason,
-    category,
-    eventId: eventId || null,
-    awardedBy: awardedById || null,
-    createdAt: new Date(),
-  });
+  try {
+    const db = getDb();
+    await db.insert(pointTransactions).values({
+      id: crypto.randomUUID(),
+      userId,
+      points: pts,
+      reason,
+      category,
+      eventId: eventId || null,
+      awardedBy: adminId,
+      createdAt: new Date(),
+    });
 
-  await db
-    .update(users)
-    .set({ points: sql`${users.points} + ${pts}` })
-    .where(eq(users.id, userId));
+    await db
+      .update(users)
+      .set({ points: sql`${users.points} + ${pts}` })
+      .where(eq(users.id, userId));
 
-  await recordAuditLog(`Awarded ${pts} points (${category}) to user ${userId}: ${reason}`, 'user', userId);
+    await recordAuditLog(`Awarded ${pts} points (${category}) to user ${userId}: ${reason}`, 'user', userId);
 
-  revalidatePath('/admin/members');
-  revalidatePath('/admin/leaderboard');
-  revalidatePath('/club-admin/members');
+    revalidatePath('/admin/members');
+    revalidatePath('/admin/leaderboard');
+    revalidatePath('/club-admin/members');
+  } catch (error) {
+    console.error('Failed to award points:', error);
+    throw error;
+  }
 }
 
 // ================= CAMPAIGNS =================
@@ -1245,13 +1252,19 @@ export async function setUserPermissions(formData: FormData) {
   const { userId: adminId } = await auth();
   if (!adminId) throw new Error('Unauthorized');
 
+  // CRITICAL FIX: Validate admin has master admin permissions
+  const db = getDb();
+  const adminUser = await db.query.users.findFirst({ where: eq(users.id, adminId) });
+  if (!adminUser || adminUser.permissionBits === null || !isMasterAdmin(adminUser.permissionBits)) {
+    throw new Error('Master admin access required');
+  }
+
   const userId = formData.get('userId') as string;
   const permissionBits = parseInt(formData.get('permissionBits') as string, 10);
   const clubId = (formData.get('clubId') as string) || null;
 
   if (!userId) throw new Error('Missing userId');
-
-  const db = getDb();
+  if (permissionBits < 0 || permissionBits > 3) throw new Error('Invalid permissionBits');
 
   // Enforce ONE president per club — downgrade any existing president of this club
   if (permissionBits === 3 && clubId) {
