@@ -54,8 +54,29 @@ export async function createClub(formData: FormData) {
   const venue = formData.get('venue') as string;
   const meetingDayTime = formData.get('meetingDayTime') as string;
   const description = formData.get('description') as string || `Rotaract Club of ${city}`;
-  const logoUrl = formData.get('logoUrl') as string || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=003F8A&color=fff&size=128`;
+  let logoUrl = formData.get('logoUrl') as string || '';
+
+  // Handle logo image upload to R2
+  const logoImageFile = formData.get('logoImage') as File | null;
+  if (logoImageFile && logoImageFile.size > 0 && typeof logoImageFile.arrayBuffer === 'function') {
+    try {
+      const { uploadFile } = await import('@/lib/r2');
+      const bytes = await logoImageFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const tempId = crypto.randomUUID();
+      const filename = `clubs/${tempId}/logo-${Date.now()}-${logoImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      logoUrl = await uploadFile(filename, buffer, logoImageFile.type);
+    } catch (err) {
+      console.error('Failed to upload club logo to R2:', err);
+    }
+  }
+
+  if (!logoUrl) {
+    logoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=003F8A&color=fff&size=128`;
+  }
+
   const charterDateStr = formData.get('charterDate') as string;
+
 
   const presidentName = formData.get('presidentName') as string;
   const presidentPhone = formData.get('presidentPhone') as string;
@@ -117,6 +138,7 @@ export async function deleteClub(id: string) {
 
 // ================= EVENTS =================
 
+
 export async function createEvent(formData: FormData) {
   const { userId } = await auth();
   if (!userId) throw new Error('Unauthorized');
@@ -141,20 +163,13 @@ export async function createEvent(formData: FormData) {
   let imageUrl = formData.get('imageUrl') as string || '';
   if (coverImageFile && coverImageFile.size > 0 && typeof coverImageFile.arrayBuffer === 'function') {
     try {
-      const { writeFile, mkdir } = await import('fs/promises');
-      const { join } = await import('path');
+      const { uploadFile } = await import('@/lib/r2');
       const bytes = await coverImageFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      
-      const uploadDir = join(process.cwd(), 'public', 'uploads');
-      await mkdir(uploadDir, { recursive: true });
-      
-      const filename = `${Date.now()}-${coverImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const filepath = join(uploadDir, filename);
-      await writeFile(filepath, buffer);
-      imageUrl = `/uploads/${filename}`;
+      const filename = `events/${Date.now()}-${coverImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      imageUrl = await uploadFile(filename, buffer, coverImageFile.type);
     } catch (err) {
-      console.error('Failed to write uploaded cover image:', err);
+      console.error('Failed to upload cover image to R2:', err);
     }
   }
 
@@ -164,20 +179,14 @@ export async function createEvent(formData: FormData) {
   for (const file of galleryImageFiles) {
     if (file && file.size > 0 && typeof file.arrayBuffer === 'function') {
       try {
-        const { writeFile, mkdir } = await import('fs/promises');
-        const { join } = await import('path');
+        const { uploadFile } = await import('@/lib/r2');
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        
-        const uploadDir = join(process.cwd(), 'public', 'uploads');
-        await mkdir(uploadDir, { recursive: true });
-        
-        const filename = `${Date.now()}-gallery-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-        const filepath = join(uploadDir, filename);
-        await writeFile(filepath, buffer);
-        galleryImagePaths.push(`/uploads/${filename}`);
+        const filename = `events/gallery/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+        const uploadedUrl = await uploadFile(filename, buffer, file.type);
+        galleryImagePaths.push(uploadedUrl);
       } catch (err) {
-        console.error('Failed to write gallery image:', err);
+        console.error('Failed to upload gallery image to R2:', err);
       }
     }
   }
@@ -234,11 +243,34 @@ export async function createEvent(formData: FormData) {
       aiAnalysis,
     });
 
+    // Automatically award +5 points to the creating user for posting a new event/project
+    const pointsAwarded = 5;
+    const db = getDb();
+    
+    await db.insert(pointTransactions).values({
+      id: generateId(),
+      userId,
+      points: pointsAwarded,
+      reason: `Created Event/Project: ${title}`,
+      category: 'event_creation',
+      eventId: id,
+      awardedBy: 'system',
+      createdAt: new Date(),
+    });
+
+    await db
+      .update(users)
+      .set({ points: sql`${users.points} + ${pointsAwarded}` })
+      .where(eq(users.id, userId));
+
     await recordAuditLog(`Created Event/Project: ${title}`, 'event', id);
 
     revalidatePath('/admin/events');
     revalidatePath('/club-admin/events');
     revalidatePath('/events');
+    revalidatePath('/admin/members');
+    revalidatePath('/admin/leaderboard');
+    revalidatePath('/hall-of-fame');
   } catch (error) {
     console.error('Failed to create event:', error);
   }
@@ -326,20 +358,13 @@ export async function updateEvent(id: string, formData: FormData) {
   let imageUrl = formData.get('imageUrl') as string || '';
   if (coverImageFile && coverImageFile.size > 0 && typeof coverImageFile.arrayBuffer === 'function') {
     try {
-      const { writeFile, mkdir } = await import('fs/promises');
-      const { join } = await import('path');
+      const { uploadFile } = await import('@/lib/r2');
       const bytes = await coverImageFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      
-      const uploadDir = join(process.cwd(), 'public', 'uploads');
-      await mkdir(uploadDir, { recursive: true });
-      
-      const filename = `${Date.now()}-${coverImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const filepath = join(uploadDir, filename);
-      await writeFile(filepath, buffer);
-      imageUrl = `/uploads/${filename}`;
+      const filename = `events/${Date.now()}-${coverImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      imageUrl = await uploadFile(filename, buffer, coverImageFile.type);
     } catch (err) {
-      console.error('Failed to write uploaded cover image:', err);
+      console.error('Failed to upload cover image to R2:', err);
     }
   }
 
@@ -360,20 +385,14 @@ export async function updateEvent(id: string, formData: FormData) {
   for (const file of galleryImageFiles) {
     if (file && file.size > 0 && typeof file.arrayBuffer === 'function') {
       try {
-        const { writeFile, mkdir } = await import('fs/promises');
-        const { join } = await import('path');
+        const { uploadFile } = await import('@/lib/r2');
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        
-        const uploadDir = join(process.cwd(), 'public', 'uploads');
-        await mkdir(uploadDir, { recursive: true });
-        
-        const filename = `${Date.now()}-gallery-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-        const filepath = join(uploadDir, filename);
-        await writeFile(filepath, buffer);
-        galleryImagePaths.push(`/uploads/${filename}`);
+        const filename = `events/gallery/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+        const uploadedUrl = await uploadFile(filename, buffer, file.type);
+        galleryImagePaths.push(uploadedUrl);
       } catch (err) {
-        console.error('Failed to write gallery image:', err);
+        console.error('Failed to upload gallery image to R2:', err);
       }
     }
   }
@@ -1311,4 +1330,77 @@ export async function setUserPermissions(formData: FormData) {
   revalidatePath('/admin/members');
   revalidatePath('/club-admin');
 }
+
+export async function updateClub(id: string, formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  const name = formData.get('name') as string;
+  const description = formData.get('description') as string;
+  const city = formData.get('city') as string;
+  const zone = formData.get('zone') as string;
+  const venue = formData.get('venue') as string;
+  const meetingDayTime = formData.get('meetingDayTime') as string;
+
+  const presidentName = formData.get('presidentName') as string;
+  const presidentPhone = formData.get('presidentPhone') as string;
+  const presidentEmail = formData.get('presidentEmail') as string;
+  
+  const secretaryName = formData.get('secretaryName') as string;
+  const secretaryPhone = formData.get('secretaryPhone') as string;
+  const secretaryEmail = formData.get('secretaryEmail') as string;
+
+  // Handle Logo image upload to R2 if provided
+  const logoImageFile = formData.get('logoImage') as File | null;
+  let logoUrl = formData.get('logoUrl') as string || '';
+  if (logoImageFile && logoImageFile.size > 0 && typeof logoImageFile.arrayBuffer === 'function') {
+    try {
+      const { uploadFile } = await import('@/lib/r2');
+      const bytes = await logoImageFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const filename = `clubs/${id}/logo-${Date.now()}-${logoImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      logoUrl = await uploadFile(filename, buffer, logoImageFile.type);
+    } catch (err) {
+      console.error('Failed to upload club logo to R2:', err);
+    }
+  }
+
+  try {
+    const db = getDb();
+    const updateValues: any = {
+      name,
+      description,
+      city,
+      zone,
+      venue,
+      meetingDayTime,
+      presidentName,
+      presidentPhone,
+      presidentEmail,
+      secretaryName,
+      secretaryPhone,
+      secretaryEmail,
+      updatedAt: new Date(),
+    };
+
+    if (logoUrl) {
+      updateValues.logoUrl = logoUrl;
+    }
+
+    await db.update(clubs).set(updateValues).where(eq(clubs.id, id));
+    await recordAuditLog(`Updated Club Profile: ${name}`, 'club', id);
+
+    const slugResult = await db.select({ slug: clubs.slug }).from(clubs).where(eq(clubs.id, id)).limit(1);
+    revalidatePath('/admin/clubs');
+    revalidatePath('/club-admin');
+    revalidatePath('/clubs');
+    if (slugResult[0]) {
+      revalidatePath(`/clubs/${slugResult[0].slug}`);
+    }
+  } catch (error) {
+    // Log but do not re-throw — throwing from a server action causes "unexpected response from server" in the client
+    console.error('Failed to update club profile:', error);
+  }
+}
+
 

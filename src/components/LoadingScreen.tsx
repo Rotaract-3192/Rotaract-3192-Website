@@ -71,6 +71,7 @@ export default function LoadingScreen() {
               src="/assets/preloader.png"
               alt="District Preloader"
               fill
+              sizes="(max-width: 768px) 128px, 160px"
               className="object-contain"
               priority
             />

@@ -1,12 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import SlidePanel from '@/components/SlidePanel';
 import { createClub } from '@/app/actions/mutations';
 
 export default function NewClubButton() {
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
+  const [logoPreview, setLogoPreview] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setLogoPreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
 
   return (
     <>
@@ -20,7 +31,7 @@ export default function NewClubButton() {
 
       <SlidePanel
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={() => { setOpen(false); setLogoPreview(''); }}
         title='Add New <span class="text-primary">Club</span>'
         subtitle="Establish New District Club Entry"
         icon="add_business"
@@ -32,6 +43,7 @@ export default function NewClubButton() {
             await createClub(fd);
             setPending(false);
             setOpen(false);
+            setLogoPreview('');
           }}
           className="space-y-10"
         >
@@ -69,11 +81,49 @@ export default function NewClubButton() {
                 <input name="venue" type="text" placeholder="e.g. Rotary House, Malleshwaram..."
                   className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-6 text-sm font-bold text-white focus:border-primary/50 outline-none placeholder:text-white/20 uppercase tracking-widest font-sans" />
               </div>
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-[9px] font-black uppercase tracking-[0.4em] text-primary/60 font-sans">Logo URL</label>
-                <input name="logoUrl" type="url" placeholder="https://example.com/logo.png..."
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-6 text-sm font-bold text-white focus:border-primary/50 outline-none placeholder:text-white/20 uppercase tracking-widest font-sans" />
+
+              {/* Logo Upload */}
+              <div className="space-y-3 md:col-span-2">
+                <label className="text-[9px] font-black uppercase tracking-[0.4em] text-primary/60 font-sans">Club Logo</label>
+                <div className="flex items-start gap-6">
+                  {/* Preview + Click Target */}
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-24 h-24 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group overflow-hidden relative shrink-0"
+                  >
+                    {logoPreview ? (
+                      <img src={logoPreview} className="w-full h-full object-contain" alt="Preview" />
+                    ) : (
+                      <span className="material-symbols-outlined text-3xl text-primary/30 group-hover:text-primary transition-colors">add_photo_alternate</span>
+                    )}
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                      <span className="material-symbols-outlined text-white text-xl">upload</span>
+                    </div>
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      name="logoImage"
+                      accept="image/*"
+                      onChange={handleLogoChange}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full bg-white/5 border border-white/10 border-dashed rounded-xl py-3 px-5 text-[10px] font-bold text-white/40 hover:text-white hover:border-primary/40 hover:bg-primary/5 transition-all uppercase tracking-widest font-sans flex items-center justify-center gap-2"
+                    >
+                      <span className="material-symbols-outlined text-sm">upload_file</span>
+                      {logoPreview ? 'Change Image' : 'Upload from Device'}
+                    </button>
+                    <p className="text-[8px] text-white/20 font-sans uppercase tracking-wider">Or paste a URL</p>
+                    <input name="logoUrl" type="url" placeholder="https://example.com/logo.png..."
+                      className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-xs font-bold text-white focus:border-primary/50 outline-none placeholder:text-white/20 font-sans" />
+                  </div>
+                </div>
               </div>
+
               <div className="space-y-2 md:col-span-2">
                 <label className="text-[9px] font-black uppercase tracking-[0.4em] text-primary/60 font-sans">Executive Summary</label>
                 <textarea name="description" rows={3} placeholder="Enter club summary and background..."

@@ -2,8 +2,9 @@ import { getClubBySlug, getEventsByClubId, getFeedsByClubId } from "@/app/action
 import { notFound } from "next/navigation";
 import ClubProfileClient from "./ClubProfileClient";
 
-export default async function ClubProfilePage({ params }: { params: { slug: string } }) {
-  const club = await getClubBySlug(params.slug);
+export default async function ClubProfilePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const club = await getClubBySlug(slug);
   
   if (!club) {
     notFound();

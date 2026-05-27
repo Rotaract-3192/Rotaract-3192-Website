@@ -1,26 +1,12 @@
 {
   "version": "7",
-  "dialect": "postgresql",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1779202609820,
-      "tag": "0000_jittery_moondragon",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1779208931784,
-      "tag": "0001_true_hardball",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1779210190438,
-      "tag": "0002_sudden_miss_america",
+      "version": "6",
+      "when": 1779902712458,
+      "tag": "0000_pale_skrulls",
       "breakpoints": true
     }
   ]

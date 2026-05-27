@@ -134,7 +134,7 @@ export default async function AdminLeaderboardPage() {
                       </div>
                     </td>
                     <td className="py-5 px-8 text-[10px] font-bold text-white/40 uppercase tracking-widest font-sans">
-                      {member.clubId ? clubMap.get(member.clubId) ?? '—' : 'District'}
+                      {(member.clubId ? clubMap.get(member.clubId) ?? '—' : 'District') as string}
                     </td>
                     <td className="py-5 px-8">
                       <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-[9px] font-black uppercase tracking-[0.2em] font-sans ${badge.color}`}>
