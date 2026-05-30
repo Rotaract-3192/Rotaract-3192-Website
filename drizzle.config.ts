@@ -3,8 +3,8 @@ import { defineConfig } from 'drizzle-kit';
 export default defineConfig({
   schema: './src/lib/db/schema.ts',
   out: './drizzle',
-  dialect: 'sqlite',
+  dialect: 'postgresql',
   dbCredentials: {
-    url: 'local.sqlite',
+    url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/rotaract3192',
   },
 });

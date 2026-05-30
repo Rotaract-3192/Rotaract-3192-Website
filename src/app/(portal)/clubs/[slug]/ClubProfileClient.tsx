@@ -31,7 +31,7 @@ interface EventOrProject {
   title: string;
   slug: string;
   description: string | null;
-  eventDate: string | null;
+  eventDate: Date | string | null;
   location: string | null;
   imageUrl: string | null;
   isSignatureProject: boolean | null;
@@ -40,13 +40,13 @@ interface EventOrProject {
   entryType: string | null;
   yearDateLabel: string | null;
   fullContent: string | null;
-  galleryImages: string | null; // JSON array of strings
-  featuredLinks: string | null;  // JSON array of { label: string, url: string }
+  galleryImages: string | null;
+  featuredLinks: string | null;
   rsvpLink: string | null;
   aiScore: number | null;
   aiAnalysis: string | null;
-  createdAt: string | null;
-  updatedAt: string | null;
+  createdAt: Date | string | null;
+  updatedAt: Date | string | null;
 }
 
 interface FeedItem {
