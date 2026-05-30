@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ClerkProvider } from "@/lib/mockAuthClient";
 
+export const runtime = 'edge';
+
 export const metadata: Metadata = {
   title: "Rotaract District 3192 Portal",
   description: "Rotaract District 3192 administrative and member portal.",

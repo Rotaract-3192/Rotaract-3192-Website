@@ -20,10 +20,24 @@ export function getDb(dbBinding?: any) {
     const databaseId = process.env.CLOUDFLARE_DATABASE_ID || "72db2940-7b3d-4121-b656-5c56df5c3f7e";
     const apiToken = process.env.CLOUDFLARE_API_TOKEN;
 
-    if (accountId && apiToken) {
+    // Helper to get native Node.js require without triggering Edge compilation static analysis errors
+    const getNativeRequire = () => {
+      if (typeof globalThis !== 'undefined' && (globalThis as any)['eval']) {
+        try {
+          return (globalThis as any)['eval']('require');
+        } catch {
+          return null;
+        }
+      }
+      return null;
+    };
+
+    const req = getNativeRequire();
+
+    if (req && accountId && apiToken) {
       console.log('🔌 Connecting to remote Cloudflare D1 database via HTTP API...');
       try {
-        const { drizzle: drizzleProxy } = eval('require')('drizzle-orm/sqlite-proxy');
+        const { drizzle: drizzleProxy } = req('drizzle-orm/sqlite-proxy');
         dbInstance = drizzleProxy(async (sql: string, params: any[], method: string) => {
           try {
             const response = await fetch(
@@ -66,16 +80,17 @@ export function getDb(dbBinding?: any) {
       }
     }
 
-    console.log('🔌 Connecting to local SQLite database (local.sqlite) for development...');
-    try {
-      // Use eval('require') to prevent Webpack/Turbopack/esbuild from bundling better-sqlite3 into the Worker environment
-      const Database = eval('require')('better-sqlite3');
-      const { drizzle: drizzleBetterSqlite3 } = eval('require')('drizzle-orm/better-sqlite3');
-      const client = new Database('local.sqlite');
-      dbInstance = drizzleBetterSqlite3(client, { schema });
-      return dbInstance;
-    } catch (e) {
-      console.error('Failed to load better-sqlite3 for local development:', e);
+    if (req) {
+      console.log('🔌 Connecting to local SQLite database (local.sqlite) for development...');
+      try {
+        const Database = req('better-sqlite3');
+        const { drizzle: drizzleBetterSqlite3 } = req('drizzle-orm/better-sqlite3');
+        const client = new Database('local.sqlite');
+        dbInstance = drizzleBetterSqlite3(client, { schema });
+        return dbInstance;
+      } catch (e) {
+        console.error('Failed to load better-sqlite3 for local development:', e);
+      }
     }
   }
 
