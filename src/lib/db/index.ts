@@ -6,7 +6,7 @@ let dbInstance: any = null;
 export function getDb(dbBinding?: any) {
   if (dbInstance) return dbInstance;
 
-  // Resolve D1 database binding
+  // Resolve D1 database binding (production/Cloudflare Pages runtime)
   const binding = dbBinding || (typeof process !== 'undefined' ? (process.env as any).DB : undefined);
 
   if (binding) {
@@ -14,11 +14,24 @@ export function getDb(dbBinding?: any) {
     return dbInstance;
   }
 
-  // Check if we are running in local Next.js development (Node.js runtime)
+  // Local Next.js development: always connect to Cloudflare D1 via HTTP API
   if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
     const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
     const databaseId = process.env.CLOUDFLARE_DATABASE_ID || "72db2940-7b3d-4121-b656-5c56df5c3f7e";
     const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+
+    if (!accountId || !apiToken) {
+      throw new Error(
+        '\n\n❌ Cloudflare D1 credentials are missing!\n' +
+        'Add the following to your .env.local file:\n\n' +
+        '  CLOUDFLARE_ACCOUNT_ID=your_account_id\n' +
+        '  CLOUDFLARE_API_TOKEN=your_api_token_with_d1_edit_permissions\n' +
+        '  CLOUDFLARE_DATABASE_ID=72db2940-7b3d-4121-b656-5c56df5c3f7e  (optional, already set as default)\n\n' +
+        'Find your Account ID at: https://dash.cloudflare.com/\n' +
+        'Create an API token at: https://dash.cloudflare.com/profile/api-tokens\n' +
+        '(Use the "D1 Edit" permission template)\n'
+      );
+    }
 
     // Helper to get native Node.js require without triggering Edge compilation static analysis errors
     const getNativeRequire = () => {
@@ -34,8 +47,8 @@ export function getDb(dbBinding?: any) {
 
     const req = getNativeRequire();
 
-    if (req && accountId && apiToken) {
-      console.log('🔌 Connecting to remote Cloudflare D1 database via HTTP API...');
+    if (req) {
+      console.log('🔌 Connecting to Cloudflare D1 database via HTTP API...');
       try {
         const { drizzle: drizzleProxy } = req('drizzle-orm/sqlite-proxy');
         dbInstance = drizzleProxy(async (sql: string, params: any[], method: string) => {
@@ -70,26 +83,13 @@ export function getDb(dbBinding?: any) {
             }
             return { rows: rawRows };
           } catch (error) {
-            console.error('Remote D1 HTTP Query failed:', error);
+            console.error('Cloudflare D1 HTTP Query failed:', error);
             return { rows: [] };
           }
         }, { schema });
         return dbInstance;
       } catch (e) {
         console.error('Failed to initialize Drizzle sqlite-proxy for D1 HTTP connection:', e);
-      }
-    }
-
-    if (req) {
-      console.log('🔌 Connecting to local SQLite database (local.sqlite) for development...');
-      try {
-        const Database = req('better-sqlite3');
-        const { drizzle: drizzleBetterSqlite3 } = req('drizzle-orm/better-sqlite3');
-        const client = new Database('local.sqlite');
-        dbInstance = drizzleBetterSqlite3(client, { schema });
-        return dbInstance;
-      } catch (e) {
-        console.error('Failed to load better-sqlite3 for local development:', e);
       }
     }
   }
