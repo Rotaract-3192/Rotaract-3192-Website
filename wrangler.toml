@@ -1,5 +1,5 @@
 name = "rotaract-district-3192"
-pages_build_output_dir = ".vercel/output/static"
+pages_build_output_dir = ".open-next"
 
 compatibility_date = "2026-05-01"
 compatibility_flags = ["nodejs_compat"]
