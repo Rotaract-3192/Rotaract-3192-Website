@@ -28,20 +28,9 @@ export default function Footer() {
           
           {/* Brand Identity */}
           <div className="lg:col-span-2 space-y-12">
-            <Link href="/" className="flex items-center gap-5 no-underline group relative w-fit">
-              <div className="w-14 h-14 rounded-full bg-white/5 border border-white/10 group-hover:border-primary/40 flex items-center justify-center transition-all duration-500">
-                <svg viewBox="0 0 100 100" className="w-9 h-9 text-primary/60 group-hover:text-primary transition-colors animate-spin-slow">
-                   <path fill="currentColor" d="M50,15.5c-19,0-34.5,15.5-34.5,34.5S31,84.5,50,84.5S84.5,69,84.5,50S69,15.5,50,15.5z M50,78.5c-15.7,0-28.5-12.8-28.5-28.5 S34.3,21.5,50,21.5S78.5,34.3,78.5,50S65.7,78.5,50,78.5z" />
-                </svg>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-lg font-black tracking-[0.4em] text-white uppercase leading-none">
-                  Rotaract
-                </span>
-                <span className="text-[11px] font-bold tracking-[0.2em] text-primary/40 uppercase mt-1">
-                  District 3192
-                </span>
-              </div>
+            <Link href="/" className="flex items-center no-underline group relative w-fit">
+              <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+              <img src="/assets/logo.png" alt="Rotaract District" className="h-16 w-auto object-contain relative z-10 filter drop-shadow-[0_0_15px_rgba(59,130,246,0.2)]" />
             </Link>
             <p className="text-white/30 text-[13px] font-medium leading-[2] max-w-sm font-sans tracking-wide">
               Empowering a global network of young leaders to create sustainable impact through strategic leadership and fellowship.

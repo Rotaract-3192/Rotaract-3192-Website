@@ -57,6 +57,7 @@ CREATE TABLE `clubs` (
 	`secretary_name` text,
 	`secretary_phone` text,
 	`secretary_email` text,
+	`points` integer DEFAULT 0,
 	`created_at` text DEFAULT (datetime('now')),
 	`updated_at` text DEFAULT (datetime('now'))
 );
@@ -195,7 +196,8 @@ CREATE TABLE `past_leaders` (
 --> statement-breakpoint
 CREATE TABLE `point_transactions` (
 	`id` text PRIMARY KEY NOT NULL,
-	`user_id` text NOT NULL,
+	`user_id` text,
+	`club_id` text,
 	`points` integer NOT NULL,
 	`reason` text NOT NULL,
 	`category` text DEFAULT 'general' NOT NULL,

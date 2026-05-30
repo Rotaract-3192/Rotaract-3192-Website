@@ -106,17 +106,16 @@ export async function getLeaderboard(limit = 50) {
   try {
     return await getDb()
       .select({
-        id: users.id,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        email: users.email,
-        avatarUrl: users.avatarUrl,
-        clubId: users.clubId,
-        points: users.points,
-        role: users.role,
+        id: clubs.id,
+        name: clubs.name,
+        slug: clubs.slug,
+        logoUrl: clubs.logoUrl,
+        points: clubs.points,
+        city: clubs.city,
+        zone: clubs.zone,
       })
-      .from(users)
-      .orderBy(desc(users.points))
+      .from(clubs)
+      .orderBy(desc(clubs.points))
       .limit(limit);
   } catch (error) {
     console.error('Failed to fetch leaderboard:', error);

@@ -243,25 +243,27 @@ export async function createEvent(formData: FormData) {
       aiAnalysis,
     });
 
-    // Automatically award +5 points to the creating user for posting a new event/project
-    const pointsAwarded = 5;
-    const db = getDb();
-    
-    await db.insert(pointTransactions).values({
-      id: generateId(),
-      userId,
-      points: pointsAwarded,
-      reason: `Created Event/Project: ${title}`,
-      category: 'event_creation',
-      eventId: id,
-      awardedBy: 'system',
-      createdAt: new Date(),
-    });
+    // Automatically award +5 points to the club for posting a new project
+    if (entryType === 'Project' && clubId) {
+      const pointsAwarded = 5;
+      const db = getDb();
+      
+      await db.insert(pointTransactions).values({
+        id: generateId(),
+        clubId,
+        points: pointsAwarded,
+        reason: `Created Project: ${title}`,
+        category: 'project_creation',
+        eventId: id,
+        awardedBy: 'system',
+        createdAt: new Date(),
+      });
 
-    await db
-      .update(users)
-      .set({ points: sql`${users.points} + ${pointsAwarded}` })
-      .where(eq(users.id, userId));
+      await db
+        .update(clubs)
+        .set({ points: sql`${clubs.points} + ${pointsAwarded}` })
+        .where(eq(clubs.id, clubId));
+    }
 
     await recordAuditLog(`Created Event/Project: ${title}`, 'event', id);
 
@@ -492,19 +494,19 @@ export async function awardPoints(formData: FormData) {
   const { userId: adminId } = await auth();
   if (!adminId) throw new Error('Unauthorized');
 
-  const userId = formData.get('userId') as string;
+  const clubId = formData.get('clubId') as string;
   const pts = parseInt(formData.get('points') as string);
   const reason = formData.get('reason') as string;
   const category = (formData.get('category') as string) || 'general';
   const eventId = (formData.get('eventId') as string) || null;
 
-  if (!userId || !pts || !reason) throw new Error('userId, points and reason are required');
+  if (!clubId || !pts || !reason) throw new Error('clubId, points and reason are required');
 
   try {
     const db = getDb();
     await db.insert(pointTransactions).values({
       id: crypto.randomUUID(),
-      userId,
+      clubId,
       points: pts,
       reason,
       category,
@@ -514,15 +516,15 @@ export async function awardPoints(formData: FormData) {
     });
 
     await db
-      .update(users)
-      .set({ points: sql`${users.points} + ${pts}` })
-      .where(eq(users.id, userId));
+      .update(clubs)
+      .set({ points: sql`${clubs.points} + ${pts}` })
+      .where(eq(clubs.id, clubId));
 
-    await recordAuditLog(`Awarded ${pts} points (${category}) to user ${userId}: ${reason}`, 'user', userId);
+    await recordAuditLog(`Awarded ${pts} points (${category}) to club ${clubId}: ${reason}`, 'club', clubId);
 
-    revalidatePath('/admin/members');
+    revalidatePath('/admin/clubs');
     revalidatePath('/admin/leaderboard');
-    revalidatePath('/club-admin/members');
+    revalidatePath('/hall-of-fame');
   } catch (error) {
     console.error('Failed to award points:', error);
     throw error;
@@ -733,11 +735,32 @@ export async function createMember(formData: FormData) {
   const lastName = formData.get('lastName') as string;
   const role = formData.get('role') as string;
   const clubId = formData.get('clubId') as string;
+  const bio = formData.get('bio') as string;
+  let avatarUrl = formData.get('avatarUrl') as string || '';
+  const pointsStr = formData.get('points') as string;
+  const pointsVal = pointsStr ? parseInt(pointsStr, 10) : 0;
+  const points = isNaN(pointsVal) ? 0 : pointsVal;
+
+  // Handle avatar image upload to R2
+  const avatarImageFile = formData.get('avatarImage') as File | null;
+  if (avatarImageFile && avatarImageFile.size > 0 && typeof avatarImageFile.arrayBuffer === 'function') {
+    try {
+      const { uploadFile } = await import('@/lib/r2');
+      const bytes = await avatarImageFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const filename = `avatars/${Date.now()}-${avatarImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      avatarUrl = await uploadFile(filename, buffer, avatarImageFile.type);
+    } catch (err) {
+      console.error('Failed to upload avatar image to R2:', err);
+    }
+  }
 
   if (!email || !firstName) throw new Error('Missing required fields');
 
   try {
     const id = `manual_${generateId()}`;
+    const permissionBits = role === 'district_admin' ? 5 : role === 'club_admin' ? 3 : 0;
+
     await getDb().insert(users).values({
       id,
       email,
@@ -745,7 +768,10 @@ export async function createMember(formData: FormData) {
       lastName: lastName || null,
       role: role || 'member',
       clubId: clubId || null,
-      points: 0,
+      bio: bio || null,
+      avatarUrl: avatarUrl || null,
+      points: points,
+      permissionBits: permissionBits,
     });
 
     await recordAuditLog(`Manually Added Member: ${email}`, 'user', id);

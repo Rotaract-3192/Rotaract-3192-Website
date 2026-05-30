@@ -39,22 +39,13 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           <span className="material-symbols-outlined">close</span>
         </button>
 
-        {/* White logo card container */}
-        <div className="bg-white rounded-3xl p-4 w-28 h-28 flex items-center justify-center shadow-lg border border-white/10 mb-4 transition-transform hover:scale-105 duration-350">
+        {/* Logo container */}
+        <Link href="/" className="mb-4 flex items-center justify-center p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-primary/20 transition-all duration-300">
           <img 
-            src="/assets/rotaract-gear.png" 
-            alt="Rotaract Gear Logo" 
-            className="w-20 h-20 object-contain"
+            src="/assets/logo.png" 
+            alt="Rotaract District Logo" 
+            className="h-18 w-auto object-contain filter drop-shadow-[0_0_15px_rgba(249,168,38,0.25)]"
           />
-        </div>
-
-        <Link href="/" className="flex flex-col no-underline group text-center">
-          <span className="font-display font-black text-[#f9a826] leading-none tracking-wide text-2xl uppercase">
-            3192 Admin
-          </span>
-          <span className="text-[9px] font-bold text-slate-400/80 uppercase tracking-[0.25em] mt-1 font-sans">
-            Management Suite
-          </span>
         </Link>
       </div>
 

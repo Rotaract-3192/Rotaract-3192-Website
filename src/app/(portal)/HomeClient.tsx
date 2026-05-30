@@ -4,20 +4,20 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 
-export default function HomeClient({ 
-  clubsData, 
-  usersCount, 
-  eventsCount 
-}: { 
-  clubsData: any[], 
-  usersCount: number, 
-  eventsCount: number 
+export default function HomeClient({
+  clubsData,
+  usersCount,
+  eventsCount
+}: {
+  clubsData: any[],
+  usersCount: number,
+  eventsCount: number
 }) {
   const containerRef = useRef(null);
   const [email, setEmail] = useState("");
   const [mounted, setMounted] = useState(false);
   const [skyline, setSkyline] = useState<any[]>([]);
-  
+
   useEffect(() => {
     setMounted(true);
     setSkyline([...Array(30)].map((_, i) => ({
@@ -26,7 +26,7 @@ export default function HomeClient({
       width: 1 + Math.random() * 3
     })));
   }, []);
-  
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
@@ -39,7 +39,7 @@ export default function HomeClient({
     <main ref={containerRef} className="relative bg-transparent min-h-screen overflow-visible">
       {/* Background Cinematic Accents */}
       <div className="fixed top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[160px] pointer-events-none -z-10"></div>
-      
+
       {/* Futuristic Background Elements */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Animated Wave Paths (SVG) */}
@@ -67,8 +67,8 @@ export default function HomeClient({
         {/* City Skyline Silhouette */}
         <div className="absolute bottom-0 left-0 right-0 h-[40vh] flex items-end justify-between px-4 opacity-10 grayscale brightness-200">
           {mounted && skyline.map((s) => (
-            <div 
-              key={s.id} 
+            <div
+              key={s.id}
               className="bg-primary/40 w-full mx-[1px]"
               style={{ height: `${s.height}%`, width: `${s.width}%` }}
             ></div>
@@ -80,7 +80,7 @@ export default function HomeClient({
       <div className="fixed right-6 md:right-10 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col items-center">
         {/* Connection Line Top */}
         <div className="w-[1px] h-32 bg-gradient-to-b from-transparent via-primary/30 to-primary/10 mb-8"></div>
-        
+
         <div className="flex flex-col gap-8">
           {[
             { icon: 'photo_camera', label: 'INSTAGRAM', href: 'https://instagram.com' },
@@ -88,9 +88,9 @@ export default function HomeClient({
             { icon: 'smart_display', label: 'YOUTUBE', href: 'https://youtube.com' },
             { icon: 'mail', label: 'CONTACT', href: 'mailto:contact@rotaract3192.org' }
           ].map((item, i) => (
-            <Link 
-              key={i} 
-              href={item.href} 
+            <Link
+              key={i}
+              href={item.href}
               target="_blank"
               className="group relative flex items-center justify-center w-11 h-11 rounded-full bg-white/5 border border-white/10 hover:border-primary/40 hover:bg-primary/5 transition-all duration-700 no-underline"
             >
@@ -119,33 +119,35 @@ export default function HomeClient({
         <div className="w-[1px] h-32 bg-gradient-to-t from-transparent via-primary/30 to-primary/10 mt-8"></div>
       </div>
 
-      {/* Hero Content */}
-      <motion.section 
+      <motion.section
         style={{ y: heroY, scale: heroScale }}
-        className="relative z-10 flex flex-col items-center justify-center min-h-screen pt-32 pb-48 px-8 text-center"
+        className="relative z-10 flex flex-col items-center justify-center min-h-screen pt-32 pb-24 px-8 text-center"
       >
-        <div className="space-y-16 max-w-7xl">
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-3 px-8 py-2.5 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-xl"
-          >
-            <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_10px_#3B82F6]"></div>
-            <span className="text-[9px] font-bold text-white uppercase tracking-[0.5em]">Rotary International District 3192</span>
-          </motion.div>
-
-          {/* Main Title "EXUBERANT" */}
-          <div className="relative">
-             <motion.h1 
-              initial={{ opacity: 0, y: 40 }}
+        <div className="space-y-12 max-w-7xl flex flex-col items-center">
+          {/* Logo & Title Group */}
+          <div className="flex flex-col items-center gap-4 md:gap-6">
+            {/* Parent/District Logo */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-              className="text-5xl sm:text-7xl md:text-[10rem] lg:text-[12rem] font-medium tracking-[0.05em] text-white font-display uppercase leading-none"
-              style={{ textShadow: '0 0 40px rgba(59,130,246,0.2)' }}
+              transition={{ delay: 0.5, duration: 1 }}
+              className="flex justify-center"
             >
-              Exuberant
-            </motion.h1>
+              <img src="/assets/logo.png" alt="Rotaract District Logo" className="h-28 md:h-36 object-contain filter drop-shadow-[0_0_25px_rgba(59,130,246,0.3)]" />
+            </motion.div>
+
+            {/* Main Title "EXUBERANT" */}
+            <div className="relative">
+              <motion.h1
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+                className="text-5xl sm:text-7xl md:text-[10rem] lg:text-[12rem] font-medium tracking-[0.05em] text-white font-display uppercase leading-none"
+                style={{ textShadow: '0 0 40px rgba(59,130,246,0.2)' }}
+              >
+                Exuberant
+              </motion.h1>
+            </div>
           </div>
 
           {/* Subtitle with Arrows */}
@@ -155,9 +157,9 @@ export default function HomeClient({
             transition={{ delay: 0.8 }}
             className="flex items-center justify-center gap-6"
           >
-             <div className="h-[1px] w-8 md:w-16 bg-gradient-to-r from-transparent via-primary/50 to-primary"></div>
-             <p className="text-[9px] md:text-[11px] font-black text-white uppercase tracking-[0.5em] md:tracking-[0.8em]">Create Lasting Impact</p>
-             <div className="h-[1px] w-8 md:w-16 bg-gradient-to-l from-transparent via-primary/50 to-primary"></div>
+            <div className="h-[1px] w-8 md:w-16 bg-gradient-to-r from-transparent via-primary/50 to-primary"></div>
+            <p className="text-[9px] md:text-[11px] font-black text-white uppercase tracking-[0.5em] md:tracking-[0.8em]">Create Lasting Impact</p>
+            <div className="h-[1px] w-8 md:w-16 bg-gradient-to-l from-transparent via-primary/50 to-primary"></div>
           </motion.div>
 
           {/* Description */}
@@ -197,7 +199,7 @@ export default function HomeClient({
           initial={{ opacity: 0, y: 60 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.5 }}
-          className="absolute bottom-12 md:bottom-16 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl grid grid-cols-2 md:grid-cols-4 gap-4 px-4"
+          className="w-[95%] max-w-7xl grid grid-cols-2 md:grid-cols-4 gap-4 px-4 mt-24"
         >
           {[
             { label: 'Clubs', val: `${clubsData.length || 0}`, icon: 'groups' },
@@ -224,27 +226,27 @@ export default function HomeClient({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-             {[
-               { label: 'Hours Served', val: '45,290', trend: '+12%', icon: 'schedule' },
-               { label: 'Lives Impacted', val: '128,400', trend: '+8%', icon: 'favorite' },
-               { label: 'Funds Raised', val: '$1.2M', trend: '+24%', icon: 'payments' }
-             ].map((item, i) => (
-               <motion.div
+            {[
+              { label: 'Hours Served', val: '45,290', trend: '+12%', icon: 'schedule' },
+              { label: 'Lives Impacted', val: '128,400', trend: '+8%', icon: 'favorite' },
+              { label: 'Funds Raised', val: '$1.2M', trend: '+24%', icon: 'payments' }
+            ].map((item, i) => (
+              <motion.div
                 whileHover={{ y: -10 }}
                 key={i}
                 className="bg-white/5 backdrop-blur-xl border border-white/10 p-10 rounded-[3rem] space-y-6 relative overflow-hidden group"
-               >
-                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/20 transition-all"></div>
-                 <span className="material-symbols-outlined text-primary text-4xl">{item.icon}</span>
-                 <div className="space-y-1">
-                   <div className="text-4xl font-black text-white tracking-tight">{item.val}</div>
-                   <div className="flex items-center gap-2 text-[10px] font-bold text-primary tracking-[0.2em] uppercase">
-                     {item.label}
-                     <span className="text-green-400">{item.trend}</span>
-                   </div>
-                 </div>
-               </motion.div>
-             ))}
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/20 transition-all"></div>
+                <span className="material-symbols-outlined text-primary text-4xl">{item.icon}</span>
+                <div className="space-y-1">
+                  <div className="text-4xl font-black text-white tracking-tight">{item.val}</div>
+                  <div className="flex items-center gap-2 text-[10px] font-bold text-primary tracking-[0.2em] uppercase">
+                    {item.label}
+                    <span className="text-green-400">{item.trend}</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
@@ -253,19 +255,19 @@ export default function HomeClient({
       <section className="relative z-10 py-48 px-8 border-t border-white/5 bg-transparent">
         <div className="max-w-5xl mx-auto flex flex-col items-center text-center gap-16">
           <div className="space-y-6">
-             <h2 className="text-6xl md:text-9xl font-black tracking-tighter font-display uppercase italic leading-none">
-               The Future <br />
-               <span className="text-primary not-italic">Needs You.</span>
-             </h2>
-             <p className="text-[10px] font-bold text-white/40 tracking-[0.5em] uppercase">Join the district dispatch for exclusive updates</p>
+            <h2 className="text-6xl md:text-9xl font-black tracking-tighter font-display uppercase italic leading-none">
+              The Future <br />
+              <span className="text-primary not-italic">Needs You.</span>
+            </h2>
+            <p className="text-[10px] font-bold text-white/40 tracking-[0.5em] uppercase">Join the district dispatch for exclusive updates</p>
           </div>
 
-          <form 
+          <form
             onSubmit={(e) => { e.preventDefault(); alert('Subscribed!'); }}
             className="w-full max-w-2xl flex flex-col sm:flex-row gap-4 p-2 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-2xl"
           >
-            <input 
-              type="email" 
+            <input
+              type="email"
               required
               placeholder="ENTER COMMAND: EMAIL_ADDRESS"
               value={email}

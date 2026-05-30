@@ -53,6 +53,7 @@ export const clubs = sqliteTable('clubs', {
   secretaryName: text('secretary_name'),
   secretaryPhone: text('secretary_phone'),
   secretaryEmail: text('secretary_email'),
+  points: integer('points').default(0),
   createdAt: timestamp('created_at').default(sql`(datetime('now'))`),
   updatedAt: timestamp('updated_at').default(sql`(datetime('now'))`),
 });
@@ -245,7 +246,8 @@ export const pastLeaders = sqliteTable('past_leaders', {
 // Point Transactions: ledger of all points awarded to members
 export const pointTransactions = sqliteTable('point_transactions', {
   id: text('id').primaryKey(),
-  userId: text('user_id').notNull(),
+  userId: text('user_id'),
+  clubId: text('club_id'),
   points: integer('points').notNull(),
   reason: text('reason').notNull(),
   category: text('category').notNull().default('general'), // service | professional | fellowship | leadership | attendance

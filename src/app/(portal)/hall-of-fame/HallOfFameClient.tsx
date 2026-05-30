@@ -5,13 +5,12 @@ import { useState } from "react";
 
 interface LeaderEntry {
   id: string;
-  firstName: string | null;
-  lastName: string | null;
-  email?: string;
+  name: string;
+  slug: string;
+  logoUrl: string | null;
   points: number | null;
-  avatarUrl: string | null;
-  role: string | null;
-  clubId?: string | null;
+  city?: string | null;
+  zone?: string | null;
 }
 
 interface ProjectStat {
@@ -216,8 +215,8 @@ export default function HallOfFameClient({
       <section className="relative z-10 px-8 pb-16 flex justify-center">
         <div className="flex items-center gap-1 p-1 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl">
           {[
-            { key: "individuals", label: "Top Members", icon: "person" },
-            { key: "clubs", label: "Clubs", icon: "groups" },
+            { key: "individuals", label: "Top Clubs", icon: "groups" },
+            { key: "clubs", label: "AI Project Rankings", icon: "analytics" },
             { key: "honor", label: "Hall of Honor", icon: "military_tech" },
           ].map((tab) => (
             <button
@@ -272,10 +271,10 @@ export default function HallOfFameClient({
                                 background: `radial-gradient(circle at center, ${tier.glow}, #020617)`,
                               }}
                             >
-                              {entry.avatarUrl ? (
-                                <img src={entry.avatarUrl} alt={`${entry.firstName} ${entry.lastName}`} className="w-full h-full object-cover" />
+                              {entry.logoUrl ? (
+                                <img src={entry.logoUrl} alt={entry.name} className="w-full h-full object-cover" />
                               ) : (
-                                <span style={{ color: tier.color }}>{getInitials(`${entry.firstName ?? ''} ${entry.lastName ?? ''}` || "?")}</span>
+                                <span style={{ color: tier.color }}>{getInitials(entry.name || "?")}</span>
                               )}
                             </div>
                             {rank === 1 && (
@@ -291,13 +290,13 @@ export default function HallOfFameClient({
                           {/* Name & Points */}
                           <div className="text-center">
                             <div className="font-black text-sm md:text-base text-white truncate max-w-[120px]">
-                              {`${entry.firstName ?? ''} ${entry.lastName ?? ''}`.trim() || "Unknown"}
+                              {entry.name || "Unknown Club"}
                             </div>
                             <div className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: tier.color }}>
                               {(entry.points ?? 0).toLocaleString()} pts
                             </div>
                             <div className="text-[9px] text-white/30 mt-1 uppercase tracking-[0.2em]">
-                              {getRoleLabel(entry.role)}
+                              {entry.city || "District 3192"} {entry.zone ? `• Zone ${entry.zone}` : ''}
                             </div>
                           </div>
 
@@ -331,7 +330,7 @@ export default function HallOfFameClient({
               <section className="relative z-10 px-8 pb-32">
                 <div className="max-w-4xl mx-auto space-y-3">
                   <h2 className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-8 text-center">
-                    Top Contributors
+                    Ranked Clubs
                   </h2>
                   {rest.map((entry, idx) => {
                     const rank = idx + 4;
@@ -352,17 +351,17 @@ export default function HallOfFameClient({
 
                         {/* Avatar */}
                         <div className="w-11 h-11 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-sm font-black text-white/60 overflow-hidden flex-shrink-0">
-                          {entry.avatarUrl ? (
-                            <img src={entry.avatarUrl} alt={`${entry.firstName} ${entry.lastName}`} className="w-full h-full object-cover" />
+                          {entry.logoUrl ? (
+                            <img src={entry.logoUrl} alt={entry.name} className="w-full h-full object-cover" />
                           ) : (
-                            getInitials(`${entry.firstName ?? ''} ${entry.lastName ?? ''}` || "?")
+                            getInitials(entry.name || "?")
                           )}
                         </div>
 
                         {/* Info */}
                         <div className="flex-1 min-w-0">
-                          <div className="font-black text-sm text-white truncate">{`${entry.firstName ?? ''} ${entry.lastName ?? ''}`.trim() || "Unknown"}</div>
-                          <div className="text-[9px] text-white/30 uppercase tracking-[0.2em]">{getRoleLabel(entry.role)}</div>
+                          <div className="font-black text-sm text-white truncate">{entry.name || "Unknown Club"}</div>
+                          <div className="text-[9px] text-white/30 uppercase tracking-[0.2em]">{entry.city || "District 3192"} {entry.zone ? `• Zone ${entry.zone}` : ''}</div>
                         </div>
 
                         {/* Points */}
@@ -377,7 +376,7 @@ export default function HallOfFameClient({
                   {leaderboard.length === 0 && (
                     <div className="text-center py-24 space-y-4">
                       <span className="material-symbols-outlined text-6xl text-white/10">emoji_events</span>
-                      <p className="text-white/20 text-sm uppercase tracking-[0.3em]">No champions yet. Be the first.</p>
+                      <p className="text-white/20 text-sm uppercase tracking-[0.3em]">No clubs ranked yet.</p>
                     </div>
                   )}
                 </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import SlidePanel from '@/components/SlidePanel';
 import { createEvent } from '@/app/actions/mutations';
 
@@ -8,6 +8,17 @@ export default function NewClubEventButton({ clubId }: { clubId: string | null }
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [activityType, setActivityType] = useState<'Event' | 'Project'>('Event');
+  const [coverPreview, setCoverPreview] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setCoverPreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
 
   return (
     <>
@@ -17,7 +28,7 @@ export default function NewClubEventButton({ clubId }: { clubId: string | null }
         Create Activity
       </button>
 
-      <SlidePanel open={open} onClose={() => setOpen(false)}
+      <SlidePanel open={open} onClose={() => { setOpen(false); setCoverPreview(''); }}
         title={activityType === 'Event' ? 'Publish Upcoming <span class="text-purple-400">Event</span>' : 'Showcase Completed <span class="text-purple-400">Project</span>'}
         subtitle={activityType === 'Event' ? 'Publish event details and capture registrations' : 'Log project details, trigger AI audit, and gain leaderboard points'}
         icon={activityType === 'Event' ? 'event' : 'emoji_events'} accentColor="purple">
@@ -27,6 +38,7 @@ export default function NewClubEventButton({ clubId }: { clubId: string | null }
           await createEvent(fd); 
           setPending(false); 
           setOpen(false); 
+          setCoverPreview('');
         }} className="space-y-8">
           
           {clubId && <input type="hidden" name="clubId" value={clubId} />}
@@ -134,14 +146,47 @@ export default function NewClubEventButton({ clubId }: { clubId: string | null }
                 className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-6 text-sm font-bold text-white focus:border-purple-500/50 outline-none placeholder:text-white/20 font-sans" />
             </div>
 
-            {/* Project Specific: Cover Image */}
-            {activityType === 'Project' && (
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-[9px] font-black uppercase tracking-[0.4em] text-purple-400/60 font-sans">Project Cover Image</label>
-                <input name="coverImage" type="file" accept="image/*"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-6 text-sm font-bold text-white focus:border-purple-500/50 outline-none font-sans cursor-pointer" />
+            {/* Cover Image Upload (Shown for both Event and Project) */}
+            <div className="space-y-3 md:col-span-2">
+              <label className="text-[9px] font-black uppercase tracking-[0.4em] text-purple-400/60 font-sans">Activity Cover Image</label>
+              <div className="flex items-start gap-6">
+                {/* Preview + Click Target */}
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-24 h-24 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center cursor-pointer hover:border-purple-500/40 hover:bg-purple-500/5 transition-all group overflow-hidden relative shrink-0"
+                >
+                  {coverPreview ? (
+                    <img src={coverPreview} className="w-full h-full object-cover" alt="Preview" />
+                  ) : (
+                    <span className="material-symbols-outlined text-3xl text-purple-500/30 group-hover:text-purple-500 transition-colors">add_photo_alternate</span>
+                  )}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                    <span className="material-symbols-outlined text-white text-xl">upload</span>
+                  </div>
+                </div>
+                <div className="flex-1 space-y-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    name="coverImage"
+                    accept="image/*"
+                    onChange={handleCoverChange}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full bg-white/5 border border-white/10 border-dashed rounded-xl py-3 px-5 text-[10px] font-bold text-white/40 hover:text-white hover:border-purple-500/40 hover:bg-purple-500/5 transition-all uppercase tracking-widest font-sans flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-sm">upload_file</span>
+                    {coverPreview ? 'Change Image' : 'Upload from Device'}
+                  </button>
+                  <p className="text-[8px] text-white/20 font-sans uppercase tracking-wider">Or paste a URL</p>
+                  <input name="imageUrl" type="url" placeholder="https://example.com/cover.png..."
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-xs font-bold text-white focus:border-purple-500/50 outline-none placeholder:text-white/20 font-sans" />
+                </div>
               </div>
-            )}
+            </div>
 
             {/* Project Specific: Gallery Images */}
             {activityType === 'Project' && (
