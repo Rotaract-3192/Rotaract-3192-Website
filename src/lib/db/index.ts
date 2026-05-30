@@ -16,6 +16,56 @@ export function getDb(dbBinding?: any) {
 
   // Check if we are running in local Next.js development (Node.js runtime)
   if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+    const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+    const databaseId = process.env.CLOUDFLARE_DATABASE_ID || "72db2940-7b3d-4121-b656-5c56df5c3f7e";
+    const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+
+    if (accountId && apiToken) {
+      console.log('🔌 Connecting to remote Cloudflare D1 database via HTTP API...');
+      try {
+        const { drizzle: drizzleProxy } = eval('require')('drizzle-orm/sqlite-proxy');
+        dbInstance = drizzleProxy(async (sql: string, params: any[], method: string) => {
+          try {
+            const response = await fetch(
+              `https://api.cloudflare.com/client/v4/accounts/${accountId}/d1/database/${databaseId}/raw`,
+              {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${apiToken}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sql, params }),
+              }
+            );
+
+            if (!response.ok) {
+              const errText = await response.text();
+              throw new Error(`D1 HTTP Error ${response.status}: ${errText}`);
+            }
+
+            const data = await response.json() as any;
+            if (!data.success) {
+              throw new Error(`D1 query failed: ${JSON.stringify(data.errors)}`);
+            }
+
+            const result = data.result?.[0];
+            const rawRows = result?.rows || [];
+
+            if (method === 'get') {
+              return { rows: rawRows[0] || null };
+            }
+            return { rows: rawRows };
+          } catch (error) {
+            console.error('Remote D1 HTTP Query failed:', error);
+            return { rows: [] };
+          }
+        }, { schema });
+        return dbInstance;
+      } catch (e) {
+        console.error('Failed to initialize Drizzle sqlite-proxy for D1 HTTP connection:', e);
+      }
+    }
+
     console.log('🔌 Connecting to local SQLite database (local.sqlite) for development...');
     try {
       // Use eval('require') to prevent Webpack/Turbopack/esbuild from bundling better-sqlite3 into the Worker environment
