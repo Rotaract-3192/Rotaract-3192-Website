@@ -56,18 +56,18 @@ export async function createClub(formData: FormData) {
   const description = formData.get('description') as string || `Rotaract Club of ${city}`;
   let logoUrl = formData.get('logoUrl') as string || '';
 
-  // Handle logo image upload to R2
+  // Handle logo image upload
   const logoImageFile = formData.get('logoImage') as File | null;
   if (logoImageFile && logoImageFile.size > 0 && typeof logoImageFile.arrayBuffer === 'function') {
     try {
-      const { uploadFile } = await import('@/lib/r2');
+      const { uploadFile } = await import('@/lib/storage');
       const bytes = await logoImageFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const tempId = crypto.randomUUID();
       const filename = `clubs/${tempId}/logo-${Date.now()}-${logoImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       logoUrl = await uploadFile(filename, buffer, logoImageFile.type);
     } catch (err) {
-      console.error('Failed to upload club logo to R2:', err);
+      console.error('Failed to upload club logo:', err);
     }
   }
 
@@ -163,13 +163,13 @@ export async function createEvent(formData: FormData) {
   let imageUrl = formData.get('imageUrl') as string || '';
   if (coverImageFile && coverImageFile.size > 0 && typeof coverImageFile.arrayBuffer === 'function') {
     try {
-      const { uploadFile } = await import('@/lib/r2');
+      const { uploadFile } = await import('@/lib/storage');
       const bytes = await coverImageFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const filename = `events/${Date.now()}-${coverImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       imageUrl = await uploadFile(filename, buffer, coverImageFile.type);
     } catch (err) {
-      console.error('Failed to upload cover image to R2:', err);
+      console.error('Failed to upload cover image:', err);
     }
   }
 
@@ -179,14 +179,14 @@ export async function createEvent(formData: FormData) {
   for (const file of galleryImageFiles) {
     if (file && file.size > 0 && typeof file.arrayBuffer === 'function') {
       try {
-        const { uploadFile } = await import('@/lib/r2');
+        const { uploadFile } = await import('@/lib/storage');
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
         const filename = `events/gallery/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
         const uploadedUrl = await uploadFile(filename, buffer, file.type);
         galleryImagePaths.push(uploadedUrl);
       } catch (err) {
-        console.error('Failed to upload gallery image to R2:', err);
+        console.error('Failed to upload gallery image:', err);
       }
     }
   }
@@ -360,13 +360,13 @@ export async function updateEvent(id: string, formData: FormData) {
   let imageUrl = formData.get('imageUrl') as string || '';
   if (coverImageFile && coverImageFile.size > 0 && typeof coverImageFile.arrayBuffer === 'function') {
     try {
-      const { uploadFile } = await import('@/lib/r2');
+      const { uploadFile } = await import('@/lib/storage');
       const bytes = await coverImageFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const filename = `events/${Date.now()}-${coverImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       imageUrl = await uploadFile(filename, buffer, coverImageFile.type);
     } catch (err) {
-      console.error('Failed to upload cover image to R2:', err);
+      console.error('Failed to upload cover image:', err);
     }
   }
 
@@ -387,14 +387,14 @@ export async function updateEvent(id: string, formData: FormData) {
   for (const file of galleryImageFiles) {
     if (file && file.size > 0 && typeof file.arrayBuffer === 'function') {
       try {
-        const { uploadFile } = await import('@/lib/r2');
+        const { uploadFile } = await import('@/lib/storage');
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
         const filename = `events/gallery/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
         const uploadedUrl = await uploadFile(filename, buffer, file.type);
         galleryImagePaths.push(uploadedUrl);
       } catch (err) {
-        console.error('Failed to upload gallery image to R2:', err);
+        console.error('Failed to upload gallery image:', err);
       }
     }
   }
@@ -741,17 +741,17 @@ export async function createMember(formData: FormData) {
   const pointsVal = pointsStr ? parseInt(pointsStr, 10) : 0;
   const points = isNaN(pointsVal) ? 0 : pointsVal;
 
-  // Handle avatar image upload to R2
+  // Handle avatar image upload
   const avatarImageFile = formData.get('avatarImage') as File | null;
   if (avatarImageFile && avatarImageFile.size > 0 && typeof avatarImageFile.arrayBuffer === 'function') {
     try {
-      const { uploadFile } = await import('@/lib/r2');
+      const { uploadFile } = await import('@/lib/storage');
       const bytes = await avatarImageFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const filename = `avatars/${Date.now()}-${avatarImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       avatarUrl = await uploadFile(filename, buffer, avatarImageFile.type);
     } catch (err) {
-      console.error('Failed to upload avatar image to R2:', err);
+      console.error('Failed to upload avatar image:', err);
     }
   }
 
@@ -1376,18 +1376,18 @@ export async function updateClub(id: string, formData: FormData) {
   const secretaryPhone = formData.get('secretaryPhone') as string;
   const secretaryEmail = formData.get('secretaryEmail') as string;
 
-  // Handle Logo image upload to R2 if provided
+  // Handle Logo image upload if provided
   const logoImageFile = formData.get('logoImage') as File | null;
   let logoUrl = formData.get('logoUrl') as string || '';
   if (logoImageFile && logoImageFile.size > 0 && typeof logoImageFile.arrayBuffer === 'function') {
     try {
-      const { uploadFile } = await import('@/lib/r2');
+      const { uploadFile } = await import('@/lib/storage');
       const bytes = await logoImageFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const filename = `clubs/${id}/logo-${Date.now()}-${logoImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       logoUrl = await uploadFile(filename, buffer, logoImageFile.type);
     } catch (err) {
-      console.error('Failed to upload club logo to R2:', err);
+      console.error('Failed to upload club logo:', err);
     }
   }
 

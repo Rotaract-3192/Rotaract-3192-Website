@@ -1,52 +1,19 @@
 # Rotaract District 3192 | Web Portal
 
-A premium, edge-native web portal for Rotaract District 3192, designed with the **Aqueous Civic** design system.
+A premium web portal for Rotaract District 3192, built with Next.js and PostgreSQL.
 
-## 🚀 Technical Stack
+## Technical Stack
 
-- **Frontend:** Astro (SSG/SSR)
-- **Styling:** Tailwind CSS v4 (Aqueous Civic Design System)
-- **Backend:** Cloudflare Workers (Node.js compatibility mode)
-- **Framework:** Hono.js
-- **Database:** Cloudflare D1 (SQLite)
-- **Storage:** Cloudflare R2
-- **Auth:** JWT + OTP via ZeptoMail
+- **Frontend:** Next.js 16 (React 19)
+- **Styling:** Tailwind CSS v4
+- **Backend:** Next.js Server Actions
+- **Database:** PostgreSQL (DigitalOcean Managed Database)
+- **ORM:** Drizzle ORM
+- **Auth:** Clerk
+- **Storage:** S3-compatible object storage
+- **Deployment:** DigitalOcean App Platform
 
-## 🌊 Aqueous Civic Design System
-
-The platform features a custom-engineered visual language:
-- **Cinematic Depth:** Multi-layered `surface` architecture with no 1px borders.
-- **Fluid Shadows:** Atmospheric elevations using `fluid-shadow` utility classes.
-- **Micro-Animations:** Fade-in-up sequences and hover-state transformations.
-- **Typography:** Space Grotesk (Headlines) / Manrope (Body).
-
-## 🛠 Project Structure
-
-```
-/
-├── public/              # Static assets (including waves.mp4 hero video)
-├── src/
-│   ├── components/      # Shared Astro components (Navbar, Footer, etc.)
-│   ├── layouts/         # Primary Page Layouts
-│   ├── mock/            # Phase 1 Mock Data (JSON)
-│   └── pages/           # Application Routes
-│       ├── admin/       # District Admin Control Center
-│       ├── clubs/       # Club Directory & Profiles
-│       ├── events/      # Event Portal
-│       └── ...          # General Portal Pages
-├── DESIGN.md            # Visual System Documentation
-└── wrangler.toml        # Cloudflare Configuration
-```
-
-## 🚥 Build Phases
-
-### Phase 1: Frontend Infrastructure (Current)
-Complete UI/UX migration to Aqueous Civic. All pages are functional using mock data from `src/mock/`.
-
-### Phase 2: Core Integration
-Transition from mock data to live Cloudflare services (Workers, D1, R2).
-
-## ⚡ Development
+## Development
 
 ```bash
 # Install dependencies
@@ -57,7 +24,32 @@ npm run dev
 
 # Build for production
 npm run build
+
+# Start production server
+npm run start
 ```
+
+## Database
+
+```bash
+# Generate migrations
+npm run db:generate
+
+# Run migrations
+npm run db:migrate
+
+# Push schema to database
+npm run db:push
+```
+
+## Deployment
+
+This app is configured for DigitalOcean App Platform. See `.do/app.yaml` for the deployment spec.
+
+Set environment variables in the DO App Platform dashboard:
+- `DATABASE_URL` - PostgreSQL connection string
+- `CLERK_SECRET_KEY` - Clerk secret key
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Clerk publishable key
 
 ---
 *Created for Rotaract District 3192 — Harnessing the power of youth leadership.*

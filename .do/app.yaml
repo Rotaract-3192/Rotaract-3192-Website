@@ -1,0 +1,14 @@
+name: rotaract-district-3192
+services:
+- environment_slug: node-js
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: techrotaract3192/digital-ocean-nodeJS-Rotaract3192
+  name: web
+  build_command: npm install && npm run build
+  run_command: npm run start
+  http_port: 3000
+  envs:
+  - key: NODE_ENV
+    value: production

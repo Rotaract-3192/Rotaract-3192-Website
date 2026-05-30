@@ -22,6 +22,11 @@ pnpm-debug.log*
 .env.*.local
 .env*.bak*
 
+# database
+*.sqlite
+local.sqlite
+.wrangler/
+
 # macOS-specific files
 .DS_Store
 

@@ -64,7 +64,7 @@ export default async function AdminResourcesPage() {
               </div>
             </div>
             <div className="space-y-3 lg:col-span-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">R2 Object Key</label>
+              <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Storage Key</label>
               <input 
                 name="r2Key" 
                 type="text" 

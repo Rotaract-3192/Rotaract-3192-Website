@@ -1,6 +1,9 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // Standalone output for Docker/DO App Platform deployment
+  output: 'standalone',
+
   // Image domains
   images: {
     dangerouslyAllowSVG: true,

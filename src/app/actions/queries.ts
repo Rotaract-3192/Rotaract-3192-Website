@@ -141,7 +141,7 @@ export async function getAnnouncements(limit = 50) {
   }
 }
 
-/** Public resources stored in R2 (cold storage) */
+/** Public resources stored in object storage */
 export async function getResources() {
   try {
     return await getDb()

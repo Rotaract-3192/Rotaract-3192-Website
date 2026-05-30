@@ -4,19 +4,18 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client
 let s3ClientInstance: S3Client | null = null;
 
 function getS3Client() {
-  const accountId = process.env.R2_ACCOUNT_ID;
-  const accessKeyId = process.env.R2_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+  const endpoint = process.env.S3_ENDPOINT;
+  const accessKeyId = process.env.S3_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.S3_SECRET_ACCESS_KEY;
 
-  if (!accountId || !accessKeyId || !secretAccessKey) {
-    throw new Error('R2 environment variables are not configured (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY).');
+  if (!endpoint || !accessKeyId || !secretAccessKey) {
+    throw new Error('S3 environment variables are not configured (S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY).');
   }
 
   if (!s3ClientInstance) {
     s3ClientInstance = new S3Client({
-      region: 'auto',
-      endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-      // Cloudflare R2 requires path-style URLs — virtual-hosted-style will fail
+      region: process.env.S3_REGION || 'auto',
+      endpoint,
       forcePathStyle: true,
       credentials: {
         accessKeyId,
@@ -27,7 +26,7 @@ function getS3Client() {
   return s3ClientInstance;
 }
 
-const BUCKET = 'rotaract-assets';
+const BUCKET = process.env.S3_BUCKET || 'rotaract-assets';
 
 export async function uploadFile(key: string, body: Buffer | Uint8Array, contentType: string): Promise<string> {
   try {
@@ -38,11 +37,10 @@ export async function uploadFile(key: string, body: Buffer | Uint8Array, content
       Body: body,
       ContentType: contentType,
     }));
-    const publicUrl = (process.env.R2_PUBLIC_URL || '').replace(/\/$/, '');
+    const publicUrl = (process.env.S3_PUBLIC_URL || '').replace(/\/$/, '');
     return `${publicUrl}/${key}`;
   } catch (error) {
-    console.error('❌ R2 upload failed:', error);
-    // Return a placeholder — caller can decide how to handle
+    console.error('S3 upload failed:', error);
     return `/uploads/mock-${key}`;
   }
 }
@@ -55,7 +53,6 @@ export async function deleteFile(key: string) {
       Key: key,
     }));
   } catch (error) {
-    console.warn('⚠️ R2 delete failed or credentials missing:', error);
+    console.warn('S3 delete failed or credentials missing:', error);
   }
 }
-
