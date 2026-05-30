@@ -13,7 +13,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
-    "pages:build": "npx @opennextjs/cloudflare",
+    "pages:build": "npx @opennextjs/cloudflare build",
     "pages:dev": "wrangler pages dev --local",
     "pages:deploy": "wrangler pages deploy",
     "deploy": "npm run pages:build && npm run pages:deploy"
