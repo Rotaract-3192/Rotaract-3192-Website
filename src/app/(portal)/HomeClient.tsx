@@ -133,7 +133,7 @@ export default function HomeClient({
               transition={{ delay: 0.5, duration: 1 }}
               className="flex justify-center"
             >
-              <img src="/assets/logo.png" alt="Rotaract District Logo" className="h-28 md:h-36 object-contain filter drop-shadow-[0_0_25px_rgba(59,130,246,0.3)]" />
+              <img src="/assets/logo.png" alt="Rotaract District Logo" className="h-28 md:h-36 object-contain filter brightness-0 invert drop-shadow-[0_0_25px_rgba(255,255,255,0.3)]" />
             </motion.div>
 
             {/* Main Title "EXUBERANT" */}
@@ -142,10 +142,10 @@ export default function HomeClient({
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                className="text-5xl sm:text-7xl md:text-[10rem] lg:text-[12rem] font-medium tracking-[0.05em] text-white font-display uppercase leading-none"
+                className="text-5xl sm:text-7xl md:text-[8rem] lg:text-[10rem] font-medium tracking-[0.05em] text-white font-display uppercase leading-none"
                 style={{ textShadow: '0 0 40px rgba(59,130,246,0.2)' }}
               >
-                Exuberant
+                UNLEASH EXUBERANCE
               </motion.h1>
             </div>
           </div>
@@ -158,7 +158,9 @@ export default function HomeClient({
             className="flex items-center justify-center gap-6"
           >
             <div className="h-[1px] w-8 md:w-16 bg-gradient-to-r from-transparent via-primary/50 to-primary"></div>
-            <p className="text-[9px] md:text-[11px] font-black text-white uppercase tracking-[0.5em] md:tracking-[0.8em]">Create Lasting Impact</p>
+            <p className="text-[9px] md:text-[11px] font-black text-white uppercase tracking-[0.3em] md:tracking-[0.4em]">
+              Built for those who refuse to be average and choose to be unforgettable.
+            </p>
             <div className="h-[1px] w-8 md:w-16 bg-gradient-to-l from-transparent via-primary/50 to-primary"></div>
           </motion.div>
 
@@ -169,7 +171,7 @@ export default function HomeClient({
             transition={{ delay: 1 }}
             className="text-sm md:text-lg text-text-muted font-medium leading-relaxed max-w-3xl mx-auto opacity-70 px-4 md:px-0"
           >
-            A movement of young leaders creating positive change through leadership, service, fellowship & global connection.
+            Welcome to RI Year 2026-27, where transformational journeys begin, extraordinary leaders emerge, and legacies are written
           </motion.p>
 
           {/* CTAs */}
@@ -185,15 +187,14 @@ export default function HomeClient({
                 <span className="material-symbols-outlined text-sm">north_east</span>
               </button>
             </Link>
-            <Link href="/sign-up">
+            <Link href="/about">
               <button className="w-full sm:w-auto bg-white/5 backdrop-blur-xl text-white px-10 md:px-14 py-4 md:py-4.5 rounded-xl font-bold text-[10px] md:text-[11px] uppercase tracking-[0.3em] border border-white/10 hover:border-primary transition-all flex items-center justify-center gap-3">
-                Join Rotaract
+                About Us
                 <span className="material-symbols-outlined text-sm">north_east</span>
               </button>
             </Link>
           </motion.div>
         </div>
-
         {/* Stats Bar */}
         <motion.div
           initial={{ opacity: 0, y: 60 }}
@@ -202,10 +203,10 @@ export default function HomeClient({
           className="w-[95%] max-w-7xl grid grid-cols-2 md:grid-cols-4 gap-4 px-4 mt-24"
         >
           {[
-            { label: 'Clubs', val: `${clubsData.length || 0}`, icon: 'groups' },
-            { label: 'Members', val: `${usersCount || 0}`, icon: 'person' },
-            { label: 'Projects', val: `${eventsCount || 0}`, icon: 'handshake' },
-            { label: 'Impact Force', val: 'Active', icon: 'bolt' }
+            { label: 'Members', val: '2133', icon: 'person' },
+            { label: 'Clubs', val: '84', icon: 'groups' },
+            { label: 'Project', val: '0', icon: 'handshake' },
+            { label: 'Charter Clubs', val: '0', icon: 'workspace_premium' }
           ].map((stat, i) => (
             <div key={i} className="flex flex-col items-center justify-center gap-2 md:gap-3 py-6 md:py-10 rounded-[1.5rem] md:rounded-[2rem] bg-[#020617]/40 backdrop-blur-3xl border border-white/5 hover:border-primary/20 transition-all group relative overflow-hidden">
               <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -217,6 +218,53 @@ export default function HomeClient({
         </motion.div>
       </motion.section>
 
+      {/* Sanjay & DG Section */}
+      <section className="relative z-10 py-24 px-8 border-t border-white/5 bg-transparent">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="space-y-8"
+          >
+            <span className="text-primary font-black tracking-[0.4em] uppercase text-[10px] px-6 py-2 rounded-full bg-primary/5 border border-primary/10">District Leadership</span>
+            <h2 className="text-5xl md:text-7xl font-black tracking-tighter font-display uppercase italic text-white leading-none">
+              Empowering <br />
+              <span className="text-primary not-italic">Visionary Guidance.</span>
+            </h2>
+            <p className="text-text-muted text-lg font-medium leading-relaxed opacity-80 max-w-xl">
+              Led by the inspiring synergy of Rtn. Sanjay and our District Governor, Rotaract District 3192 continues to reach new heights of excellence, transforming communities and nurturing the leaders of tomorrow.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="relative rounded-[3rem] overflow-hidden aspect-[4/3] border border-white/10 shadow-ambient group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent z-10 opacity-60" />
+            
+            <div className="absolute inset-0 flex flex-col justify-center items-center bg-gradient-to-br from-primary/20 via-[#090d22] to-secondary/20 p-8 text-center">
+              <span className="material-symbols-outlined text-white/10 text-[8rem] group-hover:scale-110 transition-transform duration-700">handshake</span>
+              <div className="mt-4 font-display text-2xl font-bold uppercase tracking-widest text-white/90">Sanjay & DG</div>
+              <div className="text-xs uppercase tracking-widest text-primary mt-2">Rotaract District 3192</div>
+            </div>
+
+            <img
+              src="/assets/sanjay_dg.png"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+              alt="Sanjay & DG"
+              className="absolute inset-0 w-full h-full object-cover z-20 grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
+            />
+          </motion.div>
+        </div>
+      </section>
+
       {/* Impact Section */}
       <section className="relative z-10 py-32 px-8">
         <div className="max-w-7xl mx-auto space-y-20">
@@ -227,9 +275,9 @@ export default function HomeClient({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { label: 'Hours Served', val: '45,290', trend: '+12%', icon: 'schedule' },
-              { label: 'Lives Impacted', val: '128,400', trend: '+8%', icon: 'favorite' },
-              { label: 'Funds Raised', val: '$1.2M', trend: '+24%', icon: 'payments' }
+              { label: 'Hours Served', val: '0', trend: '0%', icon: 'schedule' },
+              { label: 'Lives Impacted', val: '0', trend: '0%', icon: 'favorite' },
+              { label: 'Funds Raised', val: '0', trend: '0%', icon: 'payments' }
             ].map((item, i) => (
               <motion.div
                 whileHover={{ y: -10 }}
@@ -247,6 +295,41 @@ export default function HomeClient({
                 </div>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* WhatsApp AI Buddy - RotaMate */}
+      <section className="relative z-10 py-24 px-8 border-t border-white/5 bg-transparent">
+        <div className="max-w-7xl mx-auto">
+          <div className="relative bg-gradient-to-br from-green-500/10 via-[#020617] to-primary/10 rounded-[3.5rem] p-12 lg:p-20 border border-green-500/20 shadow-[0_0_50px_rgba(37,211,102,0.1)] overflow-hidden group">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-green-500/5 rounded-full blur-[100px] -z-10 group-hover:scale-150 transition-transform duration-1000"></div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+              <div className="lg:col-span-8 space-y-6">
+                <span className="text-[#25D366] font-black tracking-[0.4em] uppercase text-[10px] px-6 py-2 rounded-full bg-green-500/5 border border-green-500/10">WhatsApp AI Buddy</span>
+                <h2 className="text-4xl md:text-6xl font-black text-white font-display uppercase tracking-tight italic">
+                  Meet <span className="text-[#25D366] not-italic font-display">RotaMate.</span>
+                </h2>
+                <p className="text-lg text-text-muted font-medium leading-relaxed opacity-80">
+                  Your smart WhatsApp AI Buddy is here! Get instant updates on district activities, search for clubs near you, retrieve official circulars, and ask anything about Rotaract guidelines. Fast, intuitive, and always online.
+                </p>
+              </div>
+              
+              <div className="lg:col-span-4 flex justify-center lg:justify-end">
+                <a
+                  href="http://wa.me/+919148733192"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex bg-[#25D366] hover:bg-[#1ebe5d] text-white px-10 py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.4em] shadow-xl shadow-green-500/20 hover:shadow-green-500/40 hover:-translate-y-1 transition-all group/btn"
+                >
+                  <span className="flex items-center gap-3">
+                    Chat with RotaMate
+                    <span className="material-symbols-outlined text-lg group-hover/btn:translate-x-2 transition-transform">chat</span>
+                  </span>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>

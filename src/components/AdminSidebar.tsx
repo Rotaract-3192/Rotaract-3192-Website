@@ -44,7 +44,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           <img 
             src="/assets/logo.png" 
             alt="Rotaract District Logo" 
-            className="h-18 w-auto object-contain filter drop-shadow-[0_0_15px_rgba(249,168,38,0.25)]"
+            className="h-18 w-auto object-contain filter brightness-0 invert drop-shadow-[0_0_15px_rgba(255,255,255,0.25)]"
           />
         </Link>
       </div>

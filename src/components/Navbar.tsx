@@ -22,8 +22,6 @@ export default function Navbar() {
   ];
 
   const officeLinks = [
-    { name: "District News", href: "/news" },
-    { name: "Newsletters", href: "/newsletter" },
     { name: "Hall of Fame", href: "/hall-of-fame" },
     { name: "Jobs", href: "/jobs" },
     { name: "Leaderboard", href: "/leaderboard" },
@@ -48,7 +46,7 @@ export default function Navbar() {
           {/* Logo with Glow */}
           <Link href="/" className="flex items-center no-underline group relative">
             <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-            <img src="/assets/logo.png" alt="Rotaract District" className="h-13 md:h-16 w-auto object-contain relative z-10 filter drop-shadow-[0_0_15px_rgba(59,130,246,0.2)]" />
+            <img src="/assets/logo.png" alt="Rotaract District" className="h-13 md:h-16 w-auto object-contain relative z-10 filter brightness-0 invert drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
           </Link>
   
           {/* Desktop Navigation - Cinematic spacing */}
@@ -137,16 +135,7 @@ export default function Navbar() {
                     className="flex items-center gap-2 text-white/40 hover:text-white font-black text-[10px] uppercase tracking-[0.3em] no-underline transition-all group"
                   >
                     <span className="material-symbols-outlined text-lg opacity-20 group-hover:opacity-100 transition-all">person</span>
-                    Login
-                  </Link>
-                  <Link
-                    href="/sign-up"
-                    className="relative px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.4em] text-white no-underline transition-all overflow-hidden group flex items-center gap-3"
-                  >
-                    <div className="absolute inset-0 bg-primary group-hover:bg-primary/90 transition-colors"></div>
-                    <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <span className="relative z-10">Join</span>
-                    <span className="material-symbols-outlined text-sm relative z-10 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    Official Login
                   </Link>
                 </>
               )}
@@ -214,12 +203,12 @@ export default function Navbar() {
             <div className="mt-auto pt-20 space-y-6">
                {!isSignedIn && (
                  <Link
-                   href="/sign-up"
+                   href="/sign-in"
                    onClick={() => setIsMobileMenuOpen(false)}
                    className="w-full bg-primary text-white py-5 rounded-2xl font-bold text-[11px] uppercase tracking-[0.4em] no-underline transition-all flex items-center justify-center gap-3 shadow-xl shadow-primary/20"
                  >
-                   Join Movement
-                   <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                   Official Login
+                   <span className="material-symbols-outlined text-sm">login</span>
                  </Link>
                )}
                <div className="flex items-center justify-between px-2">

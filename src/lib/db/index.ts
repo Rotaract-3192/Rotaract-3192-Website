@@ -19,9 +19,11 @@ export function getDb(): AppDb {
 
   console.log('🔌 Connecting to PostgreSQL via pg connection pool...');
 
+  const isLocalhost = connectionString.includes('localhost') || connectionString.includes('127.0.0.1');
+
   const pool = new Pool({
     connectionString,
-    ssl: process.env.NODE_ENV === 'production'
+    ssl: (process.env.NODE_ENV === 'production' && !isLocalhost && process.env.DB_DISABLE_SSL !== 'true')
       ? { rejectUnauthorized: false }
       : false,
     max: 10,

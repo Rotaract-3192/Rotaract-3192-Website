@@ -28,12 +28,7 @@ export default function BentoCard({
         </p>
       </div>
 
-      <div className="pt-8 border-t border-white/10 mt-auto">
-        <div className="flex items-center gap-4 text-primary font-bold uppercase tracking-[0.5em] text-[10px]">
-          Status: Authorized
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-        </div>
-      </div>
+
     </div>
   );
 }

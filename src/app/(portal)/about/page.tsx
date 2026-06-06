@@ -1,6 +1,25 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import BentoCard from "@/components/BentoCard";
 
+const sliderPhotos = [
+  { name: "DRR", role: "District Rotaract Representative", img: "/assets/slider/drr.png", fallback: "https://ui-avatars.com/api/?name=DRR&background=0e6ba8&color=caf0f8&size=400" },
+  { name: "DG", role: "District Governor", img: "/assets/slider/dg.png", fallback: "https://ui-avatars.com/api/?name=DG&background=00b4d8&color=020b18&size=400" },
+  { name: "IPDRR", role: "Immediate Past DRR", img: "/assets/slider/ipdrr.png", fallback: "https://ui-avatars.com/api/?name=IPDRR&background=0e6ba8&color=caf0f8&size=400" },
+  { name: "Rakshit", role: "DRR Nominee (DRRN)", img: "/assets/slider/drrn_rakshit.png", fallback: "https://ui-avatars.com/api/?name=Rakshit&background=00b4d8&color=020b18&size=400" },
+  { name: "Disha", role: "District Secretary (Admin)", img: "/assets/slider/drs_disha.png", fallback: "https://ui-avatars.com/api/?name=Disha&background=0e6ba8&color=caf0f8&size=400" },
+  { name: "Shashank", role: "District Secretary (Operations)", img: "/assets/slider/drs_shashank.png", fallback: "https://ui-avatars.com/api/?name=Shashank&background=00b4d8&color=020b18&size=400" },
+];
+
 export default function AboutPage() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <main className="max-w-7xl mx-auto min-h-screen relative overflow-visible pb-24">
       {/* Background Cinematic Accents */}
@@ -10,11 +29,11 @@ export default function AboutPage() {
       {/* HERO SECTION */}
       <header className="p-8 md:p-12 lg:py-32 flex flex-col items-center text-center gap-8 border-b border-white/10 mb-24">
         <span className="inline-block px-6 py-2 rounded-full bg-primary/5 text-primary text-[10px] font-black tracking-[0.4em] uppercase border border-primary/10">The District Authority</span>
-        <h1 className="text-6xl md:text-9xl font-black text-white tracking-tighter font-display uppercase leading-none italic">
-          Architecting <br />
-          <span className="text-primary not-italic">Social Change.</span>
+        <h1 className="text-4xl md:text-7xl font-black text-white tracking-tighter font-display uppercase leading-tight italic">
+          Be the Number One, <br />
+          <span className="text-primary not-italic">or the Only One.</span>
         </h1>
-        <p className="text-xl md:text-3xl text-text-muted max-w-3xl font-medium leading-tight opacity-70 italic">
+        <p className="text-lg md:text-2xl text-white/90 max-w-3xl font-medium leading-relaxed opacity-90 italic">
           Rotaract District 3192 is a thriving network of young leaders committed to institutional excellence and sustainable community impact.
         </p>
       </header>
@@ -24,12 +43,12 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           <BentoCard
             title="Our Mission"
-            description="To provide opportunities for young men and women to enhance their knowledge and skills that will assist them in personal development, to address the physical and social needs of their communities."
+            description="To build a culture of excellence where every club thrives, every leader grows, and every initiative becomes a benchmark for others to follow."
             icon="rocket_launch"
           />
           <BentoCard
             title="Our Vision"
-            description="Together, we see a world where young people unite and take action to create lasting change — across the globe, in our communities, and in ourselves."
+            description="To make Rotaract a powerful platform that empowers every Rotaractor with the leadership, skills, and opportunities needed to thrive in both their personal and professional lives."
             icon="visibility"
             translateY={true}
           />
@@ -37,15 +56,26 @@ export default function AboutPage() {
 
         <div className="rounded-[4rem] overflow-hidden aspect-video relative group border border-white/10 shadow-ambient">
           <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent z-10 opacity-80" />
+          
+          <div className="absolute inset-0 flex flex-col justify-center items-center bg-gradient-to-br from-primary/10 via-[#020617] to-secondary/10 p-8 text-center">
+            <span className="material-symbols-outlined text-white/10 text-[10rem] group-hover:scale-110 transition-transform duration-1000">handshake</span>
+            <div className="mt-4 font-display text-3xl font-bold uppercase tracking-widest text-white/95">Sanjay & DG Handshake</div>
+            <div className="text-sm uppercase tracking-widest text-primary mt-2">Rotaract District 3192</div>
+          </div>
+
           <img
-            src="https://images.unsplash.com/photo-1559027615-cd4451d13488?auto=format&fit=crop&q=80&w=1200"
-            alt="Service"
-            className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
+            src="/assets/sanjay_dg_handshake.png"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+            alt="Sanjay with DG Handshake"
+            className="absolute inset-0 w-full h-full object-cover z-20 grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
           />
-          <div className="absolute bottom-0 left-0 p-12 lg:p-20 z-20 w-full">
+          
+          <div className="absolute bottom-0 left-0 p-12 lg:p-20 z-30 w-full">
             <div className="max-w-2xl space-y-4">
               <h3 className="text-4xl md:text-6xl font-black text-white font-display tracking-tighter uppercase italic">Service Above <span className="text-primary">Self.</span></h3>
-              <p className="text-xl text-text-muted font-medium leading-tight opacity-80 italic">
+              <p className="text-xl text-white/95 font-medium leading-tight opacity-95 italic">
                 Through every project and every handshake, we aim to build a legacy of excellence that transcends generations.
               </p>
             </div>
@@ -53,12 +83,62 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* LEADERSHIP PHOTO SLIDER */}
+      <section className="px-8 md:px-12 py-32 overflow-hidden">
+        <div className="flex flex-col gap-6 text-center items-center mb-24">
+          <span className="text-primary font-black tracking-[0.4em] uppercase text-[10px] px-6 py-2 rounded-full bg-primary/5 border border-primary/10">District Core Team</span>
+          <h2 className="text-5xl md:text-7xl font-black tracking-tighter font-display uppercase leading-none italic">Strategic <span className="text-primary not-italic">Leadership.</span></h2>
+        </div>
+
+        {mounted && (
+          <div className="relative w-full overflow-hidden py-10">
+            {/* Sliding Marquee */}
+            <div className="flex w-full overflow-hidden">
+              <motion.div
+                className="flex gap-8 w-max"
+                animate={{ x: ["0%", "-50%"] }}
+                transition={{
+                  repeat: Infinity,
+                  ease: "linear",
+                  duration: 25,
+                }}
+              >
+                {/* Duplicate the array twice to ensure seamless infinite looping */}
+                {[...sliderPhotos, ...sliderPhotos].map((leader, idx) => (
+                  <div key={idx} className="w-80 flex-shrink-0 bg-white/5 backdrop-blur-xl p-8 rounded-[3rem] border border-white/10 shadow-ambient hover:bg-white/10 hover:shadow-2xl transition-all duration-700 flex flex-col gap-8">
+                    <div className="aspect-square rounded-[2rem] overflow-hidden border border-white/10 relative bg-[#090d22] flex items-center justify-center">
+                      <span className="material-symbols-outlined text-white/5 text-6xl absolute z-0">person</span>
+                      <img
+                        src={leader.img}
+                        onError={(e) => {
+                          e.currentTarget.src = leader.fallback;
+                        }}
+                        alt={leader.name}
+                        className="w-full h-full object-cover grayscale hover:grayscale-0 hover:scale-110 transition-all duration-1000 relative z-10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-2xl font-black text-white font-display tracking-tighter uppercase transition-colors leading-none italic">
+                        {leader.name}
+                      </h3>
+                      <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] opacity-80">
+                        {leader.role}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+          </div>
+        )}
+      </section>
+
       {/* CORE PILLARS SECTION */}
       <section className="px-8 md:px-12 py-32 space-y-24">
         <div className="flex flex-col gap-6 text-center items-center">
           <span className="text-primary font-black tracking-[0.4em] uppercase text-[10px] px-6 py-2 rounded-full bg-primary/5 border border-primary/10">The Foundations</span>
           <h2 className="text-6xl md:text-8xl font-black tracking-tighter font-display uppercase leading-none italic">Core <span className="text-primary not-italic">Pillars.</span></h2>
-          <p className="text-text-muted text-sm font-bold tracking-[0.3em] uppercase italic">The Four Avenues of Service</p>
+          <p className="text-white/90 text-sm font-bold tracking-[0.3em] uppercase italic">The Four Avenues of Service</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -73,44 +153,31 @@ export default function AboutPage() {
                 <span className="material-symbols-outlined text-3xl">{pillar.icon}</span>
               </div>
               <h3 className="text-3xl font-black text-white font-display uppercase tracking-tight italic">{pillar.title}</h3>
-              <p className="text-text-muted font-medium leading-relaxed italic opacity-80">{pillar.desc}</p>
+              <p className="text-white/80 font-medium leading-relaxed italic opacity-90">{pillar.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* LEADERSHIP */}
-      <section className="px-8 md:px-12 py-32">
-        <div className="flex flex-col gap-6 text-center items-center mb-24">
-          <span className="text-primary font-black tracking-[0.4em] uppercase text-[10px] px-6 py-2 rounded-full bg-primary/5 border border-primary/10">District Core Team</span>
-          <h2 className="text-6xl md:text-8xl font-black tracking-tighter font-display uppercase leading-none italic">Strategic <span className="text-primary not-italic">Leadership.</span></h2>
+      {/* CALENDAR SECTION */}
+      <section className="px-8 md:px-12 py-32 space-y-16">
+        <div className="flex flex-col gap-6 text-center items-center">
+          <span className="text-primary font-black tracking-[0.4em] uppercase text-[10px] px-6 py-2 rounded-full bg-primary/5 border border-primary/10">District Calendar</span>
+          <h2 className="text-5xl md:text-7xl font-black tracking-tighter font-display uppercase leading-none italic">District <span className="text-primary not-italic">Events.</span></h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[
-            { name: "Dr. Priya Ramesh", role: "District Rotaract Representative", img: "https://ui-avatars.com/api/?name=Priya+Ramesh&background=0e6ba8&color=caf0f8&size=400" },
-            { name: "Rahul Krishnan", role: "District Secretary", img: "https://ui-avatars.com/api/?name=Rahul+Krishnan&background=00b4d8&color=020b18&size=400" },
-            { name: "Sneha Venkatesh", role: "District Treasurer", img: "https://ui-avatars.com/api/?name=Sneha+Venkatesh&background=0e6ba8&color=caf0f8&size=400" },
-            { name: "Karthik Reddy", role: "Professional Service Chair", img: "https://ui-avatars.com/api/?name=Karthik+Reddy&background=00b4d8&color=020b18&size=400" },
-          ].map((leader, idx) => (
-            <div key={idx} className="group bg-white/5 backdrop-blur-xl p-8 rounded-[3rem] border border-white/10 shadow-ambient hover:bg-white/10 hover:shadow-2xl transition-all duration-700 flex flex-col gap-8">
-              <div className="aspect-square rounded-[2rem] overflow-hidden border border-white/10">
-                <img
-                  src={leader.img}
-                  alt={leader.name}
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000"
-                />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-2xl font-black text-white font-display tracking-tighter uppercase group-hover:text-primary transition-colors leading-none italic">
-                  {leader.name}
-                </h3>
-                <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] opacity-60">
-                  {leader.role}
-                </p>
-              </div>
+        <div className="w-full flex justify-center">
+          <div className="w-full max-w-4xl rounded-[3rem] overflow-hidden border border-white/10 bg-white/5 backdrop-blur-xl p-4 md:p-8 shadow-ambient relative">
+            <div className="w-full aspect-[4/3] md:h-[600px] rounded-2xl overflow-hidden bg-navy/20">
+              <iframe
+                src="https://calendar.google.com/calendar/embed?src=tech.rotaract3192%40gmail.com&ctz=Asia%2FKolkata"
+                style={{ border: 0 }}
+                className="w-full h-full filter invert hue-rotate-180 opacity-90"
+                frameBorder="0"
+                scrolling="no"
+              ></iframe>
             </div>
-          ))}
+          </div>
         </div>
       </section>
 
@@ -122,7 +189,7 @@ export default function AboutPage() {
             <div className="h-1 w-24 bg-primary mx-auto rounded-full" />
           </div>
           
-          <div className="space-y-12 text-xl md:text-2xl text-text-muted font-medium leading-relaxed italic opacity-80">
+          <div className="space-y-12 text-xl md:text-2xl text-white/90 font-medium leading-relaxed italic opacity-95">
             <p>
               Rotaract originally began as a Rotary International youth program in 1968. Today, Rotaract operates globally with over 10,000 clubs in 180 countries.
             </p>
@@ -135,7 +202,7 @@ export default function AboutPage() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -z-10 group-hover:scale-150 transition-transform duration-1000"></div>
             <div className="text-center space-y-10 relative z-10">
               <h3 className="text-3xl md:text-4xl font-black text-primary font-display uppercase tracking-tight italic">"Friendship through Service"</h3>
-              <p className="text-lg md:text-xl text-text-muted max-w-2xl mx-auto font-medium leading-tight opacity-70 italic">
+              <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto font-medium leading-tight opacity-90 italic">
                 Join a global movement of young leaders making an impact. Start your journey with Rotaract District 3192 today.
               </p>
               <a href="/clubs" className="inline-flex bg-primary text-white px-12 py-6 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.4em] shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all group/btn relative overflow-hidden">

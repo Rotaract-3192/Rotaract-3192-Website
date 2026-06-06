@@ -31,7 +31,7 @@ export default function PrivacyPage() {
           <div className="space-y-6">
             <h2 className="text-2xl font-black text-on-surface uppercase tracking-tight font-display italic">3.0 Security <span className="text-primary not-italic">Encryption.</span></h2>
             <p className="text-on-surface-variant leading-relaxed">
-              All personal data is encrypted at rest and in transit. We utilize Clerk for secure authentication and Cloudflare for edge security, ensuring your digital identity within the district remains protected.
+              All personal data is encrypted at rest and in transit. We utilize Clerk for secure authentication and industry-standard encryption, ensuring your digital identity within the district remains protected.
             </p>
           </div>
 
