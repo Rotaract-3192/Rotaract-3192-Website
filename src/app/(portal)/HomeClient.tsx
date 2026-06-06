@@ -312,7 +312,7 @@ export default function HomeClient({
                   Meet <span className="text-[#25D366] not-italic font-display">RotaMate.</span>
                 </h2>
                 <p className="text-lg text-text-muted font-medium leading-relaxed opacity-80">
-                  Your smart WhatsApp AI Buddy is here! Get instant updates on district activities, search for clubs near you, retrieve official circulars, and ask anything about Rotaract guidelines. Fast, intuitive, and always online.
+                  Your smart WhatsApp AI Buddy is here at <span className="text-white font-bold">+91 91487 3<span className="text-[#25D366] font-black">3192</span></span>! Get instant updates on district activities, search for clubs near you, retrieve official circulars, and ask anything about Rotaract guidelines. Fast, intuitive, and always online.
                 </p>
               </div>
               

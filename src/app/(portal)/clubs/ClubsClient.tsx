@@ -106,74 +106,90 @@ export default function ClubsClient({ clubsData }: { clubsData: any[] }) {
         </div>
       </section>
 
-      {/* Grid/List Interface */}
+      {/* Grid/List/Map Interface */}
       <section>
-        <div className={viewProtocol === 'GRID' ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8" : "flex flex-col gap-6"}>
-          <AnimatePresence mode="popLayout">
-            {filteredClubs.map((club, idx) => (
-              <motion.div
-                key={club.id || idx}
-                layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.4, delay: idx * 0.05 }}
-              >
-                {viewProtocol === 'GRID' ? (
-                  <ClubCard
-                    name={club.name}
-                    city={club.city ? `${club.city}${club.zone ? ` • ${club.zone}` : ''}` : 'District 3192'}
-                    members={0}
-                    engagement={Number(Math.floor(Math.random() * 20) + 80)}
-                    badge={club.zone || "Active Chapter"}
-                    type={idx % 2 === 0 ? "primary" : "secondary"}
-                    slug={club.slug}
-                    logoUrl={club.logoUrl}
-                    icon={idx % 3 === 0 ? "stars" : idx % 3 === 1 ? "school" : "waves"}
-                  />
-                ) : (
-                  <ClubListItem
-                    name={club.name}
-                    city={club.city ? `${club.city}${club.zone ? ` • ${club.zone}` : ''}` : 'District 3192'}
-                    members={0}
-                    engagement={Number(Math.floor(Math.random() * 20) + 80)}
-                    slug={club.slug}
-                    logoUrl={club.logoUrl}
-                    icon={idx % 3 === 0 ? "stars" : idx % 3 === 1 ? "school" : "waves"}
-                  />
-                )}
-              </motion.div>
-            ))}
+        {viewProtocol === 'MAP' ? (
+          <div className="w-full flex justify-center">
+            <div className="w-full max-w-5xl rounded-[3rem] overflow-hidden border border-white/10 bg-white/5 backdrop-blur-xl p-4 md:p-8 shadow-ambient relative">
+              <div className="w-full aspect-[16/9] min-h-[500px] rounded-2xl overflow-hidden bg-navy/20">
+                <iframe
+                  src="https://www.google.com/maps/d/u/1/embed?mid=1QVmbe788_6Pefn8jekldzo2e7wW2G9Q&ehbc=2E312F&noprof=1"
+                  style={{ border: 0 }}
+                  className="w-full h-full opacity-90"
+                  frameBorder="0"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className={viewProtocol === 'GRID' ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8" : "flex flex-col gap-6"}>
+            <AnimatePresence mode="popLayout">
+              {filteredClubs.map((club, idx) => (
+                <motion.div
+                  key={club.id || idx}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.4, delay: idx * 0.05 }}
+                >
+                  {viewProtocol === 'GRID' ? (
+                    <ClubCard
+                      name={club.name}
+                      city={club.city ? `${club.city}${club.zone ? ` • ${club.zone}` : ''}` : 'District 3192'}
+                      members={0}
+                      engagement={Number(Math.floor(Math.random() * 20) + 80)}
+                      badge={club.zone || "Active Chapter"}
+                      type={idx % 2 === 0 ? "primary" : "secondary"}
+                      slug={club.slug}
+                      logoUrl={club.logoUrl}
+                      icon={idx % 3 === 0 ? "stars" : idx % 3 === 1 ? "school" : "waves"}
+                    />
+                  ) : (
+                    <ClubListItem
+                      name={club.name}
+                      city={club.city ? `${club.city}${club.zone ? ` • ${club.zone}` : ''}` : 'District 3192'}
+                      members={0}
+                      engagement={Number(Math.floor(Math.random() * 20) + 80)}
+                      slug={club.slug}
+                      logoUrl={club.logoUrl}
+                      icon={idx % 3 === 0 ? "stars" : idx % 3 === 1 ? "school" : "waves"}
+                    />
+                  )}
+                </motion.div>
+              ))}
 
-            {/* Charter CTA Card - Only show in Grid View for aesthetic reasons */}
-            {viewProtocol === 'GRID' && (
-              <motion.div
-                layout
-                className="relative rounded-[2.5rem] p-12 flex flex-col items-center justify-center text-center overflow-hidden min-h-[400px] bg-white/5 border border-white/5 group backdrop-blur-xl"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative z-10 flex flex-col items-center space-y-8">
-                  <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center text-primary border border-primary/20 group-hover:scale-110 transition-transform duration-700">
-                    <span className="material-symbols-outlined text-4xl">add_circle</span>
+              {/* Charter CTA Card - Only show in Grid View for aesthetic reasons */}
+              {viewProtocol === 'GRID' && (
+                <motion.div
+                  layout
+                  className="relative rounded-[2.5rem] p-12 flex flex-col items-center justify-center text-center overflow-hidden min-h-[400px] bg-white/5 border border-white/5 group backdrop-blur-xl"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="relative z-10 flex flex-col items-center space-y-8">
+                    <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center text-primary border border-primary/20 group-hover:scale-110 transition-transform duration-700">
+                      <span className="material-symbols-outlined text-4xl">add_circle</span>
+                    </div>
+                    <div className="space-y-4">
+                      <h3 className="text-3xl font-bold text-white uppercase tracking-tight font-display leading-none">
+                        Charter <br /><span className="text-primary">New Chapter</span>
+                      </h3>
+                      <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.3em] opacity-60 leading-relaxed max-w-[200px]">
+                        Initiate a new legacy in your community. Lead the change.
+                      </p>
+                    </div>
+                    <button className="px-10 py-4 bg-primary text-white rounded-xl font-bold uppercase tracking-[0.3em] text-[10px] shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-all">
+                      Start Protocol
+                    </button>
                   </div>
-                  <div className="space-y-4">
-                    <h3 className="text-3xl font-bold text-white uppercase tracking-tight font-display leading-none">
-                      Charter <br /><span className="text-primary">New Chapter</span>
-                    </h3>
-                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.3em] opacity-60 leading-relaxed max-w-[200px]">
-                      Initiate a new legacy in your community. Lead the change.
-                    </p>
-                  </div>
-                  <button className="px-10 py-4 bg-primary text-white rounded-xl font-bold uppercase tracking-[0.3em] text-[10px] shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-all">
-                    Start Protocol
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
-        {filteredClubs.length === 0 && (
+        {viewProtocol !== 'MAP' && filteredClubs.length === 0 && (
           <div className="py-40 flex flex-col items-center justify-center text-center space-y-8 bg-white/5 rounded-[3rem] border border-white/5 border-dashed">
              <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center text-primary/20">
                 <span className="material-symbols-outlined text-4xl">search_off</span>
