@@ -14,7 +14,7 @@ export default function HomeClient({
   eventsCount: number
 }) {
   const containerRef = useRef(null);
-  const [email, setEmail] = useState("");
+
   const [mounted, setMounted] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [skyline, setSkyline] = useState<any[]>([]);
@@ -270,7 +270,7 @@ export default function HomeClient({
                 e.currentTarget.style.display = 'none';
               }}
               alt="Sanjay & DG"
-              className="absolute inset-0 w-full h-full object-cover z-20 grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
+              className="absolute inset-x-0 bottom-0 h-[95%] w-auto mx-auto object-contain object-bottom z-20 grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
             />
           </motion.div>
         </div>
@@ -323,8 +323,21 @@ export default function HomeClient({
                   Meet <span className="text-[#25D366] not-italic font-display">RotaMate.</span>
                 </h2>
                 <p className="text-lg text-text-muted font-medium leading-relaxed opacity-80">
-                  Your smart WhatsApp AI Buddy is here at <span className="text-white font-bold">+91 91487 3<span className="text-[#25D366] font-black">3192</span></span>! Get instant updates on district activities, search for clubs near you, retrieve official circulars, and ask anything about Rotaract guidelines. Fast, intuitive, and always online.
+                  Your smart WhatsApp AI Buddy is here to help! Get instant updates on district activities, search for clubs near you, retrieve official circulars, and ask anything about Rotaract guidelines. Fast, intuitive, and always online.
                 </p>
+                <div className="pt-2">
+                  <div className="inline-flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 backdrop-blur-xl hover:border-[#25D366]/40 transition-colors group/phone">
+                    <span className="material-symbols-outlined text-[#25D366] text-2xl group-hover/phone:scale-110 transition-transform">call</span>
+                    <a
+                      href="http://wa.me/+919148733192"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-2xl md:text-3xl font-black text-white hover:text-[#25D366] transition-colors tracking-widest font-mono"
+                    >
+                      +91 91487 3<span className="text-[#25D366]">3192</span>
+                    </a>
+                  </div>
+                </div>
               </div>
               
               <div className="lg:col-span-4 flex justify-center lg:justify-end">
@@ -345,36 +358,6 @@ export default function HomeClient({
         </div>
       </section>
 
-      {/* Newsletter Section */}
-      <section className="relative z-10 py-48 px-8 border-t border-white/5 bg-transparent">
-        <div className="max-w-5xl mx-auto flex flex-col items-center text-center gap-16">
-          <div className="space-y-6">
-            <h2 className="text-6xl md:text-9xl font-black tracking-tighter font-display uppercase italic leading-none">
-              The Future <br />
-              <span className="text-primary not-italic">Needs You.</span>
-            </h2>
-            <p className="text-[10px] font-bold text-white/40 tracking-[0.5em] uppercase">Join the district dispatch for exclusive updates</p>
-          </div>
-
-          <form
-            onSubmit={(e) => { e.preventDefault(); alert('Subscribed!'); }}
-            className="w-full max-w-2xl flex flex-col sm:flex-row gap-4 p-2 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-2xl"
-          >
-            <input
-              type="email"
-              required
-              placeholder="ENTER COMMAND: EMAIL_ADDRESS"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 bg-transparent border-none outline-none px-6 py-4 text-white text-[11px] font-bold uppercase tracking-[0.2em] placeholder:text-white/20"
-            />
-            <button className="bg-primary hover:bg-primary-dark text-white px-10 py-4 rounded-xl font-bold text-[11px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-3 shadow-lg shadow-primary/20">
-              Subscribe
-              <span className="material-symbols-outlined text-sm">bolt</span>
-            </button>
-          </form>
-        </div>
-      </section>
     </main>
   );
 }

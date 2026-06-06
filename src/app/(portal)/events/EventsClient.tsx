@@ -194,18 +194,6 @@ export default function EventsClient({ eventsData }: { eventsData: any[] }) {
         </AnimatePresence>
       </div>
 
-      {/* Newsletter Bento Section */}
-      <section className="mt-32">
-        <div className="p-10 lg:p-16 bg-white/5 rounded-[4rem] border border-white/10 flex flex-col lg:flex-row items-center justify-between gap-12 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -z-10 group-hover:scale-150 transition-transform duration-1000"></div>
-          <div className="space-y-6 flex-1">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/5 text-primary text-[9px] font-bold tracking-[0.4em] uppercase border border-primary/10">Newsletter</span>
-            <h2 className="text-4xl md:text-5xl font-bold text-white font-display tracking-tight uppercase leading-none italic">Stay in <br /><span className="text-primary not-italic">The Loop.</span></h2>
-            <p className="text-text-muted font-medium leading-relaxed max-w-md opacity-70 italic">Our committees are constantly planning new projects. Get real-time alerts for the latest updates.</p>
-          </div>
-          <button className="w-full lg:w-auto bg-primary text-white px-10 py-4 rounded-xl font-bold text-[11px] uppercase tracking-[0.4em] hover:shadow-2xl hover:shadow-primary/30 transition-all duration-500 shrink-0">Join Newsletter</button>
-        </div>
-      </section>
     </main>
   );
 }

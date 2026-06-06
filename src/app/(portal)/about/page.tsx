@@ -170,28 +170,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* CALENDAR SECTION */}
-      <section className="px-8 md:px-12 py-32 space-y-16">
-        <div className="flex flex-col gap-6 text-center items-center">
-          <span className="text-primary font-black tracking-[0.4em] uppercase text-[10px] px-6 py-2 rounded-full bg-primary/5 border border-primary/10">District Calendar</span>
-          <h2 className="text-5xl md:text-7xl font-black tracking-tighter font-display uppercase leading-none italic">District <span className="text-primary not-italic">Events.</span></h2>
-        </div>
-
-        <div className="w-full flex justify-center">
-          <div className="w-full max-w-4xl rounded-[3rem] overflow-hidden border border-white/10 bg-white/5 backdrop-blur-xl p-4 md:p-8 shadow-ambient relative">
-            <div className="w-full aspect-[4/3] md:h-[600px] rounded-2xl overflow-hidden bg-navy/20">
-              <iframe
-                src="https://calendar.google.com/calendar/embed?src=tech.rotaract3192%40gmail.com&ctz=Asia%2FKolkata"
-                style={{ border: 0 }}
-                className="w-full h-full filter invert hue-rotate-180 opacity-90"
-                frameBorder="0"
-                scrolling="no"
-              ></iframe>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* HISTORY */}
       <section className="px-8 md:px-12 py-32 bg-white/5 rounded-[4rem] border border-white/10 mx-8 md:mx-12">
         <div className="max-w-4xl mx-auto space-y-24">
