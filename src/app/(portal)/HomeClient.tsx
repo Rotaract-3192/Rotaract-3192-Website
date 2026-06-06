@@ -16,6 +16,7 @@ export default function HomeClient({
   const containerRef = useRef(null);
   const [email, setEmail] = useState("");
   const [mounted, setMounted] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [skyline, setSkyline] = useState<any[]>([]);
 
   useEffect(() => {
@@ -234,10 +235,10 @@ export default function HomeClient({
               <span className="text-primary not-italic">Visionary Guidance.</span>
             </h2>
             <p className="text-text-muted text-lg font-medium leading-relaxed opacity-80 max-w-xl">
-              Led by the inspiring synergy of Rtn. Sanjay and our District Governor, Rotaract District 3192 continues to reach new heights of excellence, transforming communities and nurturing the leaders of tomorrow.
+              Led by the inspiring synergy of DRR PHF Rtr. Rtn. Sanjay R. and District Governor DG AKS Rtn. Ravishankar Dakoju, Rotaract District 3192 continues to reach new heights of excellence, transforming communities and nurturing the leaders of tomorrow.
             </p>
           </motion.div>
-
+ 
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -248,13 +249,23 @@ export default function HomeClient({
             <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent z-10 opacity-60" />
             
             <div className="absolute inset-0 flex flex-col justify-center items-center bg-gradient-to-br from-primary/20 via-[#090d22] to-secondary/20 p-8 text-center">
-              <span className="material-symbols-outlined text-white/10 text-[8rem] group-hover:scale-110 transition-transform duration-700">handshake</span>
-              <div className="mt-4 font-display text-2xl font-bold uppercase tracking-widest text-white/90">Sanjay & DG</div>
-              <div className="text-xs uppercase tracking-widest text-primary mt-2">Rotaract District 3192</div>
+              {!imageLoaded && (
+                <>
+                  <span className="material-symbols-outlined text-white/10 text-[8rem] group-hover:scale-110 transition-transform duration-700">handshake</span>
+                  <div className="mt-4 font-display text-2xl font-bold uppercase tracking-widest text-white/90">Sanjay & DG Ravishankar</div>
+                  <div className="text-xs uppercase tracking-widest text-primary mt-2">Rotaract District 3192</div>
+                </>
+              )}
             </div>
 
             <img
               src="/assets/sanjay_dg.png"
+              ref={(el) => {
+                if (el && el.complete) {
+                  setImageLoaded(true);
+                }
+              }}
+              onLoad={() => setImageLoaded(true)}
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}

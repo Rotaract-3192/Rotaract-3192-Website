@@ -5,16 +5,17 @@ import { motion } from "framer-motion";
 import BentoCard from "@/components/BentoCard";
 
 const sliderPhotos = [
-  { name: "DRR", role: "District Rotaract Representative", img: "/assets/slider/drr.png", fallback: "https://ui-avatars.com/api/?name=DRR&background=0e6ba8&color=caf0f8&size=400" },
-  { name: "DG", role: "District Governor", img: "/assets/slider/dg.png", fallback: "https://ui-avatars.com/api/?name=DG&background=00b4d8&color=020b18&size=400" },
-  { name: "IPDRR", role: "Immediate Past DRR", img: "/assets/slider/ipdrr.png", fallback: "https://ui-avatars.com/api/?name=IPDRR&background=0e6ba8&color=caf0f8&size=400" },
-  { name: "Rakshit", role: "DRR Nominee (DRRN)", img: "/assets/slider/drrn_rakshit.png", fallback: "https://ui-avatars.com/api/?name=Rakshit&background=00b4d8&color=020b18&size=400" },
-  { name: "Disha", role: "District Secretary (Admin)", img: "/assets/slider/drs_disha.png", fallback: "https://ui-avatars.com/api/?name=Disha&background=0e6ba8&color=caf0f8&size=400" },
-  { name: "Shashank", role: "District Secretary (Operations)", img: "/assets/slider/drs_shashank.png", fallback: "https://ui-avatars.com/api/?name=Shashank&background=00b4d8&color=020b18&size=400" },
+  { name: "PHF Rtr. Rtn. Sanjay R.", role: "District Rotaract Representative", img: "/assets/slider/drr.jpeg", fallback: "https://ui-avatars.com/api/?name=Sanjay+R&background=0e6ba8&color=caf0f8&size=400" },
+  { name: "DG AKS Rtn. Ravishankar Dakoju", role: "District Governor", img: "/assets/slider/dg.jpeg", fallback: "https://ui-avatars.com/api/?name=Ravishankar+Dakoju&background=00b4d8&color=020b18&size=400" },
+  { name: "PHF Rtr. Rtn. Janice Philip", role: "Immediate Past DRR", img: "/assets/slider/ipdrr.jpeg", fallback: "https://ui-avatars.com/api/?name=Janice+Philip&background=0e6ba8&color=caf0f8&size=400" },
+  { name: "DREE PP Rtr. Rakshith K. Shetty", role: "DRR Elect (DREE / DRRN)", img: "/assets/slider/drrn_rakshit.jpeg", fallback: "https://ui-avatars.com/api/?name=Rakshith+Shetty&background=00b4d8&color=020b18&size=400" },
+  { name: "IPP Rtr. Disha B. S.", role: "District Secretary (Admin)", img: "/assets/slider/drs_disha.jpeg", fallback: "https://ui-avatars.com/api/?name=Disha+BS&background=0e6ba8&color=caf0f8&size=400" },
+  { name: "PP Rtr. Shashank Shrivatsa", role: "District Secretary (Operations)", img: "/assets/slider/drs_shashank.jpeg", fallback: "https://ui-avatars.com/api/?name=Shashank+Shrivatsa&background=00b4d8&color=020b18&size=400" },
 ];
 
 export default function AboutPage() {
   const [mounted, setMounted] = useState(false);
+  const [handshakeLoaded, setHandshakeLoaded] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -58,13 +59,23 @@ export default function AboutPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent z-10 opacity-80" />
           
           <div className="absolute inset-0 flex flex-col justify-center items-center bg-gradient-to-br from-primary/10 via-[#020617] to-secondary/10 p-8 text-center">
-            <span className="material-symbols-outlined text-white/10 text-[10rem] group-hover:scale-110 transition-transform duration-1000">handshake</span>
-            <div className="mt-4 font-display text-3xl font-bold uppercase tracking-widest text-white/95">Sanjay & DG Handshake</div>
-            <div className="text-sm uppercase tracking-widest text-primary mt-2">Rotaract District 3192</div>
+            {!handshakeLoaded && (
+              <>
+                <span className="material-symbols-outlined text-white/10 text-[10rem] group-hover:scale-110 transition-transform duration-1000">handshake</span>
+                <div className="mt-4 font-display text-3xl font-bold uppercase tracking-widest text-white/95">Sanjay & DG Ravishankar Handshake</div>
+                <div className="text-sm uppercase tracking-widest text-primary mt-2">Rotaract District 3192</div>
+              </>
+            )}
           </div>
 
           <img
             src="/assets/sanjay_dg_handshake.png"
+            ref={(el) => {
+              if (el && el.complete) {
+                setHandshakeLoaded(true);
+              }
+            }}
+            onLoad={() => setHandshakeLoaded(true)}
             onError={(e) => {
               e.currentTarget.style.display = 'none';
             }}
