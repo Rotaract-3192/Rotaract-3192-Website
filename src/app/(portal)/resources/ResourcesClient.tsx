@@ -72,22 +72,23 @@ export default function ResourcesClient({ resources }: { resources: Resource[] }
         </div>
       </header>
 
-      <a href="https://drive.google.com/drive/folders/1BamhCLMTs0RHH0TBTartmTxHqAFRhbE3?usp=sharing" className="inline-flex bg-primary text-white px-12 py-6 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.4em] shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all group/btn relative overflow-hidden">
-                 <div className="absolute inset-0 bg-white/10 group-hover:translate-x-[100%] transition-transform duration-1000" />
-                 <span className="relative z-10 flex items-center gap-4">
-                   Club Resources
-                   <span className="material-symbols-outlined text-lg group-hover/btn:translate-x-2 transition-transform">bolt</span>
-                 </span>
-              </a>
 
       {isEmpty ? (
         <section className="p-8 md:p-12">
           <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
             <span className="material-symbols-outlined text-6xl text-outline/30">folder_open</span>
-            <h3 className="text-2xl font-black text-on-surface">No resources yet</h3>
+            {/* <h3 className="text-2xl font-black text-on-surface">No resources yet</h3>
             <p className="text-on-surface-variant max-w-sm">
               District admins can upload documents and assets from the Admin Portal and mark them as public to appear here.
-            </p>
+            </p> */}
+            <a
+              href="https://drive.google.com/drive/folders/1BamhCLMTs0RHH0TBTartmTxHqAFRhbE3?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center px-8 py-4 bg-primary text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all"
+            >
+              Open Resource Library
+            </a>
           </div>
         </section>
       ) : (
