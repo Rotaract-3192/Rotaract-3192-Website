@@ -72,6 +72,14 @@ export default function ResourcesClient({ resources }: { resources: Resource[] }
         </div>
       </header>
 
+      <a href="https://drive.google.com/drive/folders/1BamhCLMTs0RHH0TBTartmTxHqAFRhbE3?usp=sharing" className="inline-flex bg-primary text-white px-12 py-6 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.4em] shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all group/btn relative overflow-hidden">
+                 <div className="absolute inset-0 bg-white/10 group-hover:translate-x-[100%] transition-transform duration-1000" />
+                 <span className="relative z-10 flex items-center gap-4">
+                   Club Resources
+                   <span className="material-symbols-outlined text-lg group-hover/btn:translate-x-2 transition-transform">bolt</span>
+                 </span>
+              </a>
+
       {isEmpty ? (
         <section className="p-8 md:p-12">
           <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
