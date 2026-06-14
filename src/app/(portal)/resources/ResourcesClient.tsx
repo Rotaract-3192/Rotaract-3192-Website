@@ -66,21 +66,23 @@ export default function ResourcesClient({ resources }: { resources: Resource[] }
         <div className="flex flex-col gap-4">
           <span className="text-primary font-black uppercase tracking-[0.3em] text-[10px] mb-2 block">The Vault</span>
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-4 font-display uppercase italic">Resource <span className="text-primary not-italic">Central.</span></h1>
-          <p className="text-xl text-text-muted font-medium max-w-2xl leading-tight italic">
+          <p className="text-xl text-white/80 font-medium max-w-2xl leading-tight italic">
             Official documents, templates, and guidelines for District 3192 clubs.
           </p>
         </div>
       </header>
 
+
       {isEmpty ? (
-        <section className="p-8 md:p-12">
-          <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-            <span className="material-symbols-outlined text-6xl text-outline/30">folder_open</span>
-            <h3 className="text-2xl font-black text-on-surface">No resources yet</h3>
-            <p className="text-on-surface-variant max-w-sm">
-              District admins can upload documents and assets from the Admin Portal and mark them as public to appear here.
-            </p>
-          </div>
+        <section className="min-h-[60vh] flex items-center justify-center p-8 md:p-12">
+          <a
+            href="https://drive.google.com/drive/folders/1BamhCLMTs0RHH0TBTartmTxHqAFRhbE3?usp=sharing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center px-10 py-6 bg-primary text-white rounded-[2.5rem] font-black uppercase tracking-[0.2em] text-sm shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all z-20"
+          >
+            Open Resource Library
+          </a>
         </section>
       ) : (
         <section className="p-8 md:p-12">
