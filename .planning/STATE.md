@@ -1,15 +1,15 @@
 # Project State
 
 ## Current Position
-- **Active Phase:** 01-supabase-migration
-- **Status:** Planning
+- **Active Phase:** None (Phase 1 completed)
+- **Status:** Complete
 
 ## Tech Stack
 - **Framework:** Next.js 16 (standalone output)
-- **ORM:** Drizzle ORM with `node-postgres` + `pg` driver
+- **ORM:** Drizzle ORM with `postgres-js` + `postgres` driver
 - **Auth:** Clerk (`@clerk/nextjs`)
-- **Storage:** AWS S3 SDK (R2-compatible endpoint)
-- **Database:** PostgreSQL (currently DigitalOcean Managed Database)
+- **Storage:** Supabase Storage JS SDK
+- **Database:** Supabase PostgreSQL (self-hosted on aaroha.life)
 
 ## Key Decisions
 1. Clerk remains the auth provider — Supabase Auth will NOT replace it

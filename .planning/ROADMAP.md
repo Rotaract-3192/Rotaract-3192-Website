@@ -7,14 +7,16 @@
 - **Goal:** Next.js 16 app with Drizzle ORM + PostgreSQL, Clerk Auth, S3/R2 storage
 - **Summary:** Full-featured Rotaract district management platform with clubs, events, campaigns, courses, jobs, newsletters, MOMs, feeds, announcements, mentorship, service hours, point tracking, attendance, and audit logs.
 
+### Phase 1: Supabase Migration
+- **Status:** Complete
+- **Goal:** Migrate from raw PostgreSQL (via `node-postgres`) to self-hosted Supabase PostgreSQL on DigitalOcean, with optional Supabase API capabilities
+- **Summary:** Switched Drizzle connection driver to `postgres-js` (`postgres`), created browser/server Supabase clients, updated migrations/DDL/seed scripts to standard PostgreSQL syntax, configured environment templates.
+
+### Phase 2: Storage Migration & Cloudflare Removal
+- **Status:** Complete
+- **Goal:** Migrate file storage to Supabase Storage and remove all AWS S3/Cloudflare R2 dependencies.
+- **Summary:** Removed all S3 dependencies, rewrote `src/lib/storage.ts` using Supabase Storage JS Client, migrated the schema to the live database (`supabase.aaroha.life`), and seeded the live tables successfully.
+
 ## Upcoming Phases
 
-### Phase 1: Supabase Migration
-- **Goal:** Migrate from raw PostgreSQL (via `node-postgres`) to self-hosted Supabase PostgreSQL on DigitalOcean, with optional Supabase API capabilities
-- **Requirements:** SUP-01, SUP-02, SUP-03
-- **Plans:** 3 plans
-
-Plans:
-- [ ] 01-01-PLAN.md — Database driver migration from `node-postgres` to `postgres-js`, install Supabase dependencies
-- [ ] 01-02-PLAN.md — Schema verification, fresh migrations for Supabase PostgreSQL, seed data cleanup
-- [ ] 01-03-PLAN.md — Supabase client integration, environment configuration, final verification
+*None planned*

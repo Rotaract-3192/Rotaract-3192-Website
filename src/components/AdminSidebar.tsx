@@ -13,14 +13,20 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
 
   const menuItems = [
-    { href: '/admin',             label: 'Overview',    icon: 'dashboard'        },
-    { href: '/admin/president',   label: 'Hall of Honor', icon: 'military_tech'  },
-    { href: '/admin/members',     label: 'Members',     icon: 'groups'           },
-    { href: '/admin/clubs',       label: 'Clubs',       icon: 'hub'              },
-    { href: '/admin/events',      label: 'Events',      icon: 'event'            },
-    { href: '/admin/leaderboard', label: 'Leaderboard', icon: 'leaderboard'      },
-    { href: '/admin/mom',         label: 'MOMs',        icon: 'description'      },
-    { href: '/admin/audit',       label: 'System Audit', icon: 'security'        },
+    { href: '/admin',                label: 'Overview',       icon: 'dashboard'         },
+    { href: '/admin/president',      label: 'Hall of Honor',  icon: 'military_tech'     },
+    { href: '/admin/members',        label: 'Members',        icon: 'groups'            },
+    { href: '/admin/clubs',          label: 'Clubs',          icon: 'hub'               },
+    { href: '/admin/events',         label: 'Events',         icon: 'event'             },
+    { href: '/admin/leaderboard',    label: 'Leaderboard',    icon: 'leaderboard'       },
+    { href: '/admin/mom',            label: 'MOMs',           icon: 'description'       },
+    { href: '/admin/announcements',  label: 'Announcements',  icon: 'campaign'          },
+    { href: '/admin/feeds',          label: 'District Feed',  icon: 'rss_feed'          },
+    { href: '/admin/campaigns',      label: 'Campaigns',      icon: 'account_balance'   },
+    { href: '/admin/jobs',           label: 'Careers',        icon: 'work'              },
+    { href: '/admin/lms',            label: 'Academy',        icon: 'school'            },
+    { href: '/admin/resources',      label: 'Resources',      icon: 'folder_open'       },
+    { href: '/admin/audit',          label: 'System Audit',   icon: 'security'          },
   ];
 
   return (
