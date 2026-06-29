@@ -113,10 +113,9 @@ export default function EventsManagerClient({ initialEvents, clubs }: EventsMana
       if (event.status !== 'trash') return false;
     } else {
       if (event.status === 'trash') return false;
-      // Entry Type matches tab 'Project' or 'Event'
-      // Default entryType is 'Event' if not specified
-      const type = event.entryType || 'Event';
-      if (type.toLowerCase() !== activeTab.toLowerCase()) return false;
+      const isProject = event.entryType?.toLowerCase() === 'project';
+      const isProjectTab = activeTab.toLowerCase() === 'project';
+      if (isProject !== isProjectTab) return false;
     }
 
     // 2. Search query check
@@ -138,8 +137,8 @@ export default function EventsManagerClient({ initialEvents, clubs }: EventsMana
   });
 
   // Count tab items for badge displays
-  const projectsCount = initialEvents.filter(e => e.status !== 'trash' && (e.entryType || 'Event').toLowerCase() === 'project').length;
-  const eventsCount = initialEvents.filter(e => e.status !== 'trash' && (e.entryType || 'Event').toLowerCase() === 'event').length;
+  const projectsCount = initialEvents.filter(e => e.status !== 'trash' && e.entryType?.toLowerCase() === 'project').length;
+  const eventsCount = initialEvents.filter(e => e.status !== 'trash' && e.entryType?.toLowerCase() !== 'project').length;
   const trashCount = initialEvents.filter(e => e.status === 'trash').length;
 
   return (

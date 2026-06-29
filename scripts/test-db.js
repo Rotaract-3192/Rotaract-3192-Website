@@ -1,4 +1,4 @@
-import pg from 'pg';
+import postgres from 'postgres';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -11,47 +11,37 @@ dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 const connectionString = process.env.DATABASE_URL;
 console.log('Database URL:', connectionString);
 
-if (!connectionString) {
-  console.error('DATABASE_URL is not set in .env.local');
-  process.exit(1);
-}
-
-const pool = new pg.Pool({
-  connectionString,
-  ssl: false,
-});
-
 async function main() {
-  try {
-    console.log('Attempting to connect to PostgreSQL database...');
-    const client = await pool.connect();
-    console.log('✅ Successfully connected to database!');
-    
-    // Check if we can run a simple query
-    const res = await client.query('SELECT NOW()');
-    console.log('Query result (SELECT NOW()):', res.rows[0]);
+  if (!connectionString) {
+    console.error('DATABASE_URL is not set in .env.local');
+    process.exit(1);
+  }
 
-    // Check existing tables
-    const tablesRes = await client.query(`
+  console.log('Attempting to connect to PostgreSQL...');
+  const sql = postgres(connectionString, { ssl: false, max: 1 });
+  
+  try {
+    const [row] = await sql`SELECT NOW()`;
+    console.log('✅ Successfully connected to database!');
+    console.log('Query result (SELECT NOW()):', row);
+
+    const tables = await sql`
       SELECT table_name 
       FROM information_schema.tables 
-      WHERE table_schema = 'public'
-    `);
+      WHERE table_schema = 'public' 
+      ORDER BY table_name
+    `;
     console.log('Tables in public schema:');
-    if (tablesRes.rows.length === 0) {
+    if (tables.length === 0) {
       console.log('  (No tables found)');
     } else {
-      tablesRes.rows.forEach(row => {
-        console.log(`  - ${row.table_name}`);
-      });
+      tables.forEach(t => console.log(`  - ${t.table_name}`));
     }
-
-    client.release();
   } catch (err) {
     console.error('❌ Database connection failed:');
     console.error(err);
   } finally {
-    await pool.end();
+    await sql.end();
   }
 }
 

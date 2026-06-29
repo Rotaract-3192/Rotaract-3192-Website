@@ -1,58 +1,80 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { createClient } from '@supabase/supabase-js';
 
-// Lazy initialization of S3 client — evaluated at call time, not module load time
-let s3ClientInstance: S3Client | null = null;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-function getS3Client() {
-  const endpoint = process.env.S3_ENDPOINT;
-  const accessKeyId = process.env.S3_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.S3_SECRET_ACCESS_KEY;
+// Lazy initialization of Supabase client
+let supabaseClientInstance: ReturnType<typeof createClient> | null = null;
 
-  if (!endpoint || !accessKeyId || !secretAccessKey) {
-    throw new Error('S3 environment variables are not configured (S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY).');
+function getSupabase() {
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error('Supabase environment variables are not configured (NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY).');
   }
-
-  if (!s3ClientInstance) {
-    s3ClientInstance = new S3Client({
-      region: process.env.S3_REGION || 'auto',
-      endpoint,
-      forcePathStyle: true,
-      credentials: {
-        accessKeyId,
-        secretAccessKey,
-      },
-    });
+  if (!supabaseClientInstance) {
+    supabaseClientInstance = createClient(supabaseUrl, supabaseServiceKey);
   }
-  return s3ClientInstance;
+  return supabaseClientInstance;
 }
 
-const BUCKET = process.env.S3_BUCKET || 'rotaract-assets';
+// Default to 'rotaract-assets' matching the existing bucket config
+const BUCKET = process.env.SUPABASE_BUCKET || 'rotaract-assets';
+
+// Ensure the bucket exists (called lazily on first upload)
+let bucketInitialized = false;
+async function ensureBucketExists() {
+  if (bucketInitialized) return;
+
+  try {
+    const supabase = getSupabase();
+    // Attempt to create the bucket in case it doesn't exist
+    const { error } = await supabase.storage.createBucket(BUCKET, {
+      public: true,
+      fileSizeLimit: 10485760, // 10MB limit
+    });
+    
+    // Ignore the error if the bucket already exists
+    if (error && error.message !== 'Bucket already exists' && !error.message.includes('already exists')) {
+      console.warn('⚠️ Non-critical warning creating Supabase Storage bucket:', error.message);
+    }
+    bucketInitialized = true;
+  } catch (err) {
+    console.warn('⚠️ Failed checking/creating Supabase Storage bucket:', err);
+  }
+}
 
 export async function uploadFile(key: string, body: Buffer | Uint8Array, contentType: string): Promise<string> {
   try {
-    const s3 = getS3Client();
-    await s3.send(new PutObjectCommand({
-      Bucket: BUCKET,
-      Key: key,
-      Body: body,
-      ContentType: contentType,
-    }));
-    const publicUrl = (process.env.S3_PUBLIC_URL || '').replace(/\/$/, '');
-    return `${publicUrl}/${key}`;
+    const supabase = getSupabase();
+    await ensureBucketExists();
+
+    console.log(`📤 Uploading file ${key} to Supabase Storage bucket "${BUCKET}"...`);
+    const { data, error } = await supabase.storage.from(BUCKET).upload(key, body, {
+      contentType,
+      upsert: true,
+    });
+
+    if (error) throw error;
+
+    const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(key);
+    console.log(`✅ Uploaded successfully. Public URL: ${urlData.publicUrl}`);
+    return urlData.publicUrl;
   } catch (error) {
-    console.error('S3 upload failed:', error);
+    console.error('❌ Supabase storage upload failed:', error);
+    // Return mock local upload path as fallback to prevent app crashing
     return `/uploads/mock-${key}`;
   }
 }
 
 export async function deleteFile(key: string) {
   try {
-    const s3 = getS3Client();
-    await s3.send(new DeleteObjectCommand({
-      Bucket: BUCKET,
-      Key: key,
-    }));
+    const supabase = getSupabase();
+    await ensureBucketExists();
+
+    console.log(`🗑️ Deleting file ${key} from Supabase Storage bucket "${BUCKET}"...`);
+    const { error } = await supabase.storage.from(BUCKET).remove([key]);
+    if (error) throw error;
+    console.log(`✅ File ${key} deleted successfully.`);
   } catch (error) {
-    console.warn('S3 delete failed or credentials missing:', error);
+    console.warn('⚠️ Supabase storage delete failed:', error);
   }
 }

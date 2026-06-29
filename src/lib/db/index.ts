@@ -1,10 +1,11 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 import * as schema from './schema';
 
 export type AppDb = ReturnType<typeof drizzle<typeof schema>>;
 
 let dbInstance: AppDb | null = null;
+let sqlInstance: ReturnType<typeof postgres> | null = null;
 
 export function getDb(): AppDb {
   if (dbInstance) return dbInstance;
@@ -17,20 +18,27 @@ export function getDb(): AppDb {
     );
   }
 
-  console.log('🔌 Connecting to PostgreSQL via pg connection pool...');
-
   const isLocalhost = connectionString.includes('localhost') || connectionString.includes('127.0.0.1');
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isPgBouncer = connectionString.includes(':6543');
 
-  const pool = new Pool({
-    connectionString,
-    ssl: (process.env.NODE_ENV === 'production' && !isLocalhost && process.env.DB_DISABLE_SSL !== 'true')
-      ? { rejectUnauthorized: false }
-      : false,
+  console.log('🔌 Connecting to PostgreSQL via postgres-js...');
+
+  sqlInstance = postgres(connectionString, {
+    ssl: (isProduction && !isLocalhost && process.env.DB_DISABLE_SSL !== 'true') ? { rejectUnauthorized: false } : false,
     max: 10,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 10000,
+    idle_timeout: 30,
+    connect_timeout: 10,
+    // PgBouncer transaction mode: prepared statements must be disabled
+    prepare: !isPgBouncer,
   });
 
-  dbInstance = drizzle(pool, { schema });
+  dbInstance = drizzle(sqlInstance, { schema });
   return dbInstance;
+}
+
+// For direct SQL queries when needed (e.g., for raw queries, health checks)
+export function getSql() {
+  getDb(); // ensure connection is initialized
+  return sqlInstance!;
 }

@@ -7,7 +7,7 @@ const SEED_FILE = path.join(process.cwd(), 'seed.sql');
 function escapeSql(val) {
   if (val === null || val === undefined) return 'NULL';
   if (typeof val === 'number') return val;
-  if (typeof val === 'boolean') return val ? 1 : 0;
+  if (typeof val === 'boolean') return val ? 'true' : 'false';
   // Escape single quotes by doubling them
   const str = String(val).replace(/'/g, "''");
   return `'${str}'`;
@@ -19,27 +19,20 @@ function processTable(tableName, data) {
   let sql = `-- Seed for ${tableName}\n`;
   
   data.forEach((row) => {
-    // Map camelCase keys to snake_case if necessary, but JSON might already be snake or camel.
-    // We assume the JSON keys match the schema closely or we handle specific mappings here.
-    
-    // For the mock JSONs, let's just insert directly.
-    // If there's an 'id' missing, we generate one (but mock should have them or we ignore).
-    // Actually, we'll map fields depending on the table.
-    
     let keys = Object.keys(row);
     let values = keys.map(k => escapeSql(row[k]));
     
     // Convert keys from camelCase to snake_case if they exist
     const snakeKeys = keys.map(k => k.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`));
     
-    sql += `INSERT OR IGNORE INTO ${tableName} (${snakeKeys.join(', ')}) VALUES (${values.join(', ')});\n`;
+    sql += `INSERT INTO ${tableName} (${snakeKeys.join(', ')}) VALUES (${values.join(', ')}) ON CONFLICT (id) DO NOTHING;\n`;
   });
   
   return sql + '\n';
 }
 
 function run() {
-  let finalSql = 'PRAGMA defer_foreign_keys = ON;\nPRAGMA foreign_keys = OFF;\n';
+  let finalSql = '-- Auto-generated seed data for PostgreSQL (Supabase)\n\n';
   
   // 1. Clubs
   if (fs.existsSync(path.join(MOCK_DIR, 'clubs.json'))) {
@@ -74,11 +67,11 @@ function run() {
     const events = JSON.parse(fs.readFileSync(path.join(MOCK_DIR, 'events.json'), 'utf8'));
     const mappedEvents = events.map(e => ({
       id: e.slug || `evt_${Math.random().toString(36).substring(2, 9)}`,
-      club_id: e.host_club_slug || 'RAC-A', // Fallback
+      club_id: e.host_club_slug || 'rac-chennai', // Match a real club ID from seed
       title: e.title,
       slug: e.slug || e.title.toLowerCase().replace(/\s+/g, '-'),
       event_date: e.date ? new Date(e.date).toISOString() : new Date().toISOString(),
-      location: e.location,
+      location: e.location || 'Online',
       image_url: e.banner_url || e.thumbnail_url
     }));
     finalSql += processTable('events', mappedEvents);
@@ -88,11 +81,11 @@ function run() {
   if (fs.existsSync(path.join(MOCK_DIR, 'courses.json'))) {
     const courses = JSON.parse(fs.readFileSync(path.join(MOCK_DIR, 'courses.json'), 'utf8'));
     const mappedCourses = courses.map(c => ({
-      id: c.slug,
+      id: c.id,
       title: c.title,
-      description: c.category,
+      description: c.description,
       thumbnail_url: c.thumbnail_url,
-      modules_count: c.modules
+      modules_count: c.lessons ? c.lessons.length : 0
     }));
     finalSql += processTable('courses', mappedCourses);
   }
@@ -101,12 +94,13 @@ function run() {
   if (fs.existsSync(path.join(MOCK_DIR, 'jobs.json'))) {
     const jobs = JSON.parse(fs.readFileSync(path.join(MOCK_DIR, 'jobs.json'), 'utf8'));
     const mappedJobs = jobs.map(j => ({
-      id: `job_${Math.random().toString(36).substring(2, 9)}`,
-      title: j.role,
+      id: j.id,
+      title: j.title,
       company: j.company,
-      location: j.location,
+      location: 'Remote',
       type: j.type,
-      description: j.salary_range
+      description: j.description,
+      apply_url: j.apply_url
     }));
     finalSql += processTable('jobs', mappedJobs);
   }
