@@ -1,0 +1,17 @@
+.git
+.github
+.next
+node_modules
+.vscode
+.planning
+.stitch
+.tmp
+
+*.log
+*.md
+LICENSE
+image.png
+Water Animation.json
+website-changes.md
+SKILL.md
+task.md
