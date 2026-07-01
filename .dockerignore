@@ -2,16 +2,27 @@
 .github
 .next
 node_modules
+
 .vscode
+.idea
+
 .planning
 .stitch
 .tmp
 
 *.log
 *.md
+
 LICENSE
-image.png
-Water Animation.json
-website-changes.md
 SKILL.md
 task.md
+website-changes.md
+Water Animation.json
+image.png
+
+.env*
+Dockerfile*
+docker-compose*
+
+coverage
+*.tsbuildinfo

@@ -1,0 +1,25 @@
+services:
+  district:
+    container_name: district-website
+    image: rotaract/district:latest
+
+    build:
+      context: .
+
+    restart: unless-stopped
+
+    expose:
+      - "3000"
+
+    env_file:
+      - .env.local
+
+    networks:
+      - default
+      - rotaract
+
+networks:
+  default:
+
+  rotaract:
+    external: true

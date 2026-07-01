@@ -53,3 +53,13 @@ Set environment variables in the DO App Platform dashboard:
 
 ---
 *Created for Rotaract District 3192 — Harnessing the power of youth leadership.*
+
+## Docker
+
+```bash
+docker compose up -d --build
+```
+
+The application will be available on port 3000.
+
+Configure your reverse proxy (Nginx Proxy Manager) to forward to the container on the shared Docker network.
