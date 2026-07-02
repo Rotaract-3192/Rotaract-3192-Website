@@ -48,7 +48,7 @@ async function testConnection(connectionString: string, sslOption: any, label: s
 
 async function run() {
   for (const config of configs) {
-    await testConnection(config.url, config.ssl, config.label);
+    await testConnection(config.url, (config as any).ssl, config.label);
   }
 }
 

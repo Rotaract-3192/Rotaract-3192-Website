@@ -56,14 +56,15 @@ export default function LoadingScreen() {
             className="absolute inset-[-40px] bg-primary/30 rounded-full blur-2xl"
           ></motion.div>
 
-          {/* Rotating Gear Image (8s duration from prompt) */}
+          {/* Bouncing Gear Image */}
           <motion.div
-            initial={{ rotate: 0 }}
-            animate={{ rotate: 360 }}
+            animate={{
+              y: [0, -25, 0]
+            }}
             transition={{
-              duration: 8,
+              duration: 1.5,
               repeat: Infinity,
-              ease: "linear",
+              ease: "easeInOut"
             }}
             className="relative w-32 h-32 md:w-40 md:h-40"
           >

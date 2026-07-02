@@ -1,17 +1,11 @@
-import { cookies } from 'next/headers';
+import { auth as clerkAuth, currentUser as clerkCurrentUser } from '@clerk/nextjs/server';
 import { getDb } from './db';
 import { users } from './db/schema';
 import { eq } from 'drizzle-orm';
 
-// Server-side mock auth resolving from cookies for interactive local dev testing
+// Server-side auth resolving from Clerk sessions and mapping to local DB user roles
 export async function auth() {
-  let userId: string | null = null;
-  try {
-    const cookieStore = await cookies();
-    userId = cookieStore.get('mock_user_id')?.value || null;
-  } catch (e) {
-    // cookies() can throw in some static generation contexts
-  }
+  const { userId, sessionClaims, redirectToSignIn } = await clerkAuth();
 
   if (userId) {
     try {
@@ -20,17 +14,47 @@ export async function auth() {
       if (user) {
         return {
           userId: user.id,
-          permissionBits: user.permissionBits || 0,
-          sessionClaims: {
+          permissionBits: user.permissionBits ?? 0,
+          sessionClaims: sessionClaims || {
             email: user.email,
             metadata: { role: user.role || 'member' }
           },
           protect: async () => {},
-          redirectToSignIn: () => {}
+          redirectToSignIn
         };
+      } else {
+        // Automatically provision user in local DB if they exist in Clerk but not in DB
+        const clerkUser = await clerkCurrentUser();
+        if (clerkUser) {
+          const email = clerkUser.emailAddresses[0]?.emailAddress || '';
+          const firstName = clerkUser.firstName || '';
+          const lastName = clerkUser.lastName || '';
+          const avatarUrl = clerkUser.imageUrl || '';
+          
+          await db.insert(users).values({
+            id: userId,
+            email,
+            firstName,
+            lastName,
+            role: 'member',
+            permissionBits: 0,
+            avatarUrl,
+          });
+          
+          return {
+            userId,
+            permissionBits: 0,
+            sessionClaims: sessionClaims || {
+              email,
+              metadata: { role: 'member' }
+            },
+            protect: async () => {},
+            redirectToSignIn
+          };
+        }
       }
     } catch (error) {
-      console.error('Mock auth failed to fetch user from DB:', error);
+      console.error('Clerk auth failed to fetch user from DB:', error);
     }
   }
 
@@ -40,34 +64,38 @@ export async function auth() {
     permissionBits: 0,
     sessionClaims: null,
     protect: async () => {},
-    redirectToSignIn: () => {}
+    redirectToSignIn
   };
 }
 
 export async function currentUser() {
-  let userId: string | null = null;
+  const clerkUser = await clerkCurrentUser();
+  if (!clerkUser) return null;
+
   try {
-    const cookieStore = await cookies();
-    userId = cookieStore.get('mock_user_id')?.value || null;
+    const db = getDb();
+    const user = await db.query.users.findFirst({ where: eq(users.id, clerkUser.id) });
+    if (user) {
+      return {
+        id: user.id,
+        firstName: user.firstName || clerkUser.firstName || 'User',
+        lastName: user.lastName || clerkUser.lastName || '',
+        permissionBits: user.permissionBits ?? 0,
+        emailAddresses: [{ emailAddress: user.email }],
+        imageUrl: user.avatarUrl || clerkUser.imageUrl,
+        publicMetadata: { role: user.role || 'member' }
+      };
+    }
   } catch (e) {}
 
-  if (userId) {
-    try {
-      const db = getDb();
-      const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
-      if (user) {
-        return {
-          id: user.id,
-          firstName: user.firstName || 'Test',
-          lastName: user.lastName || 'User',
-          permissionBits: user.permissionBits || 0,
-          emailAddresses: [{ emailAddress: user.email }],
-          imageUrl: user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.firstName || 'User')}`,
-          publicMetadata: { role: user.role || 'member' }
-        };
-      }
-    } catch (e) {}
-  }
-
-  return null;
+  return {
+    id: clerkUser.id,
+    firstName: clerkUser.firstName || 'User',
+    lastName: clerkUser.lastName || '',
+    permissionBits: 0,
+    emailAddresses: clerkUser.emailAddresses,
+    imageUrl: clerkUser.imageUrl,
+    publicMetadata: { role: 'member' }
+  };
 }
+

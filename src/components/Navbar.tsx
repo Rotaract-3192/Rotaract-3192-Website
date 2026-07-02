@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useUser, UserButton } from "@/lib/mockAuthClient";
+import { useUser, UserButton, Show } from "@/lib/mockAuthClient";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
@@ -115,7 +115,7 @@ export default function Navbar() {
           {/* Auth & Actions - Optimized */}
           <div className="flex items-center gap-4 lg:gap-8">
             <div className="hidden sm:flex items-center gap-4 lg:gap-8">
-              {isSignedIn ? (
+              <Show when="signed-in">
                 <div className="flex items-center gap-6">
                   <Link
                     href="/admin"
@@ -128,17 +128,16 @@ export default function Navbar() {
                     <UserButton />
                   </div>
                 </div>
-              ) : (
-                <>
-                  <Link
-                    href="/sign-in"
-                    className="flex items-center gap-2 text-white/40 hover:text-white font-black text-[10px] uppercase tracking-[0.3em] no-underline transition-all group"
-                  >
-                    <span className="material-symbols-outlined text-lg opacity-20 group-hover:opacity-100 transition-all">person</span>
-                    Official Login
-                  </Link>
-                </>
-              )}
+              </Show>
+              <Show when="signed-out">
+                <Link
+                  href="/sign-in"
+                  className="flex items-center gap-2 text-white/40 hover:text-white font-black text-[10px] uppercase tracking-[0.3em] no-underline transition-all group"
+                >
+                  <span className="material-symbols-outlined text-lg opacity-20 group-hover:opacity-100 transition-all">person</span>
+                  Official Login
+                </Link>
+              </Show>
             </div>
   
             {/* Mobile Toggle */}
@@ -201,7 +200,7 @@ export default function Navbar() {
             </div>
   
             <div className="mt-auto pt-20 space-y-6">
-               {!isSignedIn && (
+               <Show when="signed-out">
                  <Link
                    href="/sign-in"
                    onClick={() => setIsMobileMenuOpen(false)}
@@ -210,13 +209,15 @@ export default function Navbar() {
                    Official Login
                    <span className="material-symbols-outlined text-sm">login</span>
                  </Link>
-               )}
+               </Show>
                <div className="flex items-center justify-between px-2">
                  <div className="flex flex-col">
                    <span className="text-[10px] font-bold text-white/20 uppercase tracking-[0.4em]">District 3192</span>
                    <span className="text-[8px] font-bold text-primary uppercase tracking-[0.2em] mt-1">Official Network</span>
                  </div>
-                 {isSignedIn && <UserButton />}
+                 <Show when="signed-in">
+                   <UserButton />
+                 </Show>
                </div>
             </div>
           </motion.div>
