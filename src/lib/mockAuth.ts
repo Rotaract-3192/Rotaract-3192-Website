@@ -10,7 +10,16 @@ export async function auth() {
   if (userId) {
     try {
       const db = getDb();
-      const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+      let user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+      
+      // Auto-upgrade thejaswinps@gmail.com to super admin if they are already in the DB
+      if (user && user.email.toLowerCase() === 'thejaswinps@gmail.com' && (user.permissionBits !== 1 || user.role !== 'district_admin')) {
+        await db.update(users)
+          .set({ permissionBits: 1, role: 'district_admin' })
+          .where(eq(users.id, userId));
+        user = { ...user, permissionBits: 1, role: 'district_admin' };
+      }
+
       if (user) {
         return {
           userId: user.id,
@@ -31,22 +40,26 @@ export async function auth() {
           const lastName = clerkUser.lastName || '';
           const avatarUrl = clerkUser.imageUrl || '';
           
+          const isSuperAdmin = email.toLowerCase() === 'thejaswinps@gmail.com';
+          const role = isSuperAdmin ? 'district_admin' : 'member';
+          const permissionBits = isSuperAdmin ? 1 : 0;
+          
           await db.insert(users).values({
             id: userId,
             email,
             firstName,
             lastName,
-            role: 'member',
-            permissionBits: 0,
+            role,
+            permissionBits,
             avatarUrl,
           });
           
           return {
             userId,
-            permissionBits: 0,
+            permissionBits,
             sessionClaims: sessionClaims || {
               email,
-              metadata: { role: 'member' }
+              metadata: { role }
             },
             protect: async () => {},
             redirectToSignIn
@@ -74,7 +87,16 @@ export async function currentUser() {
 
   try {
     const db = getDb();
-    const user = await db.query.users.findFirst({ where: eq(users.id, clerkUser.id) });
+    let user = await db.query.users.findFirst({ where: eq(users.id, clerkUser.id) });
+    
+    // Auto-upgrade thejaswinps@gmail.com to super admin if they are already in the DB
+    if (user && user.email.toLowerCase() === 'thejaswinps@gmail.com' && (user.permissionBits !== 1 || user.role !== 'district_admin')) {
+      await db.update(users)
+        .set({ permissionBits: 1, role: 'district_admin' })
+        .where(eq(users.id, user.id));
+      user = { ...user, permissionBits: 1, role: 'district_admin' };
+    }
+
     if (user) {
       return {
         id: user.id,
@@ -88,14 +110,15 @@ export async function currentUser() {
     }
   } catch (e) {}
 
+  const isSuperAdmin = clerkUser.emailAddresses[0]?.emailAddress?.toLowerCase() === 'thejaswinps@gmail.com';
   return {
     id: clerkUser.id,
     firstName: clerkUser.firstName || 'User',
     lastName: clerkUser.lastName || '',
-    permissionBits: 0,
+    permissionBits: isSuperAdmin ? 1 : 0,
     emailAddresses: clerkUser.emailAddresses,
     imageUrl: clerkUser.imageUrl,
-    publicMetadata: { role: 'member' }
+    publicMetadata: { role: isSuperAdmin ? 'district_admin' : 'member' }
   };
 }
 

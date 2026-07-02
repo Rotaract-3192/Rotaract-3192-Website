@@ -76,12 +76,12 @@ export default async function AdminFeedsPage() {
               </div>
               
               <div className="space-y-3">
-                <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Media Link (URL)</label>
+                <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Media Image</label>
                 <input 
-                  name="mediaUrl" 
-                  type="url" 
-                  placeholder="https://..." 
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all placeholder:text-white/20 uppercase tracking-widest font-sans" 
+                  name="mediaImage" 
+                  type="file" 
+                  accept="image/*"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-6 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all font-sans cursor-pointer" 
                 />
               </div>
               

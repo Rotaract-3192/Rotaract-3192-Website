@@ -117,9 +117,6 @@ export default function NewClubButton() {
                       <span className="material-symbols-outlined text-sm">upload_file</span>
                       {logoPreview ? 'Change Image' : 'Upload from Device'}
                     </button>
-                    <p className="text-[8px] text-white/20 font-sans uppercase tracking-wider">Or paste a URL</p>
-                    <input name="logoUrl" type="url" placeholder="https://example.com/logo.png..."
-                      className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-xs font-bold text-white focus:border-primary/50 outline-none placeholder:text-white/20 font-sans" />
                   </div>
                 </div>
               </div>

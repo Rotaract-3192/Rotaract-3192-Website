@@ -440,19 +440,11 @@ export default function EventForm({ clubs, initialData, onSuccess }: EventFormPr
               </span>
             </div>
 
-            <div className="space-y-1">
               <input 
                 name="imageUrl" 
-                type="text" 
-                placeholder="Fallback Image URL (e.g. https://...)" 
+                type="hidden" 
                 value={imageUrl}
-                onChange={(e) => {
-                  setImageUrl(e.target.value);
-                  setCoverPreviewUrl(e.target.value);
-                }}
-                className="w-full bg-[#0a1526] border border-white/10 rounded-xl py-3 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all placeholder:text-white/20 lowercase tracking-wider font-sans"
               />
-            </div>
           </div>
         </div>
       </div>

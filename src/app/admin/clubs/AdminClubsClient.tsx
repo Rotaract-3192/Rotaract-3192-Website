@@ -179,10 +179,7 @@ export default function AdminClubsClient({ clubs }: { clubs: any[] }) {
                   <label className="text-[8px] font-bold uppercase tracking-widest text-white/30 font-sans">Logo — Upload Image</label>
                   <input name="logoImage" type="file" accept="image/*"
                     className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-sm font-bold text-white focus:border-primary/50 outline-none font-sans cursor-pointer" />
-                  <p className="text-[8px] text-white/20 font-sans pl-1">Or paste a URL below</p>
-                  <input name="logoUrl" type="url" defaultValue={editingClub.logoUrl || ''}
-                    placeholder="https://..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-sm font-bold text-white focus:border-primary/50 outline-none placeholder:text-white/20 font-sans" />
+                  <input name="logoUrl" type="hidden" defaultValue={editingClub.logoUrl || ''} />
                 </div>
                 <div className="space-y-1 md:col-span-2">
                   <label className="text-[8px] font-bold uppercase tracking-widest text-white/30 font-sans">Description</label>

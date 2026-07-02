@@ -181,9 +181,6 @@ export default function NewClubEventButton({ clubId }: { clubId: string | null }
                     <span className="material-symbols-outlined text-sm">upload_file</span>
                     {coverPreview ? 'Change Image' : 'Upload from Device'}
                   </button>
-                  <p className="text-[8px] text-white/20 font-sans uppercase tracking-wider">Or paste a URL</p>
-                  <input name="imageUrl" type="url" placeholder="https://example.com/cover.png..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-xs font-bold text-white focus:border-purple-500/50 outline-none placeholder:text-white/20 font-sans" />
                 </div>
               </div>
             </div>

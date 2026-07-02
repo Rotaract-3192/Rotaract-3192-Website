@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { createPastLeader, updatePastLeader, deletePastLeader } from '@/app/actions/mutations';
 
 interface PastLeader {
@@ -30,6 +30,29 @@ export default function PresidentClient({ initialLeaders }: PresidentClientProps
   const [themeName, setThemeName] = useState('');
   const [citation, setCitation] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const { uploadImageAction } = await import('@/app/actions/mutations');
+      const fd = new FormData();
+      fd.append('file', file);
+      const url = await uploadImageAction(fd);
+      if (url) {
+        setAvatarUrl(url);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const openAddModal = () => {
     setEditingId(null);
@@ -272,16 +295,45 @@ export default function PresidentClient({ initialLeaders }: PresidentClientProps
                   />
                 </div>
 
-                {/* Avatar URL */}
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-[9px] font-bold uppercase tracking-[0.3em] text-primary ml-2">Avatar / Photograph URL</label>
-                  <input
-                    type="url"
-                    placeholder="https://example.com/avatar.jpg"
-                    value={avatarUrl}
-                    onChange={e => setAvatarUrl(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-6 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all placeholder:text-white/20 tracking-wider"
-                  />
+                {/* Photo Upload */}
+                <div className="space-y-3 md:col-span-2">
+                  <label className="text-[9px] font-bold uppercase tracking-[0.3em] text-primary ml-2">Photograph / Avatar</label>
+                  <div className="flex items-center gap-6">
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group overflow-hidden relative shrink-0"
+                    >
+                      {avatarUrl ? (
+                        <img src={avatarUrl} className="w-full h-full object-cover" alt="Preview" />
+                      ) : (
+                        <span className="material-symbols-outlined text-3xl text-primary/30 group-hover:text-primary transition-colors">add_photo_alternate</span>
+                      )}
+                      {uploading && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                          <span className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin"></span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                        className="w-full bg-white/5 border border-white/10 border-dashed rounded-xl py-3 px-5 text-[10px] font-bold text-white/40 hover:text-white hover:border-primary/40 hover:bg-primary/5 transition-all uppercase tracking-widest font-sans flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                      >
+                        <span className="material-symbols-outlined text-sm">upload_file</span>
+                        {avatarUrl ? 'Change Photograph' : 'Upload Photograph'}
+                      </button>
+                      <input type="hidden" value={avatarUrl} />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Citation */}

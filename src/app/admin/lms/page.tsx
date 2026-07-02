@@ -50,12 +50,13 @@ export default async function AdminLmsPage() {
               />
             </div>
             <div className="space-y-3">
-              <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Thumbnail URL</label>
+              <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Course Thumbnail</label>
               <input 
-                name="thumbnailUrl" 
-                type="url" 
-                placeholder="https://example.com/image.jpg" 
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all placeholder:text-white/20 uppercase tracking-widest font-sans"
+                name="thumbnailImage" 
+                type="file" 
+                accept="image/*"
+                required
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-6 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all font-sans cursor-pointer"
               />
             </div>
           </div>

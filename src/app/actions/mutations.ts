@@ -619,7 +619,21 @@ export async function createFeed(formData: FormData) {
   const title = formData.get('title') as string;
   const content = formData.get('content') as string;
   const type = formData.get('type') as string || 'post';
-  const mediaUrl = formData.get('mediaUrl') as string | null;
+  let mediaUrl = formData.get('mediaUrl') as string | null;
+
+  // Handle media image upload if provided
+  const mediaImageFile = formData.get('mediaImage') as File | null;
+  if (mediaImageFile && mediaImageFile.size > 0 && typeof mediaImageFile.arrayBuffer === 'function') {
+    try {
+      const { uploadFile } = await import('@/lib/storage');
+      const bytes = await mediaImageFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const filename = `feeds/media-${Date.now()}-${mediaImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      mediaUrl = await uploadFile(filename, buffer, mediaImageFile.type);
+    } catch (err) {
+      console.error('Failed to upload feed media:', err);
+    }
+  }
 
   try {
     const id = generateId();
@@ -746,7 +760,21 @@ export async function createCourse(formData: FormData) {
 
   const title = formData.get('title') as string;
   const description = formData.get('description') as string;
-  const thumbnailUrl = formData.get('thumbnailUrl') as string | null;
+  let thumbnailUrl = formData.get('thumbnailUrl') as string | null;
+
+  // Handle thumbnail image upload if provided
+  const thumbnailImageFile = formData.get('thumbnailImage') as File | null;
+  if (thumbnailImageFile && thumbnailImageFile.size > 0 && typeof thumbnailImageFile.arrayBuffer === 'function') {
+    try {
+      const { uploadFile } = await import('@/lib/storage');
+      const bytes = await thumbnailImageFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const filename = `courses/thumbnail-${Date.now()}-${thumbnailImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      thumbnailUrl = await uploadFile(filename, buffer, thumbnailImageFile.type);
+    } catch (err) {
+      console.error('Failed to upload course thumbnail:', err);
+    }
+  }
 
   try {
     const id = generateId();
@@ -1664,36 +1692,26 @@ export async function updateDistrictSettings(formData: FormData) {
   }
 }
 
-export async function loginAsMockUser(userId: string) {
-  const { cookies } = await import('next/headers');
-  const cookieStore = await cookies();
-  cookieStore.set('mock_user_id', userId, { path: '/' });
-  
-  revalidatePath('/');
-  revalidatePath('/admin');
-  revalidatePath('/club-admin');
-  revalidatePath('/dashboard');
-  
-  if (userId === 'test_admin_user_id') {
-    return '/admin';
-  } else if (userId === 'user_2') {
-    return '/club-admin';
-  } else {
-    return '/dashboard';
-  }
-}
 
-export async function logoutUser() {
-  const { cookies } = await import('next/headers');
-  const cookieStore = await cookies();
-  cookieStore.delete('mock_user_id');
-  
-  revalidatePath('/');
-  revalidatePath('/admin');
-  revalidatePath('/club-admin');
-  revalidatePath('/dashboard');
-  
-  return '/sign-in';
+
+export async function uploadImageAction(formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  const file = formData.get('file') as File | null;
+  if (!file || file.size === 0) return null;
+
+  try {
+    const { uploadFile } = await import('@/lib/storage');
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const filename = `uploads/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const url = await uploadFile(filename, buffer, file.type);
+    return url;
+  } catch (err) {
+    console.error('Failed to upload image via action:', err);
+    throw new Error('Image upload failed');
+  }
 }
 
 
