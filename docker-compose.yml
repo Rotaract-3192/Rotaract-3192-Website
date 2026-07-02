@@ -12,6 +12,8 @@ services:
       - "3000"
 
     env_file:
+      - .env.local
+      - /opt/config/district.env
       - .env
 
     networks:
