@@ -366,7 +366,7 @@ export default function ClubProfileClient({
                       {club.presidentName || "Classified"}
                     </p>
                     <p className="text-[9px] font-black text-primary uppercase tracking-[0.2em] mt-2">
-                      President 24-25
+                      President 26-27
                     </p>
                   </div>
                 </div>
@@ -405,7 +405,7 @@ export default function ClubProfileClient({
                       {club.secretaryName || "Classified"}
                     </p>
                     <p className="text-[9px] font-black text-primary/70 uppercase tracking-[0.2em] mt-2">
-                      Secretary 24-25
+                      Secretary 26-27
                     </p>
                   </div>
                 </div>
@@ -429,7 +429,7 @@ export default function ClubProfileClient({
             <div className="pt-8 border-t border-white/5 space-y-4">
               <a
                 href={`/clubs/${club.slug}/login`}
-                className="w-full py-4 rounded-2xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+                className="w-full py-4 rounded-2xl bg-primary hover:bg-primary/90 !text-white text-xs font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
               >
                 <span className="material-symbols-outlined text-lg">vpn_key</span>
                 Login as Club Admin
