@@ -16,7 +16,7 @@ export default function Navbar() {
   const mainNavLinks = [
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
-    { name: "Events", href: "/events" },
+    { name: "Events", href: "https://events.rotaract3192.org/" },
     { name: "Clubs", href: "/clubs" },
     { name: "Resources", href: "/resources" },
   ];

@@ -12,6 +12,23 @@ export async function auth() {
       const db = getDb();
       let user = await db.query.users.findFirst({ where: eq(users.id, userId) });
       
+      // If not found by ID, check by email and link the ID
+      if (!user) {
+        const clerkUser = await clerkCurrentUser();
+        if (clerkUser) {
+          const email = clerkUser.emailAddresses[0]?.emailAddress || '';
+          if (email) {
+            user = await db.query.users.findFirst({ where: eq(users.email, email.toLowerCase()) });
+            if (user) {
+              await db.update(users)
+                .set({ id: userId })
+                .where(eq(users.email, email.toLowerCase()));
+              user = { ...user, id: userId };
+            }
+          }
+        }
+      }
+
       // Auto-upgrade thejaswinps@gmail.com to super admin if they are already in the DB
       if (user && user.email.toLowerCase() === 'thejaswinps@gmail.com' && (user.permissionBits !== 1 || user.role !== 'district_admin')) {
         await db.update(users)
@@ -89,6 +106,20 @@ export async function currentUser() {
     const db = getDb();
     let user = await db.query.users.findFirst({ where: eq(users.id, clerkUser.id) });
     
+    // If not found by ID, check by email and link the ID
+    if (!user) {
+      const email = clerkUser.emailAddresses[0]?.emailAddress || '';
+      if (email) {
+        user = await db.query.users.findFirst({ where: eq(users.email, email.toLowerCase()) });
+        if (user) {
+          await db.update(users)
+            .set({ id: clerkUser.id })
+            .where(eq(users.email, email.toLowerCase()));
+          user = { ...user, id: clerkUser.id };
+        }
+      }
+    }
+
     // Auto-upgrade thejaswinps@gmail.com to super admin if they are already in the DB
     if (user && user.email.toLowerCase() === 'thejaswinps@gmail.com' && (user.permissionBits !== 1 || user.role !== 'district_admin')) {
       await db.update(users)
