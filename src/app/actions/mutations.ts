@@ -5,10 +5,11 @@ import {
   clubs, events, users, feeds, campaigns, announcements, moms, courses,
   jobs, newsletters, eventRegistrations, serviceHours, mentorshipApplications,
   coldStorageFiles, auditLogs, pastLeaders, pointTransactions, attendance,
+  districtSettings, analyticsEvents,
 } from '@/lib/db/schema';
 import { revalidatePath } from 'next/cache';
 import { eq, and, sql } from 'drizzle-orm';
-import { getRoleLabel, getBinaryStr, isMasterAdmin } from '@/lib/permissions';
+import { getRoleLabel, getBinaryStr, isMasterAdmin, requireMasterAdmin, requireClubPanel, requireAdminAccess } from '@/lib/permissions';
 import { auth } from '@/lib/mockAuth';
 
 
@@ -44,8 +45,9 @@ export async function recordAuditLog(action: string, resourceType?: string, reso
 // ================= CLUBS =================
 
 export async function createClub(formData: FormData) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   const name = formData.get('name') as string;
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -119,8 +121,9 @@ export async function createClub(formData: FormData) {
 }
 
 export async function deleteClub(id: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   try {
     const db = getDb();
@@ -140,12 +143,22 @@ export async function deleteClub(id: string) {
 
 
 export async function createEvent(formData: FormData) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireClubPanel(permissionBits);
 
   const title = formData.get('title') as string;
   const slug = (formData.get('slug') as string || title.toLowerCase().replace(/[^a-z0-9]+/g, '-')).trim();
   const clubId = (formData.get('clubId') as string) || null;
+
+  // If not master admin, verify they are creating event for their own club
+  if (!isMasterAdmin(permissionBits)) {
+    const db = getDb();
+    const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+    if (!user || user.clubId !== clubId) {
+      throw new Error('Forbidden: You can only create events for your own club');
+    }
+  }
   const category = formData.get('category') as string;
   const entryType = formData.get('entryType') as string;
   const status = formData.get('status') as string;
@@ -279,8 +292,20 @@ export async function createEvent(formData: FormData) {
 }
 
 export async function deleteEvent(id: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireClubPanel(permissionBits);
+
+  const db = getDb();
+  const event = await db.query.events.findFirst({ where: eq(events.id, id) });
+  if (!event) throw new Error('Event not found');
+
+  if (!isMasterAdmin(permissionBits)) {
+    const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+    if (!user || user.clubId !== event.clubId) {
+      throw new Error('Forbidden: You can only delete your own club\'s events');
+    }
+  }
 
   try {
     const db = getDb();
@@ -297,12 +322,21 @@ export async function deleteEvent(id: string) {
 }
 
 export async function trashEvent(id: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireClubPanel(permissionBits);
 
   try {
     const db = getDb();
     const event = await db.query.events.findFirst({ where: eq(events.id, id) });
+    if (!event) throw new Error('Event not found');
+
+    if (!isMasterAdmin(permissionBits)) {
+      const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+      if (!user || user.clubId !== event.clubId) {
+        throw new Error('Forbidden: You can only move your own club\'s events to trash');
+      }
+    }
     if (!event) throw new Error('Event not found');
 
     await db.update(events).set({ status: 'trash', updatedAt: new Date() }).where(eq(events.id, id));
@@ -317,12 +351,21 @@ export async function trashEvent(id: string) {
 }
 
 export async function restoreEvent(id: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireClubPanel(permissionBits);
 
   try {
     const db = getDb();
     const event = await db.query.events.findFirst({ where: eq(events.id, id) });
+    if (!event) throw new Error('Event not found');
+
+    if (!isMasterAdmin(permissionBits)) {
+      const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+      if (!user || user.clubId !== event.clubId) {
+        throw new Error('Forbidden: You can only restore your own club\'s events');
+      }
+    }
     if (!event) throw new Error('Event not found');
 
     await db.update(events).set({ status: 'upcoming', updatedAt: new Date() }).where(eq(events.id, id));
@@ -337,8 +380,20 @@ export async function restoreEvent(id: string) {
 }
 
 export async function updateEvent(id: string, formData: FormData) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireClubPanel(permissionBits);
+
+  const db = getDb();
+  const event = await db.query.events.findFirst({ where: eq(events.id, id) });
+  if (!event) throw new Error('Event not found');
+
+  if (!isMasterAdmin(permissionBits)) {
+    const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+    if (!user || user.clubId !== event.clubId) {
+      throw new Error('Forbidden: You can only update your own club\'s events');
+    }
+  }
 
   const title = formData.get('title') as string;
   const slug = (formData.get('slug') as string || title.toLowerCase().replace(/[^a-z0-9]+/g, '-')).trim();
@@ -472,8 +527,9 @@ export async function updateEvent(id: string, formData: FormData) {
 // ================= USERS & ACHIEVEMENTS =================
 
 export async function updateUserRole(id: string, role: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   try {
     const db = getDb();
@@ -491,8 +547,9 @@ export async function updateUserRole(id: string, role: string) {
 // awardPoints — accepts FormData from AwardPointsPanel
 // CRITICAL FIX: Added missing auth check (was allowing anyone to award points)
 export async function awardPoints(formData: FormData) {
-  const { userId: adminId } = await auth();
+  const { userId: adminId, permissionBits } = await auth();
   if (!adminId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   const clubId = formData.get('clubId') as string;
   const pts = parseInt(formData.get('points') as string);
@@ -534,8 +591,9 @@ export async function awardPoints(formData: FormData) {
 // ================= CAMPAIGNS =================
 
 export async function updateCampaignStatus(id: string, status: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   try {
     const db = getDb();
@@ -554,8 +612,9 @@ export async function updateCampaignStatus(id: string, status: string) {
 // ================= FEEDS =================
 
 export async function createFeed(formData: FormData) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireClubPanel(permissionBits);
 
   const title = formData.get('title') as string;
   const content = formData.get('content') as string;
@@ -583,8 +642,17 @@ export async function createFeed(formData: FormData) {
 }
 
 export async function deleteFeed(id: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireClubPanel(permissionBits);
+
+  if (!isMasterAdmin(permissionBits)) {
+    const db = getDb();
+    const feed = await db.query.feeds.findFirst({ where: eq(feeds.id, id) });
+    if (!feed || feed.authorId !== userId) {
+      throw new Error('Forbidden: You can only delete your own feed posts');
+    }
+  }
 
   try {
     const db = getDb();
@@ -603,11 +671,20 @@ export async function deleteFeed(id: string) {
 // ================= MOMS =================
 
 export async function createMom(formData: FormData) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireClubPanel(permissionBits);
 
   const title = formData.get('title') as string;
   const clubId = formData.get('clubId') as string;
+
+  if (!isMasterAdmin(permissionBits)) {
+    const db = getDb();
+    const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+    if (!user || user.clubId !== clubId) {
+      throw new Error('Forbidden: You can only create MOMs for your own club');
+    }
+  }
   const meetingDateStr = formData.get('meetingDate') as string;
   const meetingDate = meetingDateStr ? new Date(meetingDateStr) : new Date();
 
@@ -631,8 +708,20 @@ export async function createMom(formData: FormData) {
 }
 
 export async function deleteMom(id: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireClubPanel(permissionBits);
+
+  const db = getDb();
+  const mom = await db.query.moms.findFirst({ where: eq(moms.id, id) });
+  if (!mom) throw new Error('MOM not found');
+
+  if (!isMasterAdmin(permissionBits)) {
+    const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+    if (!user || user.clubId !== mom.clubId) {
+      throw new Error('Forbidden: You can only delete your own club\'s MOMs');
+    }
+  }
 
   try {
     const db = getDb();
@@ -651,8 +740,9 @@ export async function deleteMom(id: string) {
 // ================= COURSES =================
 
 export async function createCourse(formData: FormData) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   const title = formData.get('title') as string;
   const description = formData.get('description') as string;
@@ -678,8 +768,9 @@ export async function createCourse(formData: FormData) {
 }
 
 export async function deleteCourse(id: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   try {
     const db = getDb();
@@ -698,8 +789,9 @@ export async function deleteCourse(id: string) {
 // ================= CAMPAIGNS =================
 
 export async function createCampaign(formData: FormData) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   const title = formData.get('title') as string;
   const description = formData.get('description') as string;
@@ -727,14 +819,23 @@ export async function createCampaign(formData: FormData) {
 
 // ================= USERS =================
 export async function createMember(formData: FormData) {
-  const { userId: adminId } = await auth();
+  const { userId: adminId, permissionBits } = await auth();
   if (!adminId) throw new Error('Unauthorized');
+  requireClubPanel(permissionBits);
 
   const email = formData.get('email') as string;
   const firstName = formData.get('firstName') as string;
   const lastName = formData.get('lastName') as string;
   const role = formData.get('role') as string;
   const clubId = formData.get('clubId') as string;
+  
+  if (!isMasterAdmin(permissionBits)) {
+    const db = getDb();
+    const adminUser = await db.query.users.findFirst({ where: eq(users.id, adminId) });
+    if (!adminUser || adminUser.clubId !== clubId) {
+      throw new Error('Forbidden: You can only add members to your own club');
+    }
+  }
   const bio = formData.get('bio') as string;
   let avatarUrl = formData.get('avatarUrl') as string || '';
   const pointsStr = formData.get('points') as string;
@@ -784,8 +885,9 @@ export async function createMember(formData: FormData) {
 }
 
 export async function deleteUser(id: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   try {
     const db = getDb();
@@ -826,8 +928,9 @@ export async function updateProfile(data: {
 // ================= JOBS =================
 
 export async function createJob(formData: FormData) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   const title = formData.get('title') as string;
   const company = formData.get('company') as string;
@@ -859,8 +962,9 @@ export async function createJob(formData: FormData) {
 }
 
 export async function deleteJob(id: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   try {
     const db = getDb();
@@ -880,8 +984,9 @@ export async function deleteJob(id: string) {
 // ================= NEWSLETTERS =================
 
 export async function createNewsletter(formData: FormData) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   const title = formData.get('title') as string;
   const issueDateStr = formData.get('issueDate') as string;
@@ -911,8 +1016,9 @@ export async function createNewsletter(formData: FormData) {
 }
 
 export async function deleteNewsletter(id: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   try {
     const db = getDb();
@@ -1024,8 +1130,9 @@ export async function applyForMentorship(formData: FormData) {
 }
 
 export async function updateMentorshipStatus(id: string, status: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireClubPanel(permissionBits);
 
   try {
     await getDb()
@@ -1043,8 +1150,9 @@ export async function updateMentorshipStatus(id: string, status: string) {
 // ================= RESOURCES (Cold Storage Metadata) =================
 
 export async function uploadResource(formData: FormData) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   const fileName = formData.get('fileName') as string;
   const r2Key = formData.get('r2Key') as string;
@@ -1078,8 +1186,9 @@ export async function uploadResource(formData: FormData) {
 }
 
 export async function deleteResource(id: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   try {
     const db = getDb();
@@ -1099,8 +1208,9 @@ export async function deleteResource(id: string) {
 // ================= ANNOUNCEMENTS =================
 
 export async function createAnnouncement(formData: FormData) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   const title = formData.get('title') as string;
   const content = formData.get('content') as string;
@@ -1128,8 +1238,9 @@ export async function createAnnouncement(formData: FormData) {
 }
 
 export async function deleteAnnouncement(id: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   try {
     const db = getDb();
@@ -1149,13 +1260,22 @@ export async function deleteAnnouncement(id: string) {
 // ================= MOM (Minutes of Meetings) =================
 
 export async function createMOM(formData: FormData) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireClubPanel(permissionBits);
 
   const title = formData.get('title') as string;
   const meetingDateStr = formData.get('meetingDate') as string;
   const fileUrl = formData.get('fileUrl') as string || null;
   const clubId = formData.get('clubId') as string || null;
+
+  if (!isMasterAdmin(permissionBits)) {
+    const db = getDb();
+    const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+    if (!user || user.clubId !== clubId) {
+      throw new Error('Forbidden: You can only record Minutes for your own club');
+    }
+  }
 
   const meetingDate = meetingDateStr ? new Date(meetingDateStr) : new Date();
 
@@ -1180,8 +1300,20 @@ export async function createMOM(formData: FormData) {
 }
 
 export async function deleteMOM(id: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireClubPanel(permissionBits);
+
+  const db = getDb();
+  const mom = await db.query.moms.findFirst({ where: eq(moms.id, id) });
+  if (!mom) throw new Error('MOM not found');
+
+  if (!isMasterAdmin(permissionBits)) {
+    const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+    if (!user || user.clubId !== mom.clubId) {
+      throw new Error('Forbidden: You can only delete your own club\'s MOMs');
+    }
+  }
 
   try {
     const db = getDb();
@@ -1207,8 +1339,9 @@ export async function createPastLeader(data: {
   themeName?: string | null;
   citation?: string | null;
 }) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   try {
     const id = generateId();
@@ -1241,8 +1374,9 @@ export async function updatePastLeader(id: string, data: {
   themeName?: string | null;
   citation?: string | null;
 }) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   try {
     await getDb()
@@ -1270,8 +1404,9 @@ export async function updatePastLeader(id: string, data: {
 }
 
 export async function deletePastLeader(id: string) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
 
   try {
     const db = getDb();
@@ -1358,8 +1493,17 @@ export async function setUserPermissions(formData: FormData) {
 }
 
 export async function updateClub(id: string, formData: FormData) {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
   if (!userId) throw new Error('Unauthorized');
+  requireClubPanel(permissionBits);
+
+  if (!isMasterAdmin(permissionBits)) {
+    const db = getDb();
+    const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+    if (!user || user.clubId !== id) {
+      throw new Error('Forbidden: You can only update your own club profile');
+    }
+  }
 
   const name = formData.get('name') as string;
   const description = formData.get('description') as string;
@@ -1428,5 +1572,129 @@ export async function updateClub(id: string, formData: FormData) {
     console.error('Failed to update club profile:', error);
   }
 }
+
+export async function createMentorshipApplication(mentorId: string, domain: string, message: string) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  try {
+    const db = getDb();
+    const id = crypto.randomUUID();
+    await db.insert(mentorshipApplications).values({
+      id,
+      mentorId,
+      menteeId: userId,
+      domain,
+      message,
+      status: 'pending',
+    });
+
+    await recordAuditLog(`Applied for Mentorship with mentor ${mentorId}`, 'mentorship', id);
+    revalidatePath('/mentorship');
+  } catch (error) {
+    console.error('Failed to create mentorship application:', error);
+  }
+}
+
+// ================= ANALYTICS =================
+
+export async function trackAnalyticsEvent(eventType: string, eventMetadata?: string) {
+  try {
+    const db = getDb();
+    await db.insert(analyticsEvents).values({
+      id: crypto.randomUUID(),
+      eventType,
+      eventMetadata: eventMetadata || null,
+      timestamp: new Date(),
+    });
+  } catch (error) {
+    console.error('Failed to track analytics event:', error);
+  }
+}
+
+// ================= DISTRICT SETTINGS =================
+
+export async function updateDistrictSettings(formData: FormData) {
+  const { userId, permissionBits } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+  requireMasterAdmin(permissionBits);
+
+  const db = getDb();
+
+  try {
+    const keys = [
+      'stats_members_override',
+      'stats_clubs_override',
+      'stats_projects_override',
+      'stats_chartered_clubs_override',
+      'resource_link_url',
+      'resource_video_url',
+      'default_event_ticket_link',
+      'featured_announcement_id',
+    ];
+
+    for (const key of keys) {
+      const val = formData.get(key) as string;
+      if (val !== null && val !== undefined) {
+        await db
+          .insert(districtSettings)
+          .values({
+            key,
+            value: val,
+            updatedAt: new Date(),
+          })
+          .onConflictDoUpdate({
+            target: districtSettings.key,
+            set: {
+              value: val,
+              updatedAt: new Date(),
+            },
+          });
+      }
+    }
+
+    await recordAuditLog('Updated District Settings', 'settings', 'global');
+    revalidatePath('/admin/settings');
+    revalidatePath('/');
+    revalidatePath('/resources');
+    revalidatePath('/events');
+  } catch (error) {
+    console.error('Failed to update settings:', error);
+    throw error;
+  }
+}
+
+export async function loginAsMockUser(userId: string) {
+  const { cookies } = await import('next/headers');
+  const cookieStore = await cookies();
+  cookieStore.set('mock_user_id', userId, { path: '/' });
+  
+  revalidatePath('/');
+  revalidatePath('/admin');
+  revalidatePath('/club-admin');
+  revalidatePath('/dashboard');
+  
+  if (userId === 'test_admin_user_id') {
+    return '/admin';
+  } else if (userId === 'user_2') {
+    return '/club-admin';
+  } else {
+    return '/dashboard';
+  }
+}
+
+export async function logoutUser() {
+  const { cookies } = await import('next/headers');
+  const cookieStore = await cookies();
+  cookieStore.delete('mock_user_id');
+  
+  revalidatePath('/');
+  revalidatePath('/admin');
+  revalidatePath('/club-admin');
+  revalidatePath('/dashboard');
+  
+  return '/sign-in';
+}
+
 
 

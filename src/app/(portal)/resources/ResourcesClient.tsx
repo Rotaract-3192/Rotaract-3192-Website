@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { trackAnalyticsEvent } from '@/app/actions/mutations';
 
 type Resource = {
   id: string;
@@ -41,7 +42,15 @@ function typeColorClass(type: string): string {
   return 'bg-primary/10 text-primary';
 }
 
-export default function ResourcesClient({ resources }: { resources: Resource[] }) {
+export default function ResourcesClient({ 
+  resources,
+  linkUrl,
+  videoUrl
+}: { 
+  resources: Resource[];
+  linkUrl: string;
+  videoUrl: string;
+}) {
   // Group by category
   const grouped = useMemo(() => {
     const map: Record<string, Resource[]> = {};
@@ -71,6 +80,55 @@ export default function ResourcesClient({ resources }: { resources: Resource[] }
           </p>
         </div>
       </header>
+
+      {/* Dynamic Resource Action Buttons */}
+      <section className="px-8 md:px-12 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl">
+          {/* Link Button */}
+          <a
+            href={linkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => {
+              trackAnalyticsEvent("resource_click", `Link: ${linkUrl}`).catch(e => console.error(e));
+            }}
+            className="group relative flex items-center justify-between p-8 bg-gradient-to-r from-primary/10 to-blue-500/10 hover:from-primary/20 hover:to-blue-500/20 border border-white/5 hover:border-primary/30 rounded-[2.5rem] transition-all duration-500 shadow-xl hover:-translate-y-1 no-underline"
+          >
+            <div className="flex items-center gap-6">
+              <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-3xl">open_in_new</span>
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-xl font-bold text-white uppercase tracking-wider font-display italic">External Library</h3>
+                <p className="text-[10px] text-text-muted uppercase tracking-widest font-sans opacity-60">Access shared drive resources</p>
+              </div>
+            </div>
+            <span className="material-symbols-outlined text-white/20 group-hover:text-white transition-colors group-hover:translate-x-2 duration-300">arrow_forward</span>
+          </a>
+
+          {/* Video Button */}
+          <a
+            href={videoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => {
+              trackAnalyticsEvent("video_click", `Video: ${videoUrl}`).catch(e => console.error(e));
+            }}
+            className="group relative flex items-center justify-between p-8 bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20 border border-white/5 hover:border-purple-500/30 rounded-[2.5rem] transition-all duration-500 shadow-xl hover:-translate-y-1 no-underline"
+          >
+            <div className="flex items-center gap-6">
+              <div className="w-14 h-14 rounded-2xl bg-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-3xl">smart_display</span>
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-xl font-bold text-white uppercase tracking-wider font-display italic">Video Academy</h3>
+                <p className="text-[10px] text-text-muted uppercase tracking-widest font-sans opacity-60">Watch training & tutorials</p>
+              </div>
+            </div>
+            <span className="material-symbols-outlined text-white/20 group-hover:text-purple-400 transition-colors group-hover:translate-x-2 duration-300">arrow_forward</span>
+          </a>
+        </div>
+      </section>
 
 
       {isEmpty ? (

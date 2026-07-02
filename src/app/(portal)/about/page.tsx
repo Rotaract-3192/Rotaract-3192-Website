@@ -170,6 +170,27 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* DISTRICT CALENDAR */}
+      <section className="px-8 md:px-12 py-32 space-y-24">
+        <div className="flex flex-col gap-6 text-center items-center">
+          <span className="text-primary font-black tracking-[0.4em] uppercase text-[10px] px-6 py-2 rounded-full bg-primary/5 border border-primary/10">District Schedule</span>
+          <h2 className="text-5xl md:text-7xl font-black tracking-tighter font-display uppercase leading-none italic">Events <span className="text-primary not-italic">Calendar.</span></h2>
+          <p className="text-white/90 text-sm font-bold tracking-[0.3em] uppercase italic">Stay aligned with official timelines</p>
+        </div>
+
+        <div className="w-full rounded-[3rem] overflow-hidden border border-white/10 bg-white/5 backdrop-blur-xl p-4 md:p-8 shadow-ambient relative flex justify-center">
+          <div className="w-full aspect-[16/9] min-h-[500px] rounded-2xl overflow-hidden bg-slate-950/20">
+            <iframe 
+              src="https://calendar.google.com/calendar/embed?src=tech.rotaract3192%40gmail.com&ctz=Asia%2FKolkata" 
+              style={{ border: 0 }} 
+              className="w-full h-full opacity-90"
+              frameBorder="0" 
+              scrolling="no"
+            ></iframe>
+          </div>
+        </div>
+      </section>
+
       {/* HISTORY */}
       <section className="px-8 md:px-12 py-32 bg-white/5 rounded-[4rem] border border-white/10 mx-8 md:mx-12">
         <div className="max-w-4xl mx-auto space-y-24">

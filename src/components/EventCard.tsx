@@ -53,23 +53,14 @@ export default function EventCard({
         </div>
 
         <div className="pt-6 border-t border-white/5 mt-auto flex items-center gap-3">
-          {rsvpLink && (
-            <a href={rsvpLink} target="_blank" rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 bg-primary text-white font-bold text-[10px] uppercase tracking-[0.3em] px-5 py-3 rounded-xl hover:bg-primary/80 hover:shadow-lg hover:shadow-primary/20 transition-all no-underline">
-              <span className="material-symbols-outlined text-base">how_to_reg</span>
-              Register
-            </a>
-          )}
           <Link
             href={`/events/${slug}`}
-            className={`flex items-center justify-between group/link no-underline ${rsvpLink ? '' : 'flex-1'}`}
+            className="flex-1 flex items-center justify-center gap-2 bg-primary text-white font-bold text-[10px] uppercase tracking-[0.3em] px-5 py-3.5 rounded-xl hover:bg-primary/80 hover:shadow-lg hover:shadow-primary/20 transition-all no-underline"
           >
-            <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.5em] group-hover:text-primary transition-colors mr-4">{rsvpLink ? '' : 'Details'}</span>
-            <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover/link:bg-primary group-hover/link:text-white transition-all duration-500">
-              <span className="material-symbols-outlined text-xl group-hover/link:translate-x-1 transition-transform">
-                north_east
-              </span>
-            </div>
+            <span className="material-symbols-outlined text-base">
+              {statusBadge === 'PREVIOUS' ? 'info' : 'local_activity'}
+            </span>
+            {statusBadge === 'PREVIOUS' ? 'View Details' : 'Book Tickets'}
           </Link>
         </div>
       </div>

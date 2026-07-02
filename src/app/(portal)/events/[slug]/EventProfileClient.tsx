@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { format } from "date-fns";
+import { trackAnalyticsEvent } from "@/app/actions/mutations";
 
 function MarkdownContent({ content }: { content: string }) {
   if (!content) return null;
@@ -211,16 +212,18 @@ export default function EventProfileClient({ event }: { event: any }) {
               <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] -z-10 group-hover:scale-125 transition-transform duration-1000"></div>
               <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
                 <div className="space-y-4 text-center lg:text-left">
-                  <h2 className="text-4xl md:text-5xl font-bold text-white font-display tracking-tight uppercase italic leading-none">Registration <br />Protocol</h2>
-                  <p className="text-white/80 font-bold uppercase tracking-widest text-[10px]">Secure your clearance for this operation</p>
+                  <h2 className="text-4xl md:text-5xl font-bold text-white font-display tracking-tight uppercase italic leading-none">Event <br />Ticketing</h2>
+                  <p className="text-white/80 font-bold uppercase tracking-widest text-[10px]">Secure your tickets for this event</p>
                 </div>
                 <a 
                   href={event.rsvpLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  target="_self"
+                  onClick={() => {
+                    trackAnalyticsEvent("ticket_click", `${event.title} (${event.slug})`).catch(e => console.error(e));
+                  }}
                   className="px-12 py-5 bg-white text-primary rounded-2xl font-black uppercase tracking-[0.4em] text-xs shadow-2xl hover:scale-105 active:scale-95 transition-all no-underline"
                 >
-                  Initialize Access
+                  Book Tickets
                 </a>
               </div>
             </section>

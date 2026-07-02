@@ -7,6 +7,9 @@ export const revalidate = 0;
 
 async function getClubContext() {
   const { userId } = await auth();
+  if (!userId) {
+    return { user: null, club: null, clubId: null };
+  }
   const db = getDb();
   const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
   // Fallback for testing: use first available club

@@ -8,6 +8,13 @@
       "when": 1780135955702,
       "tag": "0000_foamy_zemo",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1782194370848,
+      "tag": "0001_chilly_charles_xavier",
+      "breakpoints": true
     }
   ]
 }

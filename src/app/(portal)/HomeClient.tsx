@@ -3,15 +3,50 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { trackAnalyticsEvent } from "@/app/actions/mutations";
+
+function AnimatedNumber({ value }: { value: number }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const end = value;
+    if (start === end) {
+      setCount(end);
+      return;
+    }
+
+    const duration = 1500; // 1.5 seconds
+    const increment = end / (duration / 16); // ~60fps
+
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= end) {
+        clearInterval(timer);
+        setCount(end);
+      } else {
+        setCount(Math.floor(start));
+      }
+    }, 16);
+
+    return () => clearInterval(timer);
+  }, [value]);
+
+  return <span>{count}</span>;
+}
 
 export default function HomeClient({
   clubsData,
   usersCount,
-  eventsCount
+  clubsCount,
+  projectsCount,
+  charteredClubsCount
 }: {
   clubsData: any[],
   usersCount: number,
-  eventsCount: number
+  clubsCount: number,
+  projectsCount: number,
+  charteredClubsCount: number
 }) {
   const containerRef = useRef(null);
 
@@ -26,6 +61,7 @@ export default function HomeClient({
       height: 10 + Math.random() * 70,
       width: 1 + Math.random() * 3
     })));
+    trackAnalyticsEvent("homepage_visit").catch(err => console.error(err));
   }, []);
 
   const { scrollYProgress } = useScroll({
@@ -127,16 +163,6 @@ export default function HomeClient({
         <div className="space-y-12 max-w-7xl flex flex-col items-center">
           {/* Logo & Title Group */}
           <div className="flex flex-col items-center gap-4 md:gap-6">
-            {/* Parent/District Logo */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 1 }}
-              className="flex justify-center"
-            >
-              <img src="/assets/logo.png" alt="Rotaract District Logo" className="h-28 md:h-36 object-contain filter brightness-0 invert drop-shadow-[0_0_25px_rgba(255,255,255,0.3)]" />
-            </motion.div>
-
             {/* Main Title "EXUBERANT" */}
             <div className="relative">
               <motion.h1
@@ -204,15 +230,17 @@ export default function HomeClient({
           className="w-[95%] max-w-7xl grid grid-cols-2 md:grid-cols-4 gap-4 px-4 mt-24"
         >
           {[
-            { label: 'Members', val: '2133', icon: 'person' },
-            { label: 'Clubs', val: '84', icon: 'groups' },
-            { label: 'Project', val: '0', icon: 'handshake' },
-            { label: 'Charter Clubs', val: '0', icon: 'workspace_premium' }
+            { label: 'Members', val: usersCount, icon: 'person' },
+            { label: 'Clubs', val: clubsCount, icon: 'groups' },
+            { label: 'Project', val: projectsCount, icon: 'handshake' },
+            { label: 'Charter Clubs', val: charteredClubsCount, icon: 'workspace_premium' }
           ].map((stat, i) => (
             <div key={i} className="flex flex-col items-center justify-center gap-2 md:gap-3 py-6 md:py-10 rounded-[1.5rem] md:rounded-[2rem] bg-[#020617]/40 backdrop-blur-3xl border border-white/5 hover:border-primary/20 transition-all group relative overflow-hidden">
               <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <span className="material-symbols-outlined text-primary/40 group-hover:text-primary transition-colors text-xl md:text-2xl">{stat.icon}</span>
-              <div className="text-2xl md:text-4xl font-black text-white tracking-tight">{stat.val}</div>
+              <div className="text-2xl md:text-4xl font-black text-white tracking-tight">
+                {mounted ? <AnimatedNumber value={stat.val} /> : 0}
+              </div>
               <div className="text-[8px] md:text-[9px] font-bold text-text-muted uppercase tracking-[0.4em]">{stat.label}</div>
             </div>
           ))}

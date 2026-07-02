@@ -28,7 +28,7 @@ export function getDb(): AppDb {
     ssl: (isProduction && !isLocalhost && process.env.DB_DISABLE_SSL !== 'true') ? { rejectUnauthorized: false } : false,
     max: 10,
     idle_timeout: 30,
-    connect_timeout: 10,
+    connect_timeout: isProduction ? 10 : 2,
     // PgBouncer transaction mode: prepared statements must be disabled
     prepare: !isPgBouncer,
   });

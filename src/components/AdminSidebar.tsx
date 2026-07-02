@@ -26,6 +26,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
     { href: '/admin/jobs',           label: 'Careers',        icon: 'work'              },
     { href: '/admin/lms',            label: 'Academy',        icon: 'school'            },
     { href: '/admin/resources',      label: 'Resources',      icon: 'folder_open'       },
+    { href: '/admin/settings',       label: 'Settings',       icon: 'settings'          },
     { href: '/admin/audit',          label: 'System Audit',   icon: 'security'          },
   ];
 

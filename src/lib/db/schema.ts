@@ -112,6 +112,9 @@ export const jobs = pgTable('jobs', {
   type: text('type'),
   description: text('description'),
   applyUrl: text('apply_url'),
+  status: text('status').default('active'),
+  expiresAt: timestamp('expires_at'),
+  postedBy: text('posted_by'),
   createdAt: timestamp('created_at').defaultNow(),
 });
 
@@ -246,3 +249,19 @@ export const attendance = pgTable('attendance', {
   markedBy: text('marked_by'),
   createdAt: timestamp('created_at').defaultNow(),
 });
+
+// District settings for overrides and configurations
+export const districtSettings = pgTable('district_settings', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Analytics logging for homepage visits and actions
+export const analyticsEvents = pgTable('analytics_events', {
+  id: text('id').primaryKey(),
+  eventType: text('event_type').notNull(), // 'homepage_visit', 'resource_click', 'video_click', 'ticket_click'
+  eventMetadata: text('event_metadata'), // e.g. JSON string or identifier
+  timestamp: timestamp('timestamp').defaultNow(),
+});
+

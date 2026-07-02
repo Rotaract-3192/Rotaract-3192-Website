@@ -22,3 +22,6 @@
   - [x] Stabilized Admin Panel Server Actions and resolved TypeScript errors.
   - [x] Test the application locally using `npm run dev`.
   - [x] Fixed linting by identifying missing dependencies (eslint, eslint-config-next) and setting up configs.
+  - [x] Dynamic District Statistics
+  - [x] Implement count-up animation component in `HomeClient.tsx`
+  - [x] Update `getDistrictStats` query in `queries.ts` to support settings overrides.

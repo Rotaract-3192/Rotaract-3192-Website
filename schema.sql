@@ -149,6 +149,9 @@ CREATE TABLE "jobs" (
 	"type" text,
 	"description" text,
 	"apply_url" text,
+	"status" text DEFAULT 'active',
+	"expires_at" timestamp,
+	"posted_by" text,
 	"created_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint

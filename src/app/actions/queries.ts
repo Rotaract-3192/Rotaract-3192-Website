@@ -4,7 +4,7 @@ import { getDb } from '@/lib/db';
 import {
   clubs, events, jobs, courses, moms, newsletters, users, feeds, campaigns,
   announcements, eventRegistrations, serviceHours, coldStorageFiles, auditLogs,
-  pastLeaders, pointTransactions,
+  pastLeaders, pointTransactions, courseModules, districtSettings, analyticsEvents,
 } from '@/lib/db/schema';
 import { desc, eq, and, ne, sql, count } from 'drizzle-orm';
 
@@ -237,27 +237,83 @@ export async function getMentors() {
   }
 }
 
+export async function getDistrictSettings() {
+  try {
+    const db = getDb();
+    const rows = await db.select().from(districtSettings);
+    const settingsMap: Record<string, string> = {};
+    for (const row of rows) {
+      settingsMap[row.key] = row.value;
+    }
+    return settingsMap;
+  } catch (error) {
+    console.error('Failed to fetch settings:', error);
+    return {};
+  }
+}
+
 export async function getDistrictStats() {
   try {
     const db = getDb() as any;
-    const [clubsCount, membersCount, eventsCount, announcementsCount, momsCount] = await Promise.all([
+    const [clubsCount, membersCount, eventsCount, announcementsCount, momsCount, settingsRows] = await Promise.all([
       db.select({ count: sql<number>`count(*)` }).from(clubs),
       db.select({ count: sql<number>`count(*)` }).from(users),
       db.select({ count: sql<number>`count(*)` }).from(events),
       db.select({ count: sql<number>`count(*)` }).from(announcements),
-      db.select({ count: sql<number>`count(*)` }).from(moms)
+      db.select({ count: sql<number>`count(*)` }).from(moms),
+      db.select().from(districtSettings)
     ]);
 
+    const settings: Record<string, string> = {};
+    for (const r of settingsRows) {
+      settings[r.key] = r.value;
+    }
+
+    const dbClubs = clubsCount[0]?.count || 0;
+    const dbMembers = membersCount[0]?.count || 0;
+    const dbEvents = eventsCount[0]?.count || 0;
+
+    const totalMembers = settings.stats_members_override ? parseInt(settings.stats_members_override) : dbMembers;
+    const totalClubs = settings.stats_clubs_override ? parseInt(settings.stats_clubs_override) : dbClubs;
+    const totalProjects = settings.stats_projects_override ? parseInt(settings.stats_projects_override) : dbEvents;
+    const totalCharteredClubs = settings.stats_chartered_clubs_override ? parseInt(settings.stats_chartered_clubs_override) : 0;
+
     return {
-      totalClubs: clubsCount[0]?.count || 0,
-      totalMembers: membersCount[0]?.count || 0,
-      totalEvents: eventsCount[0]?.count || 0,
+      totalClubs,
+      totalMembers,
+      totalProjects,
+      totalEvents: totalProjects,
+      totalCharteredClubs,
       totalAnnouncements: announcementsCount[0]?.count || 0,
       totalMoms: momsCount[0]?.count || 0,
     };
   } catch (error) {
     console.error('Failed to fetch district stats:', error);
-    return { totalClubs: 0, totalMembers: 0, totalEvents: 0, totalAnnouncements: 0, totalMoms: 0 };
+    return { totalClubs: 84, totalMembers: 2133, totalProjects: 0, totalEvents: 0, totalCharteredClubs: 0, totalAnnouncements: 0, totalMoms: 0 };
+  }
+}
+
+export async function getAnalyticsSummary() {
+  try {
+    const db = getDb();
+    const visits = await db.select({ count: count() }).from(analyticsEvents).where(eq(analyticsEvents.eventType, 'homepage_visit'));
+    const resourceClicks = await db.select({ count: count() }).from(analyticsEvents).where(eq(analyticsEvents.eventType, 'resource_click'));
+    const videoClicks = await db.select({ count: count() }).from(analyticsEvents).where(eq(analyticsEvents.eventType, 'video_click'));
+    const ticketClicks = await db.select({ count: count() }).from(analyticsEvents).where(eq(analyticsEvents.eventType, 'ticket_click'));
+    
+    // Detailed logs for recent actions
+    const recentLogs = await db.select().from(analyticsEvents).orderBy(desc(analyticsEvents.timestamp)).limit(20);
+
+    return {
+      totalVisits: visits[0]?.count || 0,
+      totalResourceClicks: resourceClicks[0]?.count || 0,
+      totalVideoClicks: videoClicks[0]?.count || 0,
+      totalTicketClicks: ticketClicks[0]?.count || 0,
+      recentLogs
+    };
+  } catch (error) {
+    console.error('Failed to fetch analytics summary:', error);
+    return { totalVisits: 0, totalResourceClicks: 0, totalVideoClicks: 0, totalTicketClicks: 0, recentLogs: [] };
   }
 }
 
@@ -422,6 +478,47 @@ export async function getClubsWithProjectStats() {
   } catch (error) {
     console.error('Failed to fetch clubs with project stats:', error);
     return [];
+  }
+}
+
+export async function getCourseById(courseId: string) {
+  try {
+    const result = await getDb()
+      .select()
+      .from(courses)
+      .where(eq(courses.id, courseId))
+      .limit(1);
+    return result[0] ?? null;
+  } catch (error) {
+    console.error('Failed to fetch course by ID:', error);
+    return null;
+  }
+}
+
+export async function getCourseModules(courseId: string) {
+  try {
+    return await getDb()
+      .select()
+      .from(courseModules)
+      .where(eq(courseModules.courseId, courseId))
+      .orderBy(courseModules.order);
+  } catch (error) {
+    console.error('Failed to fetch course modules:', error);
+    return [];
+  }
+}
+
+export async function getMomById(momId: string) {
+  try {
+    const result = await getDb()
+      .select()
+      .from(moms)
+      .where(eq(moms.id, momId))
+      .limit(1);
+    return result[0] ?? null;
+  } catch (error) {
+    console.error('Failed to fetch MOM by ID:', error);
+    return null;
   }
 }
 

@@ -12,6 +12,8 @@ export default async function HomePage() {
   return <HomeClient 
     clubsData={clubsData} 
     usersCount={stats.totalMembers} 
-    eventsCount={stats.totalEvents} 
+    clubsCount={stats.totalClubs}
+    projectsCount={stats.totalProjects}
+    charteredClubsCount={stats.totalCharteredClubs}
   />;
 }

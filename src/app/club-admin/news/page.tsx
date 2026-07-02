@@ -9,6 +9,9 @@ export const revalidate = 0;
 
 async function getClubContext() {
   const { userId } = await auth();
+  if (!userId) {
+    return { club: null };
+  }
   const db = getDb();
   const u = await db.query.users.findFirst({ where: eq(users.id, userId) });
   const club = u?.clubId
