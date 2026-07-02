@@ -4,6 +4,7 @@ import { users, clubs } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { deleteUser } from '@/app/actions/mutations';
 import NewClubMemberButton from '@/components/club-admin/NewClubMemberButton';
+import EditClubMemberButton from '@/components/club-admin/EditClubMemberButton';
 
 export const revalidate = 0;
 
@@ -92,12 +93,15 @@ export default async function ClubMembersPage() {
                     <span className="text-lg font-bold text-white font-display">{m.points ?? 0}</span>
                   </td>
                   <td className="py-5 px-8 text-right">
-                    <form action={deleteUser.bind(null, m.id)}>
-                      <button type="submit"
-                        className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-red-500/30 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center ml-auto">
-                        <span className="material-symbols-outlined text-sm">person_remove</span>
-                      </button>
-                    </form>
+                    <div className="flex items-center justify-end gap-3">
+                      <EditClubMemberButton member={m as any} />
+                      <form action={deleteUser.bind(null, m.id)}>
+                        <button type="submit"
+                          className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-red-500/30 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center">
+                          <span className="material-symbols-outlined text-sm">person_remove</span>
+                        </button>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               ))}

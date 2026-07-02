@@ -25,7 +25,7 @@ export default function EventForm({ clubs, initialData, onSuccess }: EventFormPr
   const [eventDate, setEventDate] = useState(
     initialData?.eventDate ? new Date(initialData.eventDate).toISOString().slice(0, 16) : ''
   );
-  const [clubId, setClubId] = useState(initialData?.clubId || '');
+  const [clubId, setClubId] = useState(initialData?.clubId || (clubs.length === 1 ? clubs[0].id : ''));
   const [location, setLocation] = useState(initialData?.location || '');
   const [rsvpLink, setRsvpLink] = useState(initialData?.rsvpLink || '');
   const [description, setDescription] = useState(initialData?.description || '');
@@ -250,25 +250,29 @@ export default function EventForm({ clubs, initialData, onSuccess }: EventFormPr
         </div>
 
         {/* Host Club Option */}
-        <div className="space-y-2">
-          <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-sans">
-            Host Club (Optional)
-          </label>
-          <div className="relative">
-            <select 
-              name="clubId" 
-              value={clubId}
-              onChange={(e) => setClubId(e.target.value)}
-              className="w-full bg-[#0a1526] border border-white/10 rounded-xl py-3.5 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all appearance-none uppercase tracking-wider cursor-pointer font-sans"
-            >
-              <option value="" className="bg-[#091124]">Select host club...</option>
-              {clubs.map((club) => (
-                <option key={club.id} value={club.id} className="bg-[#091124]">{club.name.toUpperCase()}</option>
-              ))}
-            </select>
-            <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 opacity-60">expand_more</span>
+        {clubs.length === 1 ? (
+          <input type="hidden" name="clubId" value={clubId} />
+        ) : (
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-sans">
+              Host Club (Optional)
+            </label>
+            <div className="relative">
+              <select 
+                name="clubId" 
+                value={clubId}
+                onChange={(e) => setClubId(e.target.value)}
+                className="w-full bg-[#0a1526] border border-white/10 rounded-xl py-3.5 px-5 text-sm font-bold text-white focus:border-[#f9a826]/50 outline-none transition-all appearance-none uppercase tracking-wider cursor-pointer font-sans"
+              >
+                <option value="" className="bg-[#091124]">Select host club...</option>
+                {clubs.map((club) => (
+                  <option key={club.id} value={club.id} className="bg-[#091124]">{club.name.toUpperCase()}</option>
+                ))}
+              </select>
+              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 opacity-60">expand_more</span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Row 3: Entry Type, Status, Year/Date Label */}

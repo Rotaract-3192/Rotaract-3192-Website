@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { auth, currentUser } from '@/lib/mockAuth';
 import { getUserProfile, getDashboardStats } from '@/app/actions/queries';
+import DPDPControlPanel from "@/components/DPDPControlPanel";
 
 export const metadata = {
   title: "My Profile | District 3192",
@@ -133,6 +134,27 @@ export default async function ProfilePage() {
               </p>
            </div>
         </section>
+
+        {/* DPDP Consent and Data Rights Panel */}
+        {profile && (
+           <section className="lg:col-span-3 mt-16">
+             <DPDPControlPanel 
+               userData={{
+                 id: profile.id,
+                 email: profile.email,
+                 firstName: profile.firstName ?? null,
+                 lastName: profile.lastName ?? null,
+                 role: profile.role ?? null,
+                 clubId: profile.clubId ?? null,
+                 bio: profile.bio ?? null,
+                 avatarUrl: profile.avatarUrl ?? null,
+                 points: profile.points ?? 0,
+                 created_at: profile.createdAt ?? null
+               }} 
+               stats={stats} 
+             />
+           </section>
+         )}
       </div>
     </main>
   );

@@ -10,7 +10,21 @@ import { desc, eq, and, ne, sql, count } from 'drizzle-orm';
 
 export async function getClubs(limit = 100) {
   try {
-    return await getDb().select().from(clubs).limit(limit);
+    const db = getDb();
+    const result = await db
+      .select({
+        club: clubs,
+        memberCount: sql<number>`cast(count(${users.id}) as integer)`,
+      })
+      .from(clubs)
+      .leftJoin(users, eq(users.clubId, clubs.id))
+      .groupBy(clubs.id)
+      .limit(limit);
+      
+    return result.map(row => ({
+      ...row.club,
+      memberCount: row.memberCount,
+    }));
   } catch (error) {
     console.error('Failed to fetch clubs:', error);
     return [];

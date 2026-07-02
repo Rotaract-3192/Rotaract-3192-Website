@@ -8,7 +8,7 @@ INSERT INTO clubs (id, slug, name, description, logo_url) VALUES ('rac-mysuru-ro
 INSERT INTO clubs (id, slug, name, description, logo_url) VALUES ('rac-salem-steels', 'rac-salem-steels', 'Rotaract Club of Salem Steels', 'Club in Salem', 'https://placehold.co/400x400/4A4A4A/FFFFFF?text=RAC+Salem') ON CONFLICT (id) DO NOTHING;
 
 -- Seed for users
-INSERT INTO users (id, email, first_name, last_name, role, permission_bits, avatar_url) VALUES ('test_admin_user_id', 'admin@rotaract3192.org', 'Test', 'Admin', 'district_admin', 3, 'https://ui-avatars.com/api/?name=Test+Admin') ON CONFLICT (id) DO NOTHING;
+INSERT INTO users (id, email, first_name, last_name, role, permission_bits, avatar_url) VALUES ('test_admin_user_id', 'admin@rotaract3192.org', 'Test', 'Admin', 'district_admin', 1, 'https://ui-avatars.com/api/?name=Test+Admin') ON CONFLICT (id) DO NOTHING;
 INSERT INTO users (id, email, first_name, last_name, role, permission_bits, avatar_url) VALUES ('user_0', 'arjunkumar@example.com', 'Arjun', 'Kumar', 'member', 0, 'https://ui-avatars.com/api/?name=Arjun+Kumar&background=random') ON CONFLICT (id) DO NOTHING;
 INSERT INTO users (id, email, first_name, last_name, role, permission_bits, club_id, avatar_url) VALUES ('user_1', 'priyasharma@example.com', 'Priya', 'Sharma', 'member', 0, 'rac-bengaluru-central', 'https://ui-avatars.com/api/?name=Priya+Sharma&background=random') ON CONFLICT (id) DO NOTHING;
 INSERT INTO users (id, email, first_name, last_name, role, permission_bits, club_id, avatar_url) VALUES ('user_2', 'karthikreddy@example.com', 'Karthik', 'Reddy', 'club_admin', 2, 'rac-bengaluru-central', 'https://ui-avatars.com/api/?name=Karthik+Reddy&background=random') ON CONFLICT (id) DO NOTHING;

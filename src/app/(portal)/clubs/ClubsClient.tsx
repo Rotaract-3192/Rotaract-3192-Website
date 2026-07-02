@@ -138,7 +138,7 @@ export default function ClubsClient({ clubsData }: { clubsData: any[] }) {
                     <ClubCard
                       name={club.name}
                       city={club.city ? `${club.city}${club.zone ? ` • ${club.zone}` : ''}` : 'District 3192'}
-                      members={0}
+                      members={club.memberCount ?? 0}
                       engagement={Number(Math.floor(Math.random() * 20) + 80)}
                       badge={club.zone || "Active Chapter"}
                       type={idx % 2 === 0 ? "primary" : "secondary"}
@@ -150,7 +150,7 @@ export default function ClubsClient({ clubsData }: { clubsData: any[] }) {
                     <ClubListItem
                       name={club.name}
                       city={club.city ? `${club.city}${club.zone ? ` • ${club.zone}` : ''}` : 'District 3192'}
-                      members={0}
+                      members={club.memberCount ?? 0}
                       engagement={Number(Math.floor(Math.random() * 20) + 80)}
                       slug={club.slug}
                       logoUrl={club.logoUrl}

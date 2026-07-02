@@ -234,6 +234,18 @@ export default function PortfolioForm({ club }: { club: Club }) {
                 className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-6 text-sm font-bold text-white focus:border-purple-500/50 outline-none placeholder:text-white/20 font-sans" 
               />
             </div>
+
+            <div className="space-y-2">
+              <label className="text-[9px] font-black uppercase tracking-[0.4em] text-purple-400/60 font-sans">
+                Charter Date
+              </label>
+              <input 
+                type="date" 
+                name="charterDate" 
+                defaultValue={club.charterDate ? new Date(club.charterDate).toISOString().split('T')[0] : ''} 
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-6 text-sm font-bold text-white focus:border-purple-500/50 outline-none placeholder:text-white/20 font-sans cursor-pointer" 
+              />
+            </div>
           </div>
         </section>
 

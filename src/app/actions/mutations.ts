@@ -888,7 +888,7 @@ export async function createMember(formData: FormData) {
 
   try {
     const id = `manual_${generateId()}`;
-    const permissionBits = role === 'district_admin' ? 5 : role === 'club_admin' ? 3 : 0;
+    const permissionBitsVal = role === 'district_admin' ? 1 : role === 'club_president' ? 3 : role === 'club_admin' ? 2 : 0;
 
     await getDb().insert(users).values({
       id,
@@ -900,7 +900,7 @@ export async function createMember(formData: FormData) {
       bio: bio || null,
       avatarUrl: avatarUrl || null,
       points: points,
-      permissionBits: permissionBits,
+      permissionBits: permissionBitsVal,
     });
 
     await recordAuditLog(`Manually Added Member: ${email}`, 'user', id);
@@ -1510,6 +1510,20 @@ export async function setUserPermissions(formData: FormData) {
     })
     .where(eq(users.id, userId));
 
+  // Sync to Clerk publicMetadata
+  try {
+    const { createClerkClient } = await import('@clerk/nextjs/server');
+    const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+    const clerkRole = getRoleLabel(permissionBits).toLowerCase().replace(/ /g, '_');
+    await clerk.users.updateUserMetadata(userId, {
+      publicMetadata: {
+        role: clerkRole
+      }
+    });
+  } catch (err) {
+    console.error('Failed to sync permission change to Clerk:', err);
+  }
+
   await recordAuditLog(
     `Permission → ${getRoleLabel(permissionBits)} [${getBinaryStr(permissionBits)}] for user ${userId}`,
     'user',
@@ -1539,6 +1553,8 @@ export async function updateClub(id: string, formData: FormData) {
   const zone = formData.get('zone') as string;
   const venue = formData.get('venue') as string;
   const meetingDayTime = formData.get('meetingDayTime') as string;
+  const charterDateStr = formData.get('charterDate') as string;
+  const charterDate = charterDateStr ? new Date(charterDateStr) : null;
 
   const presidentName = formData.get('presidentName') as string;
   const presidentPhone = formData.get('presidentPhone') as string;
@@ -1578,6 +1594,7 @@ export async function updateClub(id: string, formData: FormData) {
       secretaryName,
       secretaryPhone,
       secretaryEmail,
+      charterDate,
       updatedAt: new Date(),
     };
 
@@ -1712,6 +1729,121 @@ export async function uploadImageAction(formData: FormData) {
     console.error('Failed to upload image via action:', err);
     throw new Error('Image upload failed');
   }
+}
+
+export async function deleteUserAccountAction() {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  try {
+    const { createClerkClient } = await import('@clerk/nextjs/server');
+    const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+    await clerk.users.deleteUser(userId);
+
+    const db = getDb();
+    await db.delete(users).where(eq(users.id, userId));
+    await recordAuditLog(`User deleted account and withdrew DPDP consent`, 'user', userId);
+    return true;
+  } catch (err) {
+    console.error('Failed to delete user account:', err);
+    throw new Error('Failed to delete account');
+  }
+}
+
+export async function updateClubMember(memberId: string, formData: FormData) {
+  const { userId: adminId, permissionBits: adminBits } = await auth();
+  if (!adminId) throw new Error('Unauthorized');
+  requireClubPanel(adminBits);
+
+  const db = getDb();
+  const targetUser = await db.query.users.findFirst({ where: eq(users.id, memberId) });
+  if (!targetUser) throw new Error('Member not found');
+
+  if (!isMasterAdmin(adminBits)) {
+    const adminUser = await db.query.users.findFirst({ where: eq(users.id, adminId) });
+    if (!adminUser || adminUser.clubId !== targetUser.clubId) {
+      throw new Error('Forbidden: You can only edit members of your own club');
+    }
+  }
+
+  const firstName = formData.get('firstName') as string;
+  const lastName = formData.get('lastName') as string;
+  const role = formData.get('role') as string;
+  const bio = formData.get('bio') as string;
+  const pointsStr = formData.get('points') as string;
+  const points = pointsStr ? parseInt(pointsStr, 10) : 0;
+
+  const avatarImageFile = formData.get('avatarImage') as File | null;
+  let avatarUrl = formData.get('avatarUrl') as string || targetUser.avatarUrl || '';
+  if (avatarImageFile && avatarImageFile.size > 0 && typeof avatarImageFile.arrayBuffer === 'function') {
+    try {
+      const { uploadFile } = await import('@/lib/storage');
+      const bytes = await avatarImageFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const filename = `avatars/${Date.now()}-${avatarImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      avatarUrl = await uploadFile(filename, buffer, avatarImageFile.type);
+    } catch (err) {
+      console.error('Failed to upload avatar image:', err);
+    }
+  }
+
+  const permissionBits = 
+    role === 'club_president' ? 3 :
+    role === 'club_admin' ? 2 : 0;
+
+  const clubId = targetUser.clubId;
+
+  if (permissionBits === 3 && clubId) {
+    await db
+      .update(users)
+      .set({ permissionBits: 2, role: 'club_admin' })
+      .where(
+        and(
+          eq(users.clubId, clubId),
+          eq(users.permissionBits, 3),
+          sql`${users.id} != ${memberId}`
+        )
+      );
+    await db.update(clubs).set({ presidentId: memberId }).where(eq(clubs.id, clubId));
+  }
+
+  if (permissionBits !== 3 && clubId) {
+    const presidentClub = await db.query.clubs.findFirst({
+      where: and(eq(clubs.id, clubId), eq(clubs.presidentId, memberId)),
+    });
+    if (presidentClub) {
+      await db.update(clubs).set({ presidentId: null }).where(eq(clubs.id, clubId));
+    }
+  }
+
+  await db
+    .update(users)
+    .set({
+      firstName: firstName || targetUser.firstName,
+      lastName: lastName || targetUser.lastName,
+      role: role || targetUser.role,
+      permissionBits,
+      bio: bio || null,
+      avatarUrl: avatarUrl || null,
+      points: isNaN(points) ? targetUser.points : points,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, memberId));
+
+  try {
+    const { createClerkClient } = await import('@clerk/nextjs/server');
+    const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+    await clerk.users.updateUserMetadata(memberId, {
+      publicMetadata: {
+        role: role === 'club_president' ? 'club_president' : role === 'club_admin' ? 'club_admin' : 'member',
+      },
+    });
+  } catch (clerkError) {
+    console.error('Failed to sync to Clerk during member update:', clerkError);
+  }
+
+  revalidatePath('/admin/members');
+  revalidatePath('/club-admin/members');
 }
 
 

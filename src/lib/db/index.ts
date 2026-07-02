@@ -26,8 +26,8 @@ export function getDb(): AppDb {
 
   sqlInstance = postgres(connectionString, {
     ssl: (isProduction && !isLocalhost && process.env.DB_DISABLE_SSL !== 'true') ? { rejectUnauthorized: false } : false,
-    max: 10,
-    idle_timeout: 30,
+    max: isProduction ? 10 : 2,
+    idle_timeout: isProduction ? 30 : 10,
     connect_timeout: isProduction ? 10 : 2,
     // PgBouncer transaction mode: prepared statements must be disabled
     prepare: !isPgBouncer,

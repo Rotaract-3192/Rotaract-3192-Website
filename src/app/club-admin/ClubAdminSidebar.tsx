@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useUser } from '@/lib/mockAuthClient';
 
 const NAV = [
   { href: '/club-admin',              icon: 'dashboard',    label: 'Dashboard'    },
@@ -18,6 +19,9 @@ export default function ClubAdminSidebar({ clubName, isOpen, onClose }: {
   onClose: () => void;
 }) {
   const path = usePathname();
+  const { user } = useUser();
+  const role = user?.publicMetadata?.role as string | undefined;
+  const isSuperAdmin = role === 'district_admin';
 
   return (
     <aside className={`fixed top-0 left-0 h-screen w-72 bg-[#07101f] border-r border-purple-500/10 z-50 flex flex-col transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
@@ -59,11 +63,13 @@ export default function ClubAdminSidebar({ clubName, isOpen, onClose }: {
       {/* Back to main site */}
       <div className="px-4 pb-8 shrink-0 space-y-2">
         <div className="h-px bg-purple-500/10 mb-4" />
-        <Link href="/admin"
-          className="flex items-center gap-3 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-white/20 hover:text-yellow-400/80 border border-transparent hover:border-yellow-500/10 hover:bg-yellow-500/5 transition-all font-sans">
-          <span className="material-symbols-outlined text-base">admin_panel_settings</span>
-          Master Admin
-        </Link>
+        {isSuperAdmin && (
+          <Link href="/admin"
+            className="flex items-center gap-3 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-white/20 hover:text-yellow-400/80 border border-transparent hover:border-yellow-500/10 hover:bg-yellow-500/5 transition-all font-sans">
+            <span className="material-symbols-outlined text-base">admin_panel_settings</span>
+            Master Admin
+          </Link>
+        )}
         <Link href="/"
           className="flex items-center gap-3 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-white/20 hover:text-white/60 border border-transparent hover:border-white/5 transition-all font-sans">
           <span className="material-symbols-outlined text-base">home</span>

@@ -1,7 +1,9 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { auth, currentUser } from '@/lib/mockAuth';
+import { hasClubPanel, isMasterAdmin } from '@/lib/permissions';
 import { getUserProfile, getDashboardStats, getUpcomingEvents, getAnnouncements } from '@/app/actions/queries';
 
 export const metadata = {
@@ -11,7 +13,16 @@ export const metadata = {
 export const revalidate = 0;
 
 export default async function DashboardPage() {
-  const { userId } = await auth();
+  const { userId, permissionBits } = await auth();
+
+  if (userId) {
+    if (isMasterAdmin(permissionBits)) {
+      redirect("/admin");
+    } else if (hasClubPanel(permissionBits)) {
+      redirect("/club-admin");
+    }
+  }
+
   const clerkUser = await currentUser();
 
   const [profile, stats, upcomingEvents, announcements] = await Promise.all([
@@ -71,12 +82,15 @@ export default async function DashboardPage() {
               <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Quick Access Nodes</h3>
               <div className="h-px flex-grow bg-outline-variant/30"></div>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
               {[
-                { label: 'Log Hours', href: '/profile', icon: 'timer', color: 'primary' },
-                { label: 'Register', href: '/events', icon: 'event_available', color: 'secondary' },
-                { label: 'Directory', href: '/clubs', icon: 'contacts', color: 'on-surface' },
-                { label: 'Minutes', href: '/mom', icon: 'description', color: 'error' }
+                { label: 'Log Hours', href: '/profile', icon: 'timer' },
+                { label: 'Register', href: '/events', icon: 'event_available' },
+                { label: 'Directory', href: '/clubs', icon: 'contacts' },
+                { label: 'Minutes', href: '/mom', icon: 'description' },
+                ...((hasClubPanel(permissionBits) || isMasterAdmin(permissionBits)) ? [
+                  { label: 'Club Admin', href: '/club-admin', icon: 'admin_panel_settings' }
+                ] : [])
               ].map((action, i) => (
                 <Link key={i} href={action.href} className="group bg-white/5 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/10 flex flex-col items-center gap-4 text-center hover:bg-white/10 hover:shadow-ambient transition-all duration-500">
                   <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">

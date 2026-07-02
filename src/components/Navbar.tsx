@@ -8,10 +8,17 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useUser();
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isOfficeOpen, setIsOfficeOpen] = useState(false);
+
+  const role = user?.publicMetadata?.role as string | undefined;
+  const dashboardHref = role === 'district_admin'
+    ? '/admin'
+    : (role === 'club_president' || role === 'club_admin')
+      ? '/club-admin'
+      : '/dashboard';
 
   const mainNavLinks = [
     { name: "Home", href: "/" },
@@ -118,7 +125,7 @@ export default function Navbar() {
               <Show when="signed-in">
                 <div className="flex items-center gap-6">
                   <Link
-                    href="/admin"
+                    href={dashboardHref}
                     className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-2.5 rounded-xl text-white font-black text-[10px] uppercase tracking-[0.3em] no-underline transition-all group"
                   >
                     <span className="material-symbols-outlined text-lg opacity-40 group-hover:text-primary group-hover:opacity-100 transition-all">dashboard</span>
@@ -208,6 +215,16 @@ export default function Navbar() {
                  >
                    Official Login
                    <span className="material-symbols-outlined text-sm">login</span>
+                 </Link>
+               </Show>
+               <Show when="signed-in">
+                 <Link
+                   href={dashboardHref}
+                   onClick={() => setIsMobileMenuOpen(false)}
+                   className="w-full bg-white/5 border border-white/10 py-5 rounded-2xl font-bold text-[11px] uppercase tracking-[0.4em] no-underline transition-all flex items-center justify-center gap-3 hover:bg-white/10 text-white"
+                 >
+                   Dashboard
+                   <span className="material-symbols-outlined text-sm">dashboard</span>
                  </Link>
                </Show>
                <div className="flex items-center justify-between px-2">

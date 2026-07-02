@@ -7,7 +7,7 @@ export const PERM_MASTER_ADMIN = 1; // bit 0
 export const PERM_CLUB_PANEL   = 2; // bit 1
 
 export function isMasterAdmin(bits: number): boolean {
-  return (bits & PERM_MASTER_ADMIN) === PERM_MASTER_ADMIN;
+  return bits === 1;
 }
 
 export function hasClubPanel(bits: number): boolean {
@@ -72,7 +72,7 @@ export function requireMasterAdmin(permissionBits: number): void {
  * Throws UnauthorizedError if user lacks permission
  */
 export function requireClubPanel(permissionBits: number): void {
-  if (!hasClubPanel(permissionBits)) {
+  if (!isMasterAdmin(permissionBits) && !hasClubPanel(permissionBits)) {
     throw new UnauthorizedError('Club admin access required');
   }
 }

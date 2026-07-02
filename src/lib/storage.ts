@@ -59,9 +59,24 @@ export async function uploadFile(key: string, body: Buffer | Uint8Array, content
     console.log(`✅ Uploaded successfully. Public URL: ${urlData.publicUrl}`);
     return urlData.publicUrl;
   } catch (error) {
-    console.error('❌ Supabase storage upload failed:', error);
-    // Return mock local upload path as fallback to prevent app crashing
-    return `/uploads/mock-${key}`;
+    console.error('❌ Supabase storage upload failed, saving locally as fallback:', error);
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      const localPath = path.join(process.cwd(), 'public', 'uploads', key);
+      const dir = path.dirname(localPath);
+      
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      
+      fs.writeFileSync(localPath, Buffer.from(body));
+      console.log(`✅ Saved fallback file locally at: /uploads/${key}`);
+      return `/uploads/${key}`;
+    } catch (localErr) {
+      console.error('❌ Failed to write local fallback file:', localErr);
+      return `/uploads/mock-${key}`;
+    }
   }
 }
 
@@ -75,6 +90,17 @@ export async function deleteFile(key: string) {
     if (error) throw error;
     console.log(`✅ File ${key} deleted successfully.`);
   } catch (error) {
-    console.warn('⚠️ Supabase storage delete failed:', error);
+    console.warn('⚠️ Supabase storage delete failed, trying to delete local fallback:', error);
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      const localPath = path.join(process.cwd(), 'public', 'uploads', key);
+      if (fs.existsSync(localPath)) {
+        fs.unlinkSync(localPath);
+        console.log(`✅ Deleted local fallback file: ${localPath}`);
+      }
+    } catch (localErr) {
+      console.error('❌ Failed to delete local fallback file:', localErr);
+    }
   }
 }

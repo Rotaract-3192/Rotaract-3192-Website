@@ -36,3 +36,5 @@ local.sqlite
 *.tsbuildinfo
 .vercel
 coverage/
+.tmp/
+.gemini/
