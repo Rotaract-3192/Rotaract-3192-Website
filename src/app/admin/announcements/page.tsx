@@ -81,10 +81,34 @@ export default async function AdminAnnouncementsPage() {
             ></textarea>
           </div>
 
-          <div className="flex justify-end pt-4">
+          <div className="space-y-3">
+            <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">
+              Additional Bulk Recipients (Comma or newline separated)
+            </label>
+            <textarea 
+              name="customEmails" 
+              rows={2}
+              placeholder="e.g. rotarypresident@gmail.com, guest@yahoo.com, info@partnerclub.org" 
+              className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-medium text-white focus:border-primary/50 outline-none transition-all resize-none leading-relaxed placeholder:text-white/20 font-sans"
+            ></textarea>
+          </div>
+
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pt-4 border-t border-white/5">
+            <div className="flex items-center gap-3">
+              <input 
+                type="checkbox" 
+                name="sendEmailBlast" 
+                id="sendEmailBlast"
+                className="w-5 h-5 rounded bg-white/5 border border-white/10 text-primary focus:ring-primary/50 outline-none transition-all cursor-pointer accent-primary"
+              />
+              <label htmlFor="sendEmailBlast" className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50 cursor-pointer select-none font-sans hover:text-white transition-colors">
+                Transmit via Email Blast to all members
+              </label>
+            </div>
+
             <button 
               type="submit"
-              className="bg-primary text-white font-bold uppercase tracking-[0.4em] text-[11px] px-14 py-5 rounded-xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 group font-sans"
+              className="bg-primary text-white font-bold uppercase tracking-[0.4em] text-[11px] px-14 py-5 rounded-xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 group font-sans cursor-pointer"
             >
               <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">send</span>
               Post Announcement

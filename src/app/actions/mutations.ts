@@ -1243,7 +1243,12 @@ export async function createAnnouncement(formData: FormData) {
   const title = formData.get('title') as string;
   const content = formData.get('content') as string;
   const type = formData.get('type') as string; // info, alert, success
-  const clubId = formData.get('clubId') as string || null;
+  const sendEmailBlast = formData.get('sendEmailBlast') === 'on';
+  const customEmailsStr = formData.get('customEmails') as string || '';
+  const customEmails = customEmailsStr
+    .split(/[\s,;]+/)
+    .map(e => e.trim().toLowerCase())
+    .filter(e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
 
   try {
     const id = generateId();
@@ -1256,6 +1261,46 @@ export async function createAnnouncement(formData: FormData) {
     });
 
     await recordAuditLog(`Sent Announcement: ${title}`, 'announcement', id);
+
+    if (sendEmailBlast || customEmails.length > 0) {
+      const { blastEmailToMembers } = await import('@/lib/email');
+      
+      let recipientEmails: string[] = [];
+      if (sendEmailBlast) {
+        const db = getDb();
+        const allUsers = await db.query.users.findMany({ columns: { email: true } });
+        recipientEmails = allUsers.map(u => u.email).filter(Boolean);
+      }
+      
+      const finalEmails = Array.from(new Set([...recipientEmails, ...customEmails]));
+
+      if (finalEmails.length > 0) {
+        const emailHtml = `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <span style="font-size: 10px; font-weight: bold; letter-spacing: 0.2em; text-transform: uppercase; color: #3b82f6; background-color: #eff6ff; padding: 6px 12px; border-radius: 9999px;">District Announcement</span>
+            </div>
+            <h2 style="color: #0f172a; text-transform: uppercase; font-size: 20px; font-weight: 800; margin-bottom: 8px; text-align: center; font-family: system-ui, -apple-system, sans-serif;">${title}</h2>
+            <div style="text-align: center; margin-bottom: 24px;">
+              <span style="font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 8px; border-radius: 6px; border: 1px solid ${type === 'alert' ? '#fecaca' : type === 'success' ? '#bbf7d0' : '#bfdbfe'}; background-color: ${type === 'alert' ? '#fef2f2' : type === 'success' ? '#f0fdf4' : '#eff6ff'}; color: ${type === 'alert' ? '#dc2626' : type === 'success' ? '#16a34a' : '#2563eb'};">
+                ${type || 'Standard'}
+              </span>
+            </div>
+            <div style="font-size: 15px; line-height: 1.6; color: #334155; padding: 20px; background-color: #f8fafc; border-radius: 12px; font-family: system-ui, -apple-system, sans-serif;">
+              ${content.replace(/\n/g, '<br />')}
+            </div>
+            <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 24px 0;" />
+            <p style="font-size: 10px; color: #94a3b8; text-align: center; margin: 0; font-family: system-ui, -apple-system, sans-serif;">
+              You received this transmission because you are a registered member of the Rotaract District 3192 Network.
+            </p>
+          </div>
+        `;
+        // Send the email blast asynchronously
+        blastEmailToMembers(title, emailHtml, finalEmails).catch(err => {
+          console.error('Failed to blast announcement email:', err);
+        });
+      }
+    }
 
     revalidatePath('/admin/announcements');
     revalidatePath('/dashboard');
