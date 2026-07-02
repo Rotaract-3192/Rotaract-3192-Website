@@ -265,3 +265,13 @@ export const analyticsEvents = pgTable('analytics_events', {
   timestamp: timestamp('timestamp').defaultNow(),
 });
 
+// Blast Contacts: persistent external email list for district-wide email blasts
+export const blastContacts = pgTable('blast_contacts', {
+  id: text('id').primaryKey(),
+  email: text('email').notNull().unique(),
+  name: text('name'),                     // optional display name
+  label: text('label'),                  // e.g. 'Partner Club', 'Sponsor', 'Guest'
+  addedBy: text('added_by'),             // users.id
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+});

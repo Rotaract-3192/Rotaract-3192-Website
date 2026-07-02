@@ -1,11 +1,17 @@
-import { getAnnouncements } from "@/app/actions/queries";
-import { createAnnouncement, deleteAnnouncement } from "@/app/actions/mutations";
-import Image from 'next/image';
+import { getAnnouncements, getBlastContacts } from "@/app/actions/queries";
+import { deleteAnnouncement } from "@/app/actions/mutations";
+import AnnouncementForm from "./AnnouncementForm";
+import BlastContactsManager from "./BlastContactsManager";
 
 export const revalidate = 0;
 
 export default async function AdminAnnouncementsPage() {
-  const announcementsList = await getAnnouncements();
+  const [announcementsList, blastContacts] = await Promise.all([
+    getAnnouncements(),
+    getBlastContacts(),
+  ]);
+
+  const activeContactsCount = blastContacts.filter(c => c.isActive).length;
 
   return (
     <div className="space-y-16 pb-24 px-4 lg:px-8">
@@ -23,108 +29,31 @@ export default async function AdminAnnouncementsPage() {
             Management system for critical district updates and alerts.
           </p>
         </div>
-        
+
         <div className="flex items-center gap-4 glass-panel px-8 py-4">
           <span className="material-symbols-outlined text-primary text-xl">broadcast_on_personal</span>
           <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white font-sans">Active Status: Transmission Ready</span>
         </div>
       </header>
 
-      {/* Create Announcement Form */}
-      <section className="glass-panel p-10 lg:p-14 relative overflow-hidden">
-        <div className="flex items-center gap-8 mb-12">
-           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-              <span className="material-symbols-outlined text-3xl">campaign</span>
-           </div>
-           <div>
-              <h2 className="text-3xl font-bold font-display uppercase tracking-tight leading-none text-white">New <span className="text-primary">Announcement</span></h2>
-              <p className="text-[10px] text-text-muted font-bold uppercase tracking-[0.3em] opacity-40 mt-3 font-sans">Draft and transmit district-wide notification</p>
-           </div>
-        </div>
+      {/* AI-powered Announcement Form */}
+      <AnnouncementForm blastContactsCount={activeContactsCount} />
 
-        <form action={createAnnouncement} className="space-y-10 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <div className="space-y-3">
-              <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Announcement Title</label>
-              <input 
-                name="title" 
-                type="text" 
-                placeholder="Enter title..." 
-                required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all placeholder:text-white/20 uppercase tracking-widest font-sans"
-              />
-            </div>
-            <div className="space-y-3">
-              <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Priority Level</label>
-              <div className="relative">
-                <select 
-                  name="type"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-5 px-8 text-sm font-bold text-white focus:border-primary/50 outline-none transition-all appearance-none uppercase tracking-widest cursor-pointer font-sans"
-                >
-                  <option value="info" className="bg-slate-900">Standard Information</option>
-                  <option value="alert" className="bg-slate-900">Critical Alert</option>
-                  <option value="success" className="bg-slate-900">Success Update</option>
-                </select>
-                <span className="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-primary opacity-40">expand_more</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="space-y-3">
-            <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">Announcement Message</label>
-            <textarea 
-              name="content" 
-              rows={5}
-              placeholder="Draft your announcement here..." 
-              required
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-6 px-8 text-sm font-medium text-white focus:border-primary/50 outline-none transition-all resize-none leading-relaxed placeholder:text-white/20 font-sans"
-            ></textarea>
-          </div>
+      {/* Blast Contacts Manager */}
+      <BlastContactsManager contacts={blastContacts} />
 
-          <div className="space-y-3">
-            <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary ml-4 font-sans">
-              Additional Bulk Recipients (Comma or newline separated)
-            </label>
-            <textarea 
-              name="customEmails" 
-              rows={2}
-              placeholder="e.g. rotarypresident@gmail.com, guest@yahoo.com, info@partnerclub.org" 
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm font-medium text-white focus:border-primary/50 outline-none transition-all resize-none leading-relaxed placeholder:text-white/20 font-sans"
-            ></textarea>
-          </div>
-
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pt-4 border-t border-white/5">
-            <div className="flex items-center gap-3">
-              <input 
-                type="checkbox" 
-                name="sendEmailBlast" 
-                id="sendEmailBlast"
-                className="w-5 h-5 rounded bg-white/5 border border-white/10 text-primary focus:ring-primary/50 outline-none transition-all cursor-pointer accent-primary"
-              />
-              <label htmlFor="sendEmailBlast" className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50 cursor-pointer select-none font-sans hover:text-white transition-colors">
-                Transmit via Email Blast to all members
-              </label>
-            </div>
-
-            <button 
-              type="submit"
-              className="bg-primary text-white font-bold uppercase tracking-[0.4em] text-[11px] px-14 py-5 rounded-xl shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 group font-sans cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">send</span>
-              Post Announcement
-            </button>
-          </div>
-        </form>
-      </section>
-
-      {/* Active Broadcasts List */}
+      {/* Message History */}
       <section className="glass-panel overflow-hidden">
         <div className="px-10 py-8 border-b border-white/5 bg-white/5 flex items-center justify-between">
-           <div>
-              <h2 className="text-2xl font-bold text-white uppercase tracking-tight font-display">Message <span className="text-primary">History</span></h2>
-              <p className="text-[9px] text-text-muted font-bold uppercase tracking-[0.4em] opacity-40 mt-2 font-sans">Active signal monitoring</p>
-           </div>
-           <div className="text-[10px] font-bold text-primary bg-primary/5 px-6 py-2 rounded-full uppercase tracking-[0.3em] border border-primary/10 font-sans">{announcementsList.length} Active Posts</div>
+          <div>
+            <h2 className="text-2xl font-bold text-white uppercase tracking-tight font-display">
+              Message <span className="text-primary">History</span>
+            </h2>
+            <p className="text-[9px] text-text-muted font-bold uppercase tracking-[0.4em] opacity-40 mt-2 font-sans">Active signal monitoring</p>
+          </div>
+          <div className="text-[10px] font-bold text-primary bg-primary/5 px-6 py-2 rounded-full uppercase tracking-[0.3em] border border-primary/10 font-sans">
+            {announcementsList.length} Active Posts
+          </div>
         </div>
         <div className="overflow-x-auto no-scrollbar">
           <table className="w-full text-left">
@@ -139,15 +68,21 @@ export default async function AdminAnnouncementsPage() {
             <tbody className="divide-y divide-white/5">
               {announcementsList.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="py-40 text-center text-[10px] font-bold text-text-muted/20 uppercase tracking-[0.5em] font-sans">No active messages in registry</td>
+                  <td colSpan={4} className="py-40 text-center text-[10px] font-bold text-text-muted/20 uppercase tracking-[0.5em] font-sans">
+                    No active messages in registry
+                  </td>
                 </tr>
               ) : (
                 announcementsList.map((ann, idx) => (
                   <tr key={idx} className="hover:bg-white/5 transition-all group cursor-pointer border-l-4 border-transparent hover:border-primary">
                     <td className="py-8 px-10">
                       <div className="flex flex-col gap-1">
-                        <span className="text-sm font-bold text-white uppercase tracking-tight font-sans">{new Date(ann.createdAt || new Date()).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-[0.1em] opacity-40 font-sans">{new Date(ann.createdAt || new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span className="text-sm font-bold text-white uppercase tracking-tight font-sans">
+                          {new Date(ann.createdAt || new Date()).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </span>
+                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-[0.1em] opacity-40 font-sans">
+                          {new Date(ann.createdAt || new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       </div>
                     </td>
                     <td className="py-8 px-10">
@@ -158,8 +93,9 @@ export default async function AdminAnnouncementsPage() {
                     </td>
                     <td className="py-8 px-10 text-center">
                       <span className={`px-5 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-[0.2em] border transition-all font-sans
-                        ${ann.priority === 'alert' ? 'bg-red-500/5 text-red-400 border-red-500/10' : 
-                          ann.priority === 'success' ? 'bg-green-500/5 text-green-400 border-green-500/10' : 'bg-primary/5 text-primary border-primary/10'}`}>
+                        ${ann.priority === 'alert' ? 'bg-red-500/5 text-red-400 border-red-500/10' :
+                          ann.priority === 'success' ? 'bg-green-500/5 text-green-400 border-green-500/10' :
+                          'bg-primary/5 text-primary border-primary/10'}`}>
                         {ann.priority}
                       </span>
                     </td>

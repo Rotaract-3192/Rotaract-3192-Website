@@ -5,6 +5,7 @@ import {
   clubs, events, jobs, courses, moms, newsletters, users, feeds, campaigns,
   announcements, eventRegistrations, serviceHours, coldStorageFiles, auditLogs,
   pastLeaders, pointTransactions, courseModules, districtSettings, analyticsEvents,
+  blastContacts,
 } from '@/lib/db/schema';
 import { desc, eq, and, ne, sql, count } from 'drizzle-orm';
 
@@ -536,3 +537,14 @@ export async function getMomById(momId: string) {
   }
 }
 
+export async function getBlastContacts() {
+  try {
+    return await getDb()
+      .select()
+      .from(blastContacts)
+      .orderBy(desc(blastContacts.createdAt));
+  } catch (error) {
+    console.error('Failed to fetch blast contacts:', error);
+    return [];
+  }
+}
