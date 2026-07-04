@@ -139,7 +139,7 @@ export default function ClubsClient({ clubsData }: { clubsData: any[] }) {
                       name={club.name}
                       city={club.city ? `${club.city}${club.zone ? ` • ${club.zone}` : ''}` : 'District 3192'}
                       members={club.memberCount ?? 0}
-                      engagement={Number(Math.floor(Math.random() * 20) + 80)}
+                      engagement={(idx * 7 + 80) % 20 + 80}
                       badge={club.zone || "Active Chapter"}
                       type={idx % 2 === 0 ? "primary" : "secondary"}
                       slug={club.slug}
@@ -151,7 +151,7 @@ export default function ClubsClient({ clubsData }: { clubsData: any[] }) {
                       name={club.name}
                       city={club.city ? `${club.city}${club.zone ? ` • ${club.zone}` : ''}` : 'District 3192'}
                       members={club.memberCount ?? 0}
-                      engagement={Number(Math.floor(Math.random() * 20) + 80)}
+                      engagement={(idx * 7 + 80) % 20 + 80}
                       slug={club.slug}
                       logoUrl={club.logoUrl}
                       icon={idx % 3 === 0 ? "stars" : idx % 3 === 1 ? "school" : "waves"}

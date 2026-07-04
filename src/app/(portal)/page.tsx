@@ -1,19 +1,17 @@
-import { getClubs, getDistrictStats } from '@/app/actions/queries';
+import { CLUBS_DATA } from '@/lib/clubs-data';
 import HomeClient from './HomeClient';
 
-export const revalidate = 0; // Disable caching for now to ensure we see fresh data
+export const revalidate = 3600;
 
 export default async function HomePage() {
-  const [clubsData, stats] = await Promise.all([
-    getClubs(),
-    getDistrictStats()
-  ]);
-  
+  const communityClubs = CLUBS_DATA.filter(c => c.type === 'Community Based').length;
+  const institutionClubs = CLUBS_DATA.filter(c => c.type === 'Institution Based').length;
+
   return <HomeClient 
-    clubsData={clubsData} 
-    usersCount={stats.totalMembers} 
-    clubsCount={stats.totalClubs}
-    projectsCount={stats.totalProjects}
-    charteredClubsCount={stats.totalCharteredClubs}
+    clubsData={CLUBS_DATA} 
+    usersCount={0}
+    clubsCount={CLUBS_DATA.length}
+    projectsCount={0}
+    charteredClubsCount={communityClubs}
   />;
 }

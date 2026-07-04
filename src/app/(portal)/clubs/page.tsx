@@ -1,10 +1,9 @@
-import { getClubs } from '@/app/actions/queries';
+import { CLUBS_DATA } from '@/lib/clubs-data';
 import ClubsClient from './ClubsClient';
 
-export const revalidate = 0; // Disable caching for now to ensure we see fresh data
+export const revalidate = 3600; // Revalidate once per hour (data is static)
 
 export default async function ClubsPage() {
-  const clubsData = await getClubs();
-  
-  return <ClubsClient clubsData={clubsData} />;
+  // Using hardcoded master sheet data (RY 2026-27) — 83 clubs
+  return <ClubsClient clubsData={CLUBS_DATA} />;
 }
