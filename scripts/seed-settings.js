@@ -39,8 +39,8 @@ async function main() {
     const settings = [
       { key: 'stats_members_override', value: '2133' },
       { key: 'stats_clubs_override', value: '84' },
-      { key: 'stats_projects_override', value: '142' }, // dynamic override default
-      { key: 'stats_chartered_clubs_override', value: '12' }, // dynamic override default
+      { key: 'stats_projects_override', value: '0' }, // dynamic override default
+      { key: 'stats_chartered_clubs_override', value: '0' }, // dynamic override default
       { key: 'resource_link_url', value: 'https://drive.google.com/drive/folders/1BamhCLMTs0RHH0TBTartmTxHqAFRhbE3?usp=sharing' },
       { key: 'resource_video_url', value: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
       { key: 'default_event_ticket_link', value: 'https://rotasphere.rotaract3192.org' },

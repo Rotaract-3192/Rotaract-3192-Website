@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default function LeaderboardRedirect() {
-  redirect('/hall-of-fame');
+  redirect('https://reporting.rotaract3192.org/leaderboard');
 }

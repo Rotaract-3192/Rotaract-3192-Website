@@ -215,7 +215,7 @@ export default function AboutPage() {
               <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto font-medium leading-tight opacity-90 italic">
                 Join a global movement of young leaders making an impact. Start your journey with Rotaract District 3192 today.
               </p>
-              <a href="/clubs" className="inline-flex bg-primary text-white px-12 py-6 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.4em] shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all group/btn relative overflow-hidden">
+              <a href="https://reporting.rotaract3192.org/clubs" className="inline-flex bg-primary text-white px-12 py-6 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.4em] shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all group/btn relative overflow-hidden">
                  <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                  <span className="relative z-10 flex items-center gap-4">
                    Find local club

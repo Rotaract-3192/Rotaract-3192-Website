@@ -57,14 +57,20 @@ export default function Footer() {
           <div className="space-y-12">
             <h4 className="text-[10px] font-black text-primary/60 uppercase tracking-[0.5em] font-display">District Nodes</h4>
             <div className="flex flex-col gap-6">
-               {['About', 'Events', 'Clubs', 'Resources', 'Leadership'].map((item) => (
+               {[
+                 { name: 'About', href: '/about' },
+                 { name: 'Events', href: 'https://events.rotaract3192.org/' },
+                 { name: 'Clubs', href: 'https://reporting.rotaract3192.org/clubs' },
+                 { name: 'Resources', href: '/resources' },
+                 { name: 'Leadership', href: '/leadership' }
+               ].map((item) => (
                  <Link 
-                  key={item} 
-                  href={`/${item.toLowerCase()}`}
+                  key={item.name} 
+                  href={item.href}
                   className="text-white/30 text-[10px] font-black uppercase tracking-[0.3em] hover:text-white transition-all no-underline font-sans flex items-center gap-3 group"
                  >
                    <div className="w-1 h-1 rounded-full bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                   {item}
+                   {item.name}
                  </Link>
                ))}
             </div>

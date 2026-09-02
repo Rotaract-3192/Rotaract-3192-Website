@@ -24,14 +24,13 @@ export default function Navbar() {
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
     { name: "Events", href: "https://events.rotaract3192.org/" },
-    { name: "Clubs", href: "/clubs" },
+    { name: "Clubs", href: "https://reporting.rotaract3192.org/clubs" },
     { name: "Resources", href: "/resources" },
   ];
 
   const officeLinks = [
-    { name: "Hall of Fame", href: "/hall-of-fame" },
     { name: "Jobs", href: "/jobs" },
-    { name: "Leaderboard", href: "/leaderboard" },
+    { name: "Leaderboard", href: "https://reporting.rotaract3192.org/leaderboard" },
   ];
 
   useEffect(() => {
@@ -121,32 +120,21 @@ export default function Navbar() {
   
           {/* Auth & Actions - Optimized */}
           <div className="flex items-center gap-4 lg:gap-8">
-            <div className="hidden sm:flex items-center gap-4 lg:gap-8">
-              <Show when="signed-in">
-                <div className="flex items-center gap-6">
-                  <Link
-                    href={dashboardHref}
-                    className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-2.5 rounded-xl text-white font-black text-[10px] uppercase tracking-[0.3em] no-underline transition-all group"
-                  >
-                    <span className="material-symbols-outlined text-lg opacity-40 group-hover:text-primary group-hover:opacity-100 transition-all">dashboard</span>
-                    Dashboard
-                  </Link>
-                  <div className="p-[2px] rounded-full bg-gradient-to-tr from-primary/40 to-transparent">
-                    <UserButton />
-                  </div>
-                </div>
-              </Show>
-              <Show when="signed-out">
+            <Show when="signed-in">
+              <div className="hidden sm:flex items-center gap-6">
                 <Link
-                  href="/sign-in"
-                  className="flex items-center gap-2 text-white/40 hover:text-white font-black text-[10px] uppercase tracking-[0.3em] no-underline transition-all group"
+                  href={dashboardHref}
+                  className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-2.5 rounded-xl text-white font-black text-[10px] uppercase tracking-[0.3em] no-underline transition-all group"
                 >
-                  <span className="material-symbols-outlined text-lg opacity-20 group-hover:opacity-100 transition-all">person</span>
-                  Official Login
+                  <span className="material-symbols-outlined text-lg opacity-40 group-hover:text-primary group-hover:opacity-100 transition-all">dashboard</span>
+                  Dashboard
                 </Link>
-              </Show>
-            </div>
-  
+                <div className="p-[2px] rounded-full bg-gradient-to-tr from-primary/40 to-transparent">
+                  <UserButton />
+                </div>
+              </div>
+            </Show>
+
             {/* Mobile Toggle */}
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -207,16 +195,6 @@ export default function Navbar() {
             </div>
   
             <div className="mt-auto pt-20 space-y-6">
-               <Show when="signed-out">
-                 <Link
-                   href="/sign-in"
-                   onClick={() => setIsMobileMenuOpen(false)}
-                   className="w-full bg-primary text-white py-5 rounded-2xl font-bold text-[11px] uppercase tracking-[0.4em] no-underline transition-all flex items-center justify-center gap-3 shadow-xl shadow-primary/20"
-                 >
-                   Official Login
-                   <span className="material-symbols-outlined text-sm">login</span>
-                 </Link>
-               </Show>
                <Show when="signed-in">
                  <Link
                    href={dashboardHref}

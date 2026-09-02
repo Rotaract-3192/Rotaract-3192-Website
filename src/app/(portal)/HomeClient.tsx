@@ -208,7 +208,7 @@ export default function HomeClient({
             transition={{ delay: 1.2 }}
             className="flex flex-col sm:flex-row gap-6 sm:gap-10 justify-center pt-6 px-4"
           >
-            <Link href="/clubs">
+            <Link href="https://reporting.rotaract3192.org/clubs">
               <button className="w-full sm:w-auto bg-primary hover:bg-primary-dark text-white px-10 md:px-14 py-4 md:py-4.5 rounded-xl font-bold text-[10px] md:text-[11px] uppercase tracking-[0.3em] transition-all shadow-[0_0_30px_rgba(59,130,246,0.3)] flex items-center justify-center gap-3">
                 Explore District
                 <span className="material-symbols-outlined text-sm">north_east</span>
