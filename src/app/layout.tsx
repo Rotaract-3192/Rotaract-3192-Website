@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ClerkProvider } from "@/lib/mockAuthClient";
-
 
 export const metadata: Metadata = {
   title: "Rotaract District 3192 Portal",
-  description: "Rotaract District 3192 administrative and member portal.",
+  description: "Rotaract District 3192 official portal.",
 };
 
 export default function RootLayout({
@@ -13,8 +11,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
   return (
     <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
@@ -27,10 +23,9 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased min-h-screen">
-        <ClerkProvider publishableKey={publishableKey}>
-          {children}
-        </ClerkProvider>
+        {children}
       </body>
     </html>
   );
 }
+

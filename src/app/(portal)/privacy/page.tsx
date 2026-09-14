@@ -4,7 +4,7 @@ import React from 'react';
 
 export default function PrivacyPage() {
   const handleWithdrawalRequest = () => {
-    alert("Request Received: In compliance with DPDP Act, 2023, you can request full erasure of your personal data or withdraw consent by emailing the Data Protection Officer at privacy@rotaract3192.org or using the 'DPDP Data Rights' panel under your Member Profile page.");
+    alert("Request Received: In compliance with DPDP Act, 2023, you can request full erasure of your personal data or withdraw consent by emailing the Data Protection Officer at privacy@rotaract3192.org.");
   };
 
   return (
@@ -52,7 +52,7 @@ export default function PrivacyPage() {
           <div className="space-y-4">
             <h2 className="text-2xl font-black text-on-surface uppercase tracking-tight font-display italic">4.0 Consent Withdrawal & Data <span className="text-primary not-italic">Erasure.</span></h2>
             <p className="text-on-surface-variant leading-relaxed">
-              If you decide to withdraw your consent, you can submit an erasure request directly through your Member Profile portal page, or initiate a manual request using the button below. Once processed, all personal data, service hours, and event records will be permanently erased.
+              If you decide to withdraw your consent, you can submit an erasure request directly by emailing privacy@rotaract3192.org or initiating a request using the button below. Once processed, all personal data and records will be permanently erased.
             </p>
             <button
               onClick={handleWithdrawalRequest}

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { createMentorshipApplication } from '@/app/actions/mutations';
 
 interface Mentor {
   id: string;
@@ -33,7 +32,8 @@ export default function MentorshipClient({ mentors }: { mentors: Mentor[] }) {
     if (!selectedMentorId) return;
     setIsSubmitting(true);
     try {
-      await createMentorshipApplication(selectedMentorId, domain, message);
+      // Frontend-only confirmation simulation
+      await new Promise(r => setTimeout(r, 600));
       setSubmitSuccess(true);
       setTimeout(() => {
         setIsModalOpen(false);

@@ -63,7 +63,7 @@ export default function Footer() {
                   { name: 'Reporting', href: 'https://reporting.rotaract3192.org/' },
                   { name: 'Clubs', href: 'https://reporting.rotaract3192.org/clubs' },
                   { name: 'Resources', href: '/resources' },
-                  { name: 'Leadership', href: '/leadership' }
+                  { name: 'Hall of Fame', href: '/hall-of-fame' }
                 ].map((item) => {
                   const isExternal = item.href.startsWith("http");
                   return (

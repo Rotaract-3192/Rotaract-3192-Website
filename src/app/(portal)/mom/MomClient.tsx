@@ -14,15 +14,6 @@ export default function MomClient({ momsData }: { momsData: any[] }) {
           <span className="text-primary font-black uppercase tracking-[0.3em] text-[10px] px-6 py-2 rounded-full bg-primary/5 border border-primary/10 mb-4 block">Intelligence Feed</span>
           <h1 className="text-5xl md:text-8xl font-black tracking-tighter text-on-surface mb-4 font-display">Echo <span className="text-primary italic">Protocol.</span></h1>
           <p className="text-xl text-on-surface-variant font-medium max-w-2xl leading-tight">Autonomous meeting transcription and action token extraction system.</p>
-          
-          <div className="mt-10">
-            <Link href="/mom/new">
-              <button className="bg-primary text-white font-black px-12 py-5 rounded-[2rem] uppercase tracking-[0.3em] text-[10px] shadow-2xl hover:shadow-primary/40 hover:-translate-y-1 transition-all flex items-center gap-4 group">
-                Initialize New Sequence
-                <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">mic</span>
-              </button>
-            </Link>
-          </div>
         </div>
       </header>
 

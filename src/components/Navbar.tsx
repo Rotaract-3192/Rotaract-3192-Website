@@ -3,22 +3,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useUser, UserButton, Show } from "@/lib/mockAuthClient";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { isSignedIn, user } = useUser();
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isOfficeOpen, setIsOfficeOpen] = useState(false);
-
-  const role = user?.publicMetadata?.role as string | undefined;
-  const dashboardHref = role === 'district_admin'
-    ? '/admin'
-    : (role === 'club_president' || role === 'club_admin')
-      ? '/club-admin'
-      : '/dashboard';
 
   const mainNavLinks = [
     { name: "Home", href: "/" },
@@ -110,6 +101,8 @@ export default function Navbar() {
                         <Link
                           key={link.href}
                           href={link.href}
+                          target={link.href.startsWith("http") ? "_blank" : undefined}
+                          rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
                           className="flex items-center px-4 py-3 rounded-xl hover:bg-white/5 text-white/40 hover:text-primary transition-all no-underline group"
                         >
                           <span className="text-[10px] font-black uppercase tracking-[0.2em]">{link.name}</span>
@@ -122,27 +115,13 @@ export default function Navbar() {
             </div>
           </div>
   
-          {/* Auth & Actions - Optimized */}
+          {/* Actions */}
           <div className="flex items-center gap-4 lg:gap-8">
-            <Show when="signed-in">
-              <div className="hidden sm:flex items-center gap-6">
-                <Link
-                  href={dashboardHref}
-                  className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-2.5 rounded-xl text-white font-black text-[10px] uppercase tracking-[0.3em] no-underline transition-all group"
-                >
-                  <span className="material-symbols-outlined text-lg opacity-40 group-hover:text-primary group-hover:opacity-100 transition-all">dashboard</span>
-                  Dashboard
-                </Link>
-                <div className="p-[2px] rounded-full bg-gradient-to-tr from-primary/40 to-transparent">
-                  <UserButton />
-                </div>
-              </div>
-            </Show>
-
             {/* Mobile Toggle */}
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="lg:hidden w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white transition-all hover:bg-white/10"
+              aria-label="Toggle navigation menu"
             >
               <span className="material-symbols-outlined text-xl">
                 {isMobileMenuOpen ? 'close' : 'menu'}
@@ -193,6 +172,8 @@ export default function Navbar() {
                     <Link
                       key={link.href}
                       href={link.href}
+                      target={link.href.startsWith("http") ? "_blank" : undefined}
+                      rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="text-xs font-bold text-white/50 uppercase tracking-[0.2em] no-underline hover:text-primary transition-colors"
                     >
@@ -204,24 +185,11 @@ export default function Navbar() {
             </div>
   
             <div className="mt-auto pt-20 space-y-6">
-               <Show when="signed-in">
-                 <Link
-                   href={dashboardHref}
-                   onClick={() => setIsMobileMenuOpen(false)}
-                   className="w-full bg-white/5 border border-white/10 py-5 rounded-2xl font-bold text-[11px] uppercase tracking-[0.4em] no-underline transition-all flex items-center justify-center gap-3 hover:bg-white/10 text-white"
-                 >
-                   Dashboard
-                   <span className="material-symbols-outlined text-sm">dashboard</span>
-                 </Link>
-               </Show>
                <div className="flex items-center justify-between px-2">
                  <div className="flex flex-col">
                    <span className="text-[10px] font-bold text-white/20 uppercase tracking-[0.4em]">District 3192</span>
                    <span className="text-[8px] font-bold text-primary uppercase tracking-[0.2em] mt-1">Official Network</span>
                  </div>
-                 <Show when="signed-in">
-                   <UserButton />
-                 </Show>
                </div>
             </div>
           </motion.div>
@@ -230,4 +198,5 @@ export default function Navbar() {
     </>
   );
 }
+
 

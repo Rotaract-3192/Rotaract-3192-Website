@@ -1,8 +1,6 @@
 import { notFound } from 'next/navigation';
-import { getMomById, getClubs } from '@/app/actions/queries';
+import { staticMoms } from '@/data/momData';
 import Link from 'next/link';
-
-export const revalidate = 0;
 
 export default async function MomDetailPage({ 
   params 
@@ -10,16 +8,11 @@ export default async function MomDetailPage({
   params: Promise<{ id: string }> 
 }) {
   const { id } = await params;
-  const mom = await getMomById(id);
+  const mom = staticMoms.find(m => m.id === id);
 
   if (!mom) {
     notFound();
   }
-
-  const clubsList = await getClubs();
-  const originClub = mom.clubId 
-    ? clubsList.find(c => c.id === mom.clubId) 
-    : null;
 
   return (
     <main className="max-w-4xl mx-auto min-h-screen relative overflow-visible pb-32 pt-32 px-8">
@@ -40,7 +33,7 @@ export default async function MomDetailPage({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-b border-white/10 pb-12">
           <div className="space-y-2">
             <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] font-sans">Origin Node</h4>
-            <p className="text-xl font-bold text-white uppercase tracking-tight font-display">{originClub ? originClub.name : 'District Authority'}</p>
+            <p className="text-xl font-bold text-white uppercase tracking-tight font-display">{mom.clubId || 'District 3192'}</p>
           </div>
           <div className="space-y-2">
             <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] font-sans">Temporal Frame</h4>
@@ -53,7 +46,7 @@ export default async function MomDetailPage({
         <div className="space-y-8">
           <h3 className="text-2xl font-bold text-white uppercase tracking-tight font-display italic">Minutes <span className="text-primary not-italic">Transcription.</span></h3>
           <p className="text-text-muted text-base font-medium leading-relaxed font-sans whitespace-pre-line">
-            This meeting minutes document was successfully registered. Details, action items, and structural milestones have been processed.
+            {mom.transcript_text || "This meeting minutes document was successfully registered. Details, action items, and structural milestones have been processed."}
           </p>
         </div>
 

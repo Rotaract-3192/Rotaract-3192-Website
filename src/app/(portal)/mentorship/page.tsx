@@ -1,9 +1,6 @@
-import { getMentors } from '@/app/actions/queries';
 import MentorshipClient from './MentorshipClient';
+import { staticMentors } from '@/data/mentorsData';
 
-export const revalidate = 0;
-
-export default async function MentorshipPage() {
-  const mentors = await getMentors();
-  return <MentorshipClient mentors={mentors} />;
+export default function MentorshipPage() {
+  return <MentorshipClient mentors={staticMentors} />;
 }

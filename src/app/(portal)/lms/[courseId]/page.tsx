@@ -1,8 +1,6 @@
 import { notFound } from 'next/navigation';
-import { getCourseById, getCourseModules } from '@/app/actions/queries';
+import { staticCourses } from '@/data/coursesData';
 import LMSCoursePlayerClient from './LMSCoursePlayerClient';
-
-export const revalidate = 0;
 
 export default async function CourseDetailPage({ 
   params 
@@ -10,19 +8,22 @@ export default async function CourseDetailPage({
   params: Promise<{ courseId: string }> 
 }) {
   const { courseId } = await params;
-  
-  const [course, modules] = await Promise.all([
-    getCourseById(courseId),
-    getCourseModules(courseId)
-  ]);
+  const courseItem = staticCourses.find(c => c.id === courseId);
 
-  if (!course) {
+  if (!courseItem) {
     notFound();
   }
 
+  const { modules, ...course } = courseItem;
+
   return (
     <LMSCoursePlayerClient 
-      course={course} 
+      course={{
+        id: course.id,
+        title: course.title,
+        description: course.description ?? null,
+        thumbnailUrl: course.thumbnailUrl ?? null,
+      }} 
       modules={modules} 
     />
   );

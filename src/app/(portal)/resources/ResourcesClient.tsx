@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { trackAnalyticsEvent } from '@/app/actions/mutations';
+
 
 type Resource = {
   id: string;
@@ -89,9 +89,6 @@ export default function ResourcesClient({
             href={linkUrl}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => {
-              trackAnalyticsEvent("resource_click", `Link: ${linkUrl}`).catch(e => console.error(e));
-            }}
             className="group relative flex items-center justify-between p-8 bg-gradient-to-r from-primary/10 to-blue-500/10 hover:from-primary/20 hover:to-blue-500/20 border border-white/5 hover:border-primary/30 rounded-[2.5rem] transition-all duration-500 shadow-xl hover:-translate-y-1 no-underline"
           >
             <div className="flex items-center gap-6">
@@ -111,9 +108,6 @@ export default function ResourcesClient({
             href={videoUrl}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => {
-              trackAnalyticsEvent("video_click", `Video: ${videoUrl}`).catch(e => console.error(e));
-            }}
             className="group relative flex items-center justify-between p-8 bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20 border border-white/5 hover:border-purple-500/30 rounded-[2.5rem] transition-all duration-500 shadow-xl hover:-translate-y-1 no-underline"
           >
             <div className="flex items-center gap-6">

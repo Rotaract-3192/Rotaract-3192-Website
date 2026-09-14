@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { trackAnalyticsEvent } from "@/app/actions/mutations";
 
 function AnimatedNumber({ value }: { value: number }) {
   const [count, setCount] = useState(0);
@@ -61,7 +60,6 @@ export default function HomeClient({
       height: 10 + Math.random() * 70,
       width: 1 + Math.random() * 3
     })));
-    trackAnalyticsEvent("homepage_visit").catch(err => console.error(err));
   }, []);
 
   const { scrollYProgress } = useScroll({
