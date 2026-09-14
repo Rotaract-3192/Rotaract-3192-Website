@@ -24,6 +24,7 @@ export default function Navbar() {
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
     { name: "Events", href: "https://events.rotaract3192.org/" },
+    { name: "Reporting", href: "https://reporting.rotaract3192.org/" },
     { name: "Clubs", href: "https://reporting.rotaract3192.org/clubs" },
     { name: "Resources", href: "/resources" },
   ];
@@ -59,10 +60,13 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center gap-10">
             {mainNavLinks.map((link) => {
               const isActive = pathname === link.href;
+              const isExternal = link.href.startsWith("http");
               return (
                 <Link
-                  key={link.href}
+                  key={link.name}
                   href={link.href}
+                  target={isExternal ? "_blank" : undefined}
+                  rel={isExternal ? "noopener noreferrer" : undefined}
                   className={`font-sans font-black text-[10px] uppercase tracking-[0.3em] transition-all relative py-2 no-underline ${
                     isActive 
                       ? 'text-primary' 
@@ -162,18 +166,23 @@ export default function Navbar() {
               <div className="flex flex-col gap-6">
                 <span className="text-[10px] font-bold text-primary uppercase tracking-[0.4em] opacity-40">Navigation</span>
                 <div className="flex flex-col gap-6">
-                  {mainNavLinks.map((link, i) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`text-3xl font-display font-bold uppercase tracking-tighter no-underline transition-colors ${
-                        pathname === link.href ? 'text-primary' : 'text-white/40 hover:text-white'
-                      }`}
-                    >
-                      {link.name}
-                    </Link>
-                  ))}
+                  {mainNavLinks.map((link) => {
+                    const isExternal = link.href.startsWith("http");
+                    return (
+                      <Link
+                        key={link.name}
+                        href={link.href}
+                        target={isExternal ? "_blank" : undefined}
+                        rel={isExternal ? "noopener noreferrer" : undefined}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`text-3xl font-display font-bold uppercase tracking-tighter no-underline transition-colors ${
+                          pathname === link.href ? 'text-primary' : 'text-white/40 hover:text-white'
+                        }`}
+                      >
+                        {link.name}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
 

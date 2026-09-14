@@ -1,104 +1,139 @@
-export default function JobsClient({ jobsData }: { jobsData: any[] }) {
-  const jobs = jobsData || [];
-  const activeJobs = jobs.filter((j: any) => j.status === 'active');
+"use client";
+
+import Link from "next/link";
+import { motion } from "framer-motion";
+
+export default function JobsClient() {
+  const upcomingFeatures = [
+    {
+      icon: "work",
+      title: "Exclusive Internships",
+      desc: "Curated internships and trainee roles across partner organizations.",
+    },
+    {
+      icon: "corporate_fare",
+      title: "Corporate Placements",
+      desc: "Direct hiring pipelines for full-time corporate opportunities.",
+    },
+    {
+      icon: "hub",
+      title: "District Talent Network",
+      desc: "Connect your profile directly with recruiters and alumni founders.",
+    },
+    {
+      icon: "psychology",
+      title: "Executive Mentorship",
+      desc: "1-on-1 industry guidance to prepare for high-impact careers.",
+    },
+  ];
 
   return (
-    <main className="max-w-7xl mx-auto min-h-screen relative overflow-visible pb-32 px-6 lg:px-12">
-      <header className="py-24 lg:py-40 flex flex-col items-center text-center gap-8 mb-20">
-        <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-md">
-          <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_#3B82F6]"></div>
-          <span className="text-[10px] font-bold text-primary uppercase tracking-[0.4em]">The Marketplace</span>
-        </div>
-        
-        <h1 className="text-7xl md:text-9xl font-bold text-white tracking-tight font-display uppercase leading-none">
-          Career <br />
-          <span className="text-primary">Opportunities</span>
-        </h1>
-        
-        <p className="text-xl md:text-2xl text-text-muted max-w-3xl font-medium leading-tight opacity-70 font-sans">
-          Discover high-impact professional trajectories curated within the network.
-        </p>
+    <main className="max-w-7xl mx-auto min-h-screen relative overflow-hidden pb-32 px-6 lg:px-12 pt-32 flex flex-col items-center justify-center">
+      {/* Ambient background glow */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[140px] pointer-events-none -z-10" />
+
+      {/* Header Section */}
+      <header className="py-12 lg:py-16 flex flex-col items-center text-center gap-8 max-w-4xl">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="inline-flex items-center gap-3 px-6 py-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-md"
+        >
+          <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_12px_#3B82F6] animate-pulse"></div>
+          <span className="text-[10px] font-bold text-primary uppercase tracking-[0.4em]">
+            District 3192 Career Hub
+          </span>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.1 }}
+          className="space-y-4"
+        >
+          <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold text-white tracking-tight font-display uppercase leading-tight">
+            Careers & <br />
+            <span className="text-primary glow-text">Coming Soon</span>
+          </h1>
+          <p className="text-lg md:text-xl text-text-muted max-w-2xl mx-auto font-medium leading-relaxed opacity-75 font-sans">
+            We are building an exclusive marketplace connecting Rotaractors with high-impact internships, jobs, and corporate partnerships.
+          </p>
+        </motion.div>
       </header>
 
-      <section className="space-y-12">
-        {/* Filter Bar */}
-        <div className="glass-panel p-6 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-3 overflow-x-auto w-full md:w-auto no-scrollbar">
-            <button className="px-10 py-3.5 rounded-xl bg-primary text-white font-bold text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 transition-all">All Jobs</button>
-            <button className="px-10 py-3.5 rounded-xl bg-white/5 text-white/40 hover:text-primary font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-white/10 border border-white/5">Full Time</button>
-            <button className="px-10 py-3.5 rounded-xl bg-white/5 text-white/40 hover:text-primary font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-white/10 border border-white/5">Internships</button>
+      {/* Status Card */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="w-full max-w-4xl glass-panel p-8 sm:p-12 border border-white/10 relative overflow-hidden mb-16"
+      >
+        <div className="absolute top-0 right-0 w-48 h-48 bg-primary/10 rounded-full blur-3xl -z-0"></div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pb-8 border-b border-white/5">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+              <span className="material-symbols-outlined text-2xl">rocket_launch</span>
+            </div>
+            <div>
+              <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white font-sans">Platform In Preparation</h3>
+              <p className="text-xs text-white/40 font-sans tracking-wide">RI Year 2026-27 Official Initiative</p>
+            </div>
           </div>
-          <p className="text-[10px] font-bold text-primary uppercase tracking-[0.3em] px-8 py-3.5 bg-primary/10 rounded-xl border border-primary/20 whitespace-nowrap">
-            {activeJobs.length} Positions Available
-          </p>
+          <span className="px-5 py-2 rounded-full bg-white/5 text-primary text-[10px] font-bold uppercase tracking-[0.3em] border border-white/10">
+            Phase 1 Deployment
+          </span>
         </div>
 
-        {/* Job List */}
-        <div className="grid gap-10">
-          {jobs.map((job, idx) => (
-            <div key={idx} className={`group glass-panel p-10 lg:p-14 hover:border-primary/30 transition-all duration-700 relative overflow-hidden flex flex-col xl:flex-row xl:items-center justify-between gap-12 ${job.status === 'closed' ? 'opacity-50 grayscale' : ''}`}>
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              
-              <div className="flex-1 space-y-10 relative z-10">
-                <div className="flex flex-wrap items-center gap-6">
-                  <span className={`text-[9px] font-bold uppercase tracking-widest px-5 py-2.5 rounded-lg border shadow-sm
-                    ${job.type === 'job' ? 'bg-primary/10 text-primary border-primary/20' : 'bg-green-500/10 text-green-400 border-green-500/20'}`}>
-                    {job.type.toUpperCase()}
-                  </span>
-                  {job.status === 'closed' && (
-                    <span className="text-[9px] font-bold uppercase tracking-widest px-5 py-2.5 rounded-lg bg-white/5 text-white/40 border border-white/10">Applications Closed</span>
-                  )}
-                  <div className="flex items-center gap-3 text-[10px] font-bold text-text-muted/60 uppercase tracking-[0.2em] font-sans">
-                    <span className="material-symbols-outlined text-lg opacity-40">calendar_today</span>
-                    Expiry: {new Date(job.expiresAt || job.expires_at || job.createdAt || Date.now()).toLocaleDateString('en-IN', {month:'short', day:'numeric', year:'numeric'})}
-                  </div>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="text-[10px] font-bold text-primary uppercase tracking-[0.4em] font-sans">{job.company}</div>
-                  <h3 className="text-4xl lg:text-5xl font-bold text-white tracking-tight uppercase leading-none font-display group-hover:text-primary transition-colors">{job.title}</h3>
-                </div>
-                
-                <p className="text-text-muted text-lg font-medium leading-relaxed opacity-70 max-w-3xl font-sans">
-                  {job.description}
-                </p>
+        {/* Feature Teasers */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-8">
+          {upcomingFeatures.map((feat, idx) => (
+            <div
+              key={idx}
+              className="p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/20 transition-all group flex items-start gap-4"
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-surface transition-all shrink-0">
+                <span className="material-symbols-outlined text-xl">{feat.icon}</span>
               </div>
-              
-              <div className="shrink-0 flex flex-col items-start xl:items-end gap-8 relative z-10">
-                <a href={(job.status || 'active') === 'active' ? (job.applyUrl || job.apply_url || '#') : '#'} className={`group/btn relative px-12 py-5 font-bold uppercase tracking-[0.3em] text-[10px] rounded-xl w-full xl:w-auto text-center transition-all shadow-xl overflow-hidden
-                  ${job.status === 'active' 
-                    ? 'bg-primary text-white hover:scale-105 active:scale-95' 
-                    : 'bg-white/5 text-white/20 cursor-not-allowed border border-white/10'}`}>
-                  {job.status === 'active' ? (
-                    <>
-                      <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-1000"></div>
-                      <span className="flex items-center justify-center gap-3 relative z-10">
-                        Apply Now <span className="material-symbols-outlined text-xl group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
-                      </span>
-                    </>
-                  ) : 'Application Inactive'}
-                </a>
-                <div className="flex items-center gap-3 px-4">
-                   <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
-                   <p className="text-[9px] font-bold text-text-muted uppercase tracking-[0.3em] opacity-40 font-sans">Posted by {job.postedBy || job.posted_by || "District Authority"}</p>
-                </div>
+              <div className="space-y-1">
+                <h4 className="text-xs font-black uppercase tracking-[0.15em] text-white font-sans group-hover:text-primary transition-colors">
+                  {feat.title}
+                </h4>
+                <p className="text-xs text-white/50 leading-relaxed font-sans">
+                  {feat.desc}
+                </p>
               </div>
             </div>
           ))}
         </div>
+      </motion.div>
 
-        {jobs.length === 0 && (
-          <div className="py-40 flex flex-col items-center justify-center text-center space-y-8 glass-panel border-dashed">
-             <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center text-primary/20 border border-white/5">
-                <span className="material-symbols-outlined text-5xl">work_off</span>
-             </div>
-             <div className="space-y-3">
-               <h3 className="text-2xl font-bold text-white uppercase tracking-tight font-display">No Opportunities Available</h3>
-               <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.4em] opacity-60 font-sans">Check back later for new career signals.</p>
-             </div>
-          </div>
-        )}
-      </section>
+      {/* Action CTA */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+        className="flex flex-col sm:flex-row items-center gap-6"
+      >
+        <Link
+          href="/"
+          className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold text-xs uppercase tracking-[0.25em] shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95 no-underline"
+        >
+          <span className="material-symbols-outlined text-base">arrow_back</span>
+          Back to Home
+        </Link>
+        <Link
+          href="https://events.rotaract3192.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs uppercase tracking-[0.25em] transition-all hover:border-primary/40 no-underline"
+        >
+          Explore Events
+          <span className="material-symbols-outlined text-base">north_east</span>
+        </Link>
+      </motion.div>
     </main>
   );
 }
+
